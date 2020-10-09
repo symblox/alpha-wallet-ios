@@ -9,6 +9,8 @@ protocol ServersCoordinatorDelegate: class {
 
 class ServersCoordinator: Coordinator {
     static let serversOrdered: [RPCServer] = [
+        .velas,
+        .velastestnet,
         .main,
         .xDai,
         .classic,

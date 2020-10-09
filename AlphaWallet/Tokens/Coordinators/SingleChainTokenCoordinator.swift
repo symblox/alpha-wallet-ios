@@ -160,7 +160,7 @@ class SingleChainTokenCoordinator: Coordinator {
             autoDetectXDaiPartnerTokens()
         case .rinkeby:
             autoDetectRinkebyPartnerTokens()
-        case .kovan, .ropsten, .poa, .sokol, .classic, .callisto, .goerli, .artis_sigma1, .binance_smart_chain, .binance_smart_chain_testnet, .artis_tau1, .custom:
+        case .kovan, .ropsten, .poa, .sokol, .classic, .callisto, .goerli, .artis_sigma1, .binance_smart_chain, .binance_smart_chain_testnet, .artis_tau1, .custom, .velas, .velastestnet:
             break
         }
     }
@@ -405,7 +405,13 @@ class SingleChainTokenCoordinator: Coordinator {
     }
 
     private func refreshTokenViewControllerUponAssetDefinitionChanges(_ viewController: TokenViewController, forTransferType transferType: TransferType, transactionsStore: TransactionsStorage) {
-        assetDefinitionStore.subscribe { [weak self] contract in
+        assetDefinitionStore.subscribeToBodyChanges { [weak self] contract in
+            guard let strongSelf = self else { return }
+            guard contract.sameContract(as: transferType.contract) else { return }
+            let viewModel = TokenViewControllerViewModel(transferType: transferType, session: strongSelf.session, tokensStore: strongSelf.storage, transactionsStore: transactionsStore, assetDefinitionStore: strongSelf.assetDefinitionStore)
+            viewController.configure(viewModel: viewModel)
+        }
+        assetDefinitionStore.subscribeToSignatureChanges { [weak self] contract in
             guard let strongSelf = self else { return }
             guard contract.sameContract(as: transferType.contract) else { return }
             let viewModel = TokenViewControllerViewModel(transferType: transferType, session: strongSelf.session, tokensStore: strongSelf.storage, transactionsStore: transactionsStore, assetDefinitionStore: strongSelf.assetDefinitionStore)

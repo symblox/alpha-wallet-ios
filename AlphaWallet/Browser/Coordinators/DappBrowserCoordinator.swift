@@ -2,7 +2,7 @@
 
 import Foundation
 import UIKit
-import BigInt 
+import BigInt
 import RealmSwift
 import WebKit
 
@@ -12,6 +12,8 @@ protocol DappBrowserCoordinatorDelegate: class {
 }
 
 final class DappBrowserCoordinator: NSObject, Coordinator {
+    private let defaultHomepage = "https://app.symblox.io/"
+        
     private var session: WalletSession {
         return sessions[server]
     }
@@ -141,6 +143,14 @@ final class DappBrowserCoordinator: NSObject, Coordinator {
 
     func start() {
         navigationController.viewControllers = [rootViewController]
+    
+        if (!historyStore.histories.isEmpty) {
+            if let url = historyStore.histories.first?.URL {
+               open(url: url)
+            }
+        } else {
+            openHomePage()
+        }
     }
 
     @objc func dismiss() {
@@ -217,7 +227,7 @@ final class DappBrowserCoordinator: NSObject, Coordinator {
         if forceReload {
             browserViewController.reload()
         }
-    } 
+    }
 
     func signMessage(with type: SignMessageType, account: EthereumAccount, callbackID: Int) {
         nativeCryptoCurrencyBalanceView.hide()
@@ -285,6 +295,11 @@ final class DappBrowserCoordinator: NSObject, Coordinator {
 
         let cancelAction = UIAlertAction(title: R.string.localizable.cancel(), style: .cancel) { _ in }
 
+        let homeAction = UIAlertAction(title: "Homepage", style: .default, handler: {[unowned self] alert in
+            self.openHomePage()
+        })
+        
+        alertController.addAction(homeAction)
         alertController.addAction(reloadAction)
         alertController.addAction(shareAction)
         alertController.addAction(addBookmarkAction)
@@ -298,6 +313,12 @@ final class DappBrowserCoordinator: NSObject, Coordinator {
         return alertController
     }
 
+    private func openHomePage() {
+        if let url = URL(string: self.defaultHomepage) {
+                      self.open(url: url)
+        }
+    }
+    
     private func share(sender: UIView) {
         guard let url = currentUrl else { return }
         rootViewController.displayLoading()
@@ -682,7 +703,7 @@ extension DappBrowserCoordinator: ScanQRCodeCoordinatorDelegate {
 
     func didScan(result: String, in coordinator: ScanQRCodeCoordinator) {
         removeCoordinator(coordinator)
-        
+
         guard let url = URL(string: result) else { return }
         open(url: url, animated: false)
     }

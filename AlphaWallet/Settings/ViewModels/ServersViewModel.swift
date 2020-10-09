@@ -33,3 +33,4 @@ struct ServersViewModel {
         return server == selectedServer
     }
 }
+

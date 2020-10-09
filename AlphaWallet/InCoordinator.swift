@@ -137,7 +137,7 @@ class InCoordinator: NSObject, Coordinator {
 
     private func setupWatchingTokenScriptFileChangesToFetchEvents() {
         //TODO this is firing twice for each contract. We can be more efficient
-        assetDefinitionStore.subscribe { [weak self] contract in
+        assetDefinitionStore.subscribeToBodyChanges { [weak self] contract in
             guard let strongSelf = self else { return }
             let tokens = strongSelf.tokensStorages.values.flatMap { $0.enabledObject }
             //Assume same contract don't exist in multiple chains
@@ -931,6 +931,10 @@ extension InCoordinator: ActivitiesCoordinatorDelegate {
         showTab(.wallet)
         guard let tokensCoordinator = tokensCoordinator else { return }
         tokensCoordinator.didSelect(token: tokenObject, in: tokensCoordinator.rootViewController)
+    }
+
+    func show(transactionWithId transactionId: String, server: RPCServer, inViewController viewController: UIViewController, fromCoordinator coordinator: ActivitiesCoordinator) {
+        transactionCoordinator?.showTransaction(withId: transactionId, server: server, inViewController: viewController)
     }
 
     func didPressViewContractWebPage(forContract contract: AlphaWallet.Address, server: RPCServer, fromCoordinator coordinator: ActivitiesCoordinator, inViewController viewController: UIViewController) {

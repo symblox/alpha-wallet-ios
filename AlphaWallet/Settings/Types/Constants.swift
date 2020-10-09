@@ -159,12 +159,14 @@ public struct Constants {
         (name: "HKS", contract: AlphaWallet.Address(string: "0x75cB2Cc380d1387a79eE64b1b7C9Fa051139a319")!),
     ]
 
-    static let defaultEnabledServers: [RPCServer] = [.main, .xDai]
+    static let defaultEnabledServers: [RPCServer] = [.velas]
 
     static let tokenScriptUrlSchemeForResources = "tokenscript-resource:///"
 
     //validator API
     static let tokenScriptValidatorAPI = "https://aw.app/api/v1/verifyXMLDSig"
+
+    static let launchShortcutKey = "com.stormbird.alphawallet.qrScanner"
 
     //CurrencyFormatter
     static let formatterFractionDigits = 2

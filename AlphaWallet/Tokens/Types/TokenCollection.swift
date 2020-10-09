@@ -90,22 +90,24 @@ extension TokenCollection: TokensDataStoreDelegate {
 
 extension RPCServer {
     var displayOrderPriority: Int {
-        switch self {
-        case .main: return 1
-        case .xDai: return 2
-        case .classic: return 3
-        case .poa: return 4
-        case .ropsten: return 5
-        case .kovan: return 6
-        case .rinkeby: return 7
-        case .sokol: return 8
-        case .callisto: return 9
-        case .goerli: return 10
-        case .artis_sigma1: return 246529
-        case .artis_tau1: return 246785
-        case .binance_smart_chain: return 12
-        case .binance_smart_chain_testnet: return 13
-        case .custom: return 11
-        }
-    }
+          switch self {
+          case .main: return 1
+          case .xDai: return 2
+          case .velas: return 3
+          case .velastestnet: return 14
+          case .classic: return 4
+          case .poa: return 5
+          case .ropsten: return 6
+          case .kovan: return 7
+          case .rinkeby: return 8
+          case .sokol: return 9
+          case .callisto: return 10
+          case .goerli: return 11
+          case .artis_sigma1: return 246529
+          case .artis_tau1: return 246785
+          case .binance_smart_chain: return 12
+          case .binance_smart_chain_testnet: return 13
+          case .custom: return 11
+          }
+      }
 }

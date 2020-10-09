@@ -12,9 +12,10 @@ class SplashViewController: UIViewController {
     required init?(coder aDecoder: NSCoder) {
         return nil
     }
-
+    
     override func viewDidLoad() {
         super.viewDidLoad()
+        view.backgroundColor = R.color.vlx_bg()
 
         if let controller = UIStoryboard(name: "LaunchScreen", bundle: nil).instantiateInitialViewController() {
             addChild(controller)

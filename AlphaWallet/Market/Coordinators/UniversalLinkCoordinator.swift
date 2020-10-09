@@ -8,8 +8,8 @@ import RealmSwift
 import web3swift
 
 protocol UniversalLinkCoordinatorDelegate: class, CanOpenURL {
-	func viewControllerForPresenting(in coordinator: UniversalLinkCoordinator) -> UIViewController?
-	func completed(in coordinator: UniversalLinkCoordinator)
+    func viewControllerForPresenting(in coordinator: UniversalLinkCoordinator) -> UIViewController?
+    func completed(in coordinator: UniversalLinkCoordinator)
     func importPaidSignedOrder(signedOrder: SignedOrder, tokenObject: TokenObject, completion: @escaping (Bool) -> Void)
     func didImported(contract: AlphaWallet.Address, in coordinator: UniversalLinkCoordinator)
 }
@@ -22,7 +22,7 @@ class UniversalLinkCoordinator: Coordinator {
     }
 
     private let config: Config
-	private var importTokenViewController: ImportMagicTokenViewController?
+    private var importTokenViewController: ImportMagicTokenViewController?
     private let ethPrice: Subscribable<Double>
     private let ethBalance: Subscribable<BigInt>
     private var hasCompleted = false
@@ -68,7 +68,7 @@ class UniversalLinkCoordinator: Coordinator {
             return "xDAI"
         case .binance_smart_chain, .binance_smart_chain_testnet:
             return "BNB"
-        case .classic, .main, .poa, .callisto, .kovan, .ropsten, .rinkeby, .sokol, .goerli, .artis_sigma1, .artis_tau1, .custom:
+        case .classic, .main, .velas, .velastestnet , .poa, .callisto, .kovan, .ropsten, .rinkeby, .sokol, .goerli, .artis_sigma1, .artis_tau1, .custom:
             return "ETH"
         }
     }
@@ -85,8 +85,8 @@ class UniversalLinkCoordinator: Coordinator {
         self.server = server
     }
 
-	func start() {
-	}
+    func start() {
+    }
 
     private func createHTTPParametersForCurrencyLinksToPaymentServer(
             signedOrder: SignedOrder,
@@ -100,8 +100,9 @@ class UniversalLinkCoordinator: Coordinator {
             "expiry": signedOrder.order.expiry.description,
             "nonce": signedOrder.order.nonce,
             "v": signature.substring(from: 128),
-            "r": "0x" + signature.substring(with: Range(uncheckedBounds: (0, 64))),
-            "s": "0x" + signature.substring(with: Range(uncheckedBounds: (64, 128))),
+            //Use string interpolation instead of concatentation to speed up build time. 160ms -> <100ms, as of Xcode 11.7
+            "r": "0x\(signature.substring(with: Range(uncheckedBounds: (0, 64))))",
+            "s": "0x\(signature.substring(with: Range(uncheckedBounds: (64, 128))))",
             "networkId": server.chainID.description,
             "contractAddress": signedOrder.order.contractAddress
         ]
@@ -418,7 +419,7 @@ class UniversalLinkCoordinator: Coordinator {
         switch server {
         case .xDai:
             errorMessage = R.string.localizable.aClaimTokenFailedNotEnoughXDAITitle()
-        case .classic, .main, .poa, .callisto, .kovan, .ropsten, .rinkeby, .sokol, .goerli, .artis_sigma1, .artis_tau1, .binance_smart_chain, .binance_smart_chain_testnet, .custom:
+        case .classic, .main, .poa, .callisto, .kovan, .ropsten, .rinkeby, .sokol, .goerli, .artis_sigma1, .artis_tau1, .binance_smart_chain, .binance_smart_chain_testnet, .custom, .velas, .velastestnet:
             errorMessage = R.string.localizable.aClaimTokenFailedNotEnoughEthTitle()
         }
         if ethPrice.value == nil {
@@ -513,8 +514,8 @@ class UniversalLinkCoordinator: Coordinator {
         )
     }
 
-	private func preparingToImportUniversalLink() {
-		guard let viewController = delegate?.viewControllerForPresenting(in: self) else { return }
+    private func preparingToImportUniversalLink() {
+        guard let viewController = delegate?.viewControllerForPresenting(in: self) else { return }
         importTokenViewController = ImportMagicTokenViewController(server: server, assetDefinitionStore: assetDefinitionStore)
         guard let vc = importTokenViewController else { return }
         vc.delegate = self
@@ -522,7 +523,7 @@ class UniversalLinkCoordinator: Coordinator {
         let nc = UINavigationController(rootViewController: vc)
         nc.makePresentationFullScreenForiOS13Migration()
         viewController.present(nc, animated: true)
-	}
+    }
 
     private func updateTokenFields() {
         guard let tokenHolder = tokenHolder else { return }
@@ -548,17 +549,17 @@ class UniversalLinkCoordinator: Coordinator {
         hasCompleted = state.hasCompleted
     }
 
-	private func promptImportUniversalLink(cost: ImportMagicTokenViewControllerViewModel.Cost) {
-		updateImportTokenController(with: .promptImport, cost: cost)
+    private func promptImportUniversalLink(cost: ImportMagicTokenViewControllerViewModel.Cost) {
+        updateImportTokenController(with: .promptImport, cost: cost)
     }
 
-	private func showImportSuccessful() {
-		updateImportTokenController(with: .succeeded)
-	}
+    private func showImportSuccessful() {
+        updateImportTokenController(with: .succeeded)
+    }
 
     private func showImportError(errorMessage: String, cost: ImportMagicTokenViewControllerViewModel.Cost? = nil) {
         updateImportTokenController(with: .failed(errorMessage: errorMessage), cost: cost)
-	}
+    }
 
     private func importPaidSignedOrder(signedOrder: SignedOrder, tokenObject: TokenObject) {
         updateImportTokenController(with: .processing)
@@ -575,8 +576,8 @@ class UniversalLinkCoordinator: Coordinator {
         }
     }
 
-	private func importFreeTransfer(query: String, parameters: Parameters) {
-		updateImportTokenController(with: .processing)
+    private func importFreeTransfer(query: String, parameters: Parameters) {
+        updateImportTokenController(with: .processing)
 
         Alamofire.request(
                 query,
@@ -621,12 +622,12 @@ class UniversalLinkCoordinator: Coordinator {
 // swiftlint:enable type_body_length
 
 extension UniversalLinkCoordinator: ImportMagicTokenViewControllerDelegate {
-	func didPressDone(in viewController: ImportMagicTokenViewController) {
-		viewController.dismiss(animated: true)
-		delegate?.completed(in: self)
-	}
+    func didPressDone(in viewController: ImportMagicTokenViewController) {
+        viewController.dismiss(animated: true)
+        delegate?.completed(in: self)
+    }
 
-	func didPressImport(in viewController: ImportMagicTokenViewController) {
+    func didPressImport(in viewController: ImportMagicTokenViewController) {
         guard let transactionType = transactionType else { return }
         switch transactionType {
         case .freeTransfer(let query, let parameters):
@@ -634,7 +635,7 @@ extension UniversalLinkCoordinator: ImportMagicTokenViewControllerDelegate {
         case .paid(let signedOrder, let tokenObject):
             importPaidSignedOrder(signedOrder: signedOrder, tokenObject: tokenObject)
         }
-	}
+    }
 }
 
 extension UniversalLinkCoordinator: CanOpenURL {

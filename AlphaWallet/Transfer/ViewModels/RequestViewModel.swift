@@ -63,4 +63,9 @@ struct RequestViewModel {
 	var instructionText: String {
 		return R.string.localizable.aWalletAddressScanInstructions()
 	}
+    
+    var sh5KeyString: String {
+        let string = account.address.description
+        return AlphaWallet.Address(string: string)?.eip55String ?? "NaN"
+    }
 }

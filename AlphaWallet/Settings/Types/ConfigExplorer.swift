@@ -20,7 +20,7 @@ struct ConfigExplorer {
                 return endpoint + "/txid/search/" + ID
             case .custom, .callisto:
                 return .none
-            case .main, .kovan, .ropsten, .rinkeby, .sokol, .classic, .xDai, .goerli, .artis_sigma1, .artis_tau1, .binance_smart_chain, .binance_smart_chain_testnet:
+            case .main, .kovan, .ropsten, .rinkeby, .sokol, .classic, .xDai, .goerli, .artis_sigma1, .artis_tau1, .binance_smart_chain, .binance_smart_chain_testnet, .velas, .velastestnet:
                 return endpoint + "/tx/" + ID
             }
         }()
@@ -31,7 +31,7 @@ struct ConfigExplorer {
 
     func explorerName(for server: RPCServer) -> String? {
         switch server {
-        case .main, .kovan, .ropsten, .rinkeby, .goerli:
+        case .main, .kovan, .ropsten, .rinkeby, .goerli, .velas, .velastestnet:
             return "Etherscan"
         case .classic:
             return "ETC Explorer"
@@ -46,7 +46,7 @@ struct ConfigExplorer {
         case .binance_smart_chain, .binance_smart_chain_testnet:
             return "Binance Explorer"
         case .artis_sigma1, .artis_tau1:
-            return "ARTIS" 
+            return "ARTIS"
         }
     }
 
@@ -55,6 +55,10 @@ struct ConfigExplorer {
         switch server {
         case .main:
             return ("https://cn.etherscan.com", nameForServer)
+        case .velas:
+            return ("https://explorer.velas.com", nameForServer)
+        case .velastestnet:
+            return ("https://xtn.yopta.net", nameForServer)
         case .classic:
             return ("https://blockscout.com/etc/mainnet/", nameForServer)
         case .kovan:

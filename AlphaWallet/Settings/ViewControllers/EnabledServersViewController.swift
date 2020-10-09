@@ -81,6 +81,13 @@ extension EnabledServersViewController: UITableViewDelegate, UITableViewDataSour
         return cell
     }
 
+    
+    func tableView(_ tableView: UITableView, willSelectRowAt indexPath: IndexPath) -> IndexPath? {
+        guard let viewModel = viewModel else { return nil}
+        let server = viewModel.server(for: indexPath)
+        return server.isAlwayVisible ? nil : indexPath
+    }
+    
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
         guard let viewModel = viewModel else { return }

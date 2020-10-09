@@ -202,6 +202,7 @@ class RequestViewController: UIViewController {
 			let image = strongSelf.generateQRCode(from: string)
 			DispatchQueue.main.async {
 				strongSelf.imageView.image = image
+                strongSelf.instructionLabel.text = strongSelf.viewModel.sh5KeyString
 			}
 		}
 	}

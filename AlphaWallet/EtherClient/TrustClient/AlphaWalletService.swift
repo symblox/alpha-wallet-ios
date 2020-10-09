@@ -35,7 +35,7 @@ extension AlphaWalletService: TargetType {
         switch self {
         case .getTransactions(_, let server, _, _, _, _):
             switch server {
-            case .main, .classic, .callisto, .kovan, .ropsten, .custom, .rinkeby, .poa, .sokol, .goerli, .xDai, .artis_sigma1, .artis_tau1, .binance_smart_chain, .binance_smart_chain_testnet:
+            case .main, .classic, .callisto, .kovan, .ropsten, .custom, .rinkeby, .poa, .sokol, .goerli, .xDai, .artis_sigma1, .artis_tau1, .binance_smart_chain, .binance_smart_chain_testnet, .velas, .velastestnet:
                 return "/api"
             }
         case .register:
@@ -43,7 +43,7 @@ extension AlphaWalletService: TargetType {
         case .unregister:
             return "/push/unregister"
         case .priceOfEth:
-            return "/api/v3/coins/markets" 
+            return "/api/v3/coins/markets"
         case .priceOfDai:
             return "/api/v3/coins/markets"
         case .marketplace:
@@ -66,7 +66,7 @@ extension AlphaWalletService: TargetType {
         switch self {
         case .getTransactions(_, let server, let address, let startBlock, let endBlock, let sortOrder):
             switch server {
-            case .main, .kovan, .ropsten, .rinkeby, .goerli:
+            case .main, .kovan, .ropsten, .rinkeby, .goerli, .velas, .velastestnet:
                 return .requestParameters(parameters: [
                     "module": "account",
                     "action": "txlist",
@@ -92,12 +92,12 @@ extension AlphaWalletService: TargetType {
             return .requestJSONEncodable(device)
         case .priceOfEth:
             return .requestParameters(parameters: [
-                "vs_currency": "USD", 
+                "vs_currency": "USD",
                 "ids": "ethereum",
             ], encoding: URLEncoding())
         case .priceOfDai:
             return .requestParameters(parameters: [
-                "vs_currency": "USD", 
+                "vs_currency": "USD",
                 "ids": "dai",
             ], encoding: URLEncoding())
         case .marketplace(_, let server):
@@ -113,7 +113,7 @@ extension AlphaWalletService: TargetType {
         switch self {
         case .getTransactions(_, let server, _, _, _, _):
             switch server {
-            case .main, .classic, .callisto, .kovan, .ropsten, .custom, .rinkeby, .poa, .sokol, .goerli, .xDai, .artis_sigma1, .artis_tau1, .binance_smart_chain, .binance_smart_chain_testnet:
+            case .main, .classic, .callisto, .kovan, .ropsten, .custom, .rinkeby, .poa, .sokol, .goerli, .xDai, .artis_sigma1, .artis_tau1, .binance_smart_chain, .binance_smart_chain_testnet, .velas, .velastestnet:
                 return [
                     "Content-type": "application/json",
                     "client": Bundle.main.bundleIdentifier ?? "",
