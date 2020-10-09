@@ -173,6 +173,9 @@ public struct Constants {
 
     //EtherNumberFormatter
     static let etherFormatterFractionDigits = 4
+    
+    //Flag indicate show MY ADDRESS as Eth(RPCServer.main)or Vlx
+    static let MyAddressStringRPCServerType : RPCServer = .velas
 }
 
 public struct UnitConfiguration {

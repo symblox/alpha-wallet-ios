@@ -21,20 +21,21 @@ extension AlphaWallet {
         }
 
         init?(string: String) {
+            if VelasConvertUtil.isVlxAddress(string) {
+                   self = .ethereumAddress(eip55String: string)
+                   Self.cache[string] = self
+                   return
+            }
+            
             if let value = Self.cache[string] {
                 self = value
                 return
             }
             let string = string.add0x
-            guard string.count == 42 || string.contains("VG6") else {
+            guard string.count == 42 else {
                 return nil
             }
             
-            if string.contains("VG6") {
-                self = .ethereumAddress(eip55String: string)
-                Self.cache[string] = self
-                return
-            }
             //Workaround for crash on iOS 11 and 12 when built with Xcode 11.3 (for iOS 13). Passing in `string` crashes with specific addresses at specific places, perhaps due to a compiler/runtime bug with following error message despite subscripting being done correctly:
             //    Terminating app due to uncaught exception 'NSRangeException', reason: '*** -[NSPathStore2 characterAtIndex:]: index (42) beyond bounds (42)'
             guard let address = TrustKeystore.Address(string: "\(string)") else {

@@ -46,8 +46,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UISplitViewControllerDele
         if shortcutItem.type == Constants.launchShortcutKey {
             appCoordinator.launchUniversalScanner()
         }
-            appCoordinator.launchUniversalScanner()
-        }
         completionHandler(true)
     }
 
