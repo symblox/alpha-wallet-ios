@@ -7,7 +7,7 @@ struct RequestViewModel {
 	private let account: Wallet
     private let server: RPCServer
 
-    private let generatingImageCodeType = Constants.MyAddressStringRPCServerType
+    private let generatingImageCodeType = RPCServer.main
     private let copiedAddressType = Constants.MyAddressStringRPCServerType
     
 	init(account: Wallet, server: RPCServer) {
@@ -24,14 +24,14 @@ struct RequestViewModel {
 
     var generatingAddressString : String {
         if generatingImageCodeType == .velas {
-            return myAddressText
+            return vlxAddressString
         }
         return account.address.eip55String
     }
     
     var copiedAddressString : String {
-        if generatingImageCodeType == .velas {
-            return myAddressText
+        if copiedAddressType == .velas {
+            return vlxAddressString
         }
         return account.address.eip55String
     }
