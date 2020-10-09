@@ -166,7 +166,7 @@ public struct Constants {
     //validator API
     static let tokenScriptValidatorAPI = "https://aw.app/api/v1/verifyXMLDSig"
 
-    static let launchShortcutKey = "com.stormbird.alphawallet.qrScanner"
+    static let launchShortcutKey = "com.velas.defiwallet.qrScanner"
 
     //CurrencyFormatter
     static let formatterFractionDigits = 2

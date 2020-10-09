@@ -28,16 +28,24 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UISplitViewControllerDele
             let keystore = try EtherKeystore(analyticsCoordinator: nil)
             appCoordinator = AppCoordinator(window: window!, keystore: keystore)
             appCoordinator.start()
+            
+            if let shortcutItem = launchOptions?[UIApplication.LaunchOptionsKey.shortcutItem] as? UIApplicationShortcutItem, shortcutItem.type == Constants.launchShortcutKey {
+                //Delay needed to work because app is launching..
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                    self.appCoordinator.launchUniversalScanner()
+                }
+            }
         } catch {
             print("EtherKeystore init issue.")
         }
         protectionCoordinator.didFinishLaunchingWithOptions()
-
         return true
     }
 
     func application(_ application: UIApplication, performActionFor shortcutItem: UIApplicationShortcutItem, completionHandler: @escaping (Bool) -> ()) {
-        if shortcutItem.type == "com.stormbird.alphawallet.qrScanner" {
+        if shortcutItem.type == Constants.launchShortcutKey {
+            appCoordinator.launchUniversalScanner()
+        }
             appCoordinator.launchUniversalScanner()
         }
         completionHandler(true)
