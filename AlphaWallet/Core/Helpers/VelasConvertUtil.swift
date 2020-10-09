@@ -43,7 +43,7 @@ struct VelasConvertUtil {
             let hashString = hashed.compactMap { String(format: "%02x", $0) }.joined()
             return hashString
         } else {
-            return ""
+            return string.sha256()
         }
     }
     
@@ -82,7 +82,7 @@ struct VelasConvertUtil {
                 digits.append(0)
             }
         }
-        let vlxAddress = digits.reversed().compactMap {String(Character(UnicodeScalar(ALPHABET.bytes[$0])))}.joined()
+        let vlxAddress = digits.reversed().compactMap { String(Character(UnicodeScalar(ALPHABET.bytes[$0]))) }.joined()
         return "V" + vlxAddress
     }
     
@@ -124,7 +124,7 @@ struct VelasConvertUtil {
                 digits.append(0)
             }
         }
-        let longAddress = digits.reversed().compactMap {String(format: "%02x", $0)}.joined()
+        let longAddress = digits.reversed().compactMap { String(format: "%02x", $0) }.joined()
         if longAddress.lengthOfBytes(using: .utf8) != 48 {
             return vlxAddress
         }
