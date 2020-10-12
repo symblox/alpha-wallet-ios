@@ -7,15 +7,35 @@ struct RequestViewModel {
 	private let account: Wallet
     private let server: RPCServer
 
+    private let generatingImageCodeType = RPCServer.main
+    private let copiedAddressType = Constants.MyAddressStringRPCServerType
+    
 	init(account: Wallet, server: RPCServer) {
 		self.account = account
 		self.server = server
 	}
-
+    
 	var myAddressText: String {
+        if Constants.MyAddressStringRPCServerType == .velas {
+            return vlxAddressString
+        }
 		return account.address.eip55String
 	}
 
+    var generatingAddressString : String {
+        if generatingImageCodeType == .velas {
+            return vlxAddressString
+        }
+        return account.address.eip55String
+    }
+    
+    var copiedAddressString : String {
+        if copiedAddressType == .velas {
+            return vlxAddressString
+        }
+        return account.address.eip55String
+    }
+    
 	var myAddress: AlphaWallet.Address {
 		return account.address
 	}
@@ -64,8 +84,12 @@ struct RequestViewModel {
 		return R.string.localizable.aWalletAddressScanInstructions()
 	}
     
-    var sh5KeyString: String {
-        let string = account.address.description
-        return AlphaWallet.Address(string: string)?.eip55String ?? "NaN"
+    var vlxAddressString: String {
+        let string = account.address.eip55String
+        if VelasConvertUtil.isVlxAddress(string) {
+            return string
+        } else {
+            return VelasConvertUtil.ethToVlx(hexAddress: string)
+        }
     }
 }
