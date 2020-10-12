@@ -5,6 +5,9 @@ import AWSSNS
 //import AWSCognito
 import AWSCore
 import UserNotifications
+import AppCenter
+import AppCenterAnalytics
+import AppCenterCrashes
 
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate, UISplitViewControllerDelegate {
@@ -39,6 +42,11 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UISplitViewControllerDele
             print("EtherKeystore init issue.")
         }
         protectionCoordinator.didFinishLaunchingWithOptions()
+       MSAppCenter.start("034dda73-f565-49c2-9035-409af0899bb4", withServices:[
+         MSAnalytics.self,
+         MSCrashes.self
+       ])
+
         return true
     }
 

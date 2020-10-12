@@ -86,6 +86,9 @@ target 'Velas' do
   pod 'TrustWalletCore'
   pod 'AWSSNS'
   pod 'Mixpanel-swift'  # Pods for testing
+  
+  pod 'AppCenter'
+
 end
 
 post_install do |installer|
