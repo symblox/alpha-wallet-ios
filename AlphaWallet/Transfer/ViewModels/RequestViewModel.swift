@@ -16,23 +16,23 @@ struct RequestViewModel {
 	}
     
 	var myAddressText: String {
-        if Constants.MyAddressStringRPCServerType == .velas {
-            return vlxAddressString
-        }
+//        if Constants.MyAddressStringRPCServerType == .velas {
+//            return vlxAddressString
+//        }
 		return account.address.eip55String
 	}
 
     var generatingAddressString : String {
-        if generatingImageCodeType == .velas {
-            return vlxAddressString
-        }
+//        if generatingImageCodeType == .velas {
+//            return vlxAddressString
+//        }
         return account.address.eip55String
     }
     
     var copiedAddressString : String {
-        if copiedAddressType == .velas {
-            return vlxAddressString
-        }
+//        if copiedAddressType == .velas {
+//            return vlxAddressString
+//        }
         return account.address.eip55String
     }
     
