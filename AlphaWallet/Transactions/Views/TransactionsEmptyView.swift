@@ -14,7 +14,7 @@ class TransactionsEmptyView: UIView {
 
     init(
         title: String = R.string.localizable.transactionsNoTransactionsLabelTitle(),
-        image: UIImage? = R.image.no_transactions_mascot(),
+        image: UIImage? = R.image.no_transactions_vlx(),
         insets: UIEdgeInsets = UIEdgeInsets(top: 0, left: 0, bottom: 0, right: 0),
         onRetry: (() -> Void)? = .none
     ) {

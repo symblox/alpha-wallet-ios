@@ -332,7 +332,7 @@ enum RPCServer: Hashable, CaseIterable {
             case .artis_tau1: return "https://explorer.tau1.artis.network/api"
             case .binance_smart_chain: return "https://explorer.binance.org/smart/tx/"
             case .binance_smart_chain_testnet: return "https://explorer.binance.org/smart-testnet/tx/"
-            case .velastestnet: return ""
+            case .velastestnet: return "https://tn.yopta.net"
             case .custom:
                 return "" // Enable? make optional
             }
