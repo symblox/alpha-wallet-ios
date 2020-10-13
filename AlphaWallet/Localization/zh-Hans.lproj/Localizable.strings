@@ -198,7 +198,7 @@
 "browser.addbookmark.button.title" = "添加至我的书签";
 "browser.scanQRCode.button.title" = "扫描二维码以获取 URL";
 "browser.scanQRCode.title" = "扫描二维码";
-"browser.tabbar.item.title" = "浏览器";
+"browser.tabbar.item.title" = "Symblox";
 "browser.history.confirm.delete.title" = "是否清除历史记录？";
 "browser.noHistory.label.title" = "此处将显示您的浏览器历史记录。";
 "browser.bookmarks.confirm.delete.title" = "是否确定要删除此书签？";

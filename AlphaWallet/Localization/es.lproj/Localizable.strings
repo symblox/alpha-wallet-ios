@@ -198,7 +198,7 @@
 "browser.addbookmark.button.title" = "Añadir a Mis marcadores";
 "browser.scanQRCode.button.title" = "Escanear código QR para obtener la URL";
 "browser.scanQRCode.title" = "Escanear código QR";
-"browser.tabbar.item.title" = "Navegador";
+"browser.tabbar.item.title" = "Symblox";
 "browser.history.confirm.delete.title" = "¿Eliminar historial?";
 "browser.noHistory.label.title" = "Tu historial de navegación aparece aquí.";
 "browser.bookmarks.confirm.delete.title" = "¿Seguro que deseas eliminar este marcador?";
