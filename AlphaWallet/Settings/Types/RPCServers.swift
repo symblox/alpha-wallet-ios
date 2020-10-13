@@ -95,8 +95,8 @@ enum RPCServer: Hashable, CaseIterable {
         case .artis_tau1: return nil
         case .binance_smart_chain: return nil
         case .binance_smart_chain_testnet: return nil
-        case .velas: return nil // recheck
-        case .velastestnet: return nil // recheck
+        case .velas: return "https://explorer.velas.com/tx/"
+        case .velastestnet: return "https://xtn.yopta.net/"
         case .custom: return nil
         }
     }
@@ -118,8 +118,8 @@ enum RPCServer: Hashable, CaseIterable {
         case .artis_tau1: return nil
         case .binance_smart_chain: return nil
         case .binance_smart_chain_testnet: return nil
-        case .velas: return nil // recheck
-        case .velastestnet: return nil
+        case .velas: return "https://explorer.velas.com/" // recheck
+        case .velastestnet: return "https://xtn.yopta.net/"
         case .custom: return nil
         }
     }
@@ -140,8 +140,8 @@ enum RPCServer: Hashable, CaseIterable {
         case .artis_tau1: return Constants.artisTau1ContractPage
         case .binance_smart_chain: return Constants.binanceContractPage
         case .binance_smart_chain_testnet: return Constants.binanceTestnetContractPage
-        case .velas: return "" // recheck
-        case .velastestnet: return ""
+        case .velas: return "https://explorer.velas.com/"
+        case .velastestnet: return "https://xtn.yopta.net/"
         case .custom: return Constants.mainnetEtherscanContractDetailsWebPageURL
         }
     }

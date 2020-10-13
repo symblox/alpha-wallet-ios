@@ -115,11 +115,11 @@ class SettingsViewController: UIViewController {
     private func configureChangeWalletCellWithResolvedENS(_ row: SettingsWalletRow, cell: SettingTableViewCell) {
         cell.configure(viewModel: .init(
             titleText: row.title,
-            subTitleText: self.viewModel.addressReplacedWithENSOrWalletName(),
+            subTitleText: VelasConvertUtil.ethToVlx(hexAddress: self.viewModel.addressReplacedWithENSOrWalletName()),
             icon: row.icon)
         )
 
-        let serverToResolveEns = RPCServer.main
+        let serverToResolveEns = RPCServer.velas
         let address = account.address
 
         firstly {
@@ -129,7 +129,7 @@ class SettingsViewController: UIViewController {
             //TODO check if still correct cell, since this is async
             let viewModel: SettingTableViewCellViewModel = .init(
                     titleText: row.title,
-                    subTitleText: strongSelf.viewModel.addressReplacedWithENSOrWalletName(name),
+                    subTitleText: VelasConvertUtil.ethToVlx(hexAddress: strongSelf.viewModel.addressReplacedWithENSOrWalletName(name)),
                     icon: row.icon
             )
             cell.configure(viewModel: viewModel)

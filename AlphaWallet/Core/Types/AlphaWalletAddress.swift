@@ -22,7 +22,7 @@ extension AlphaWallet {
 
         init?(string: String) {
             if VelasConvertUtil.isVlxAddress(string) {
-                   self = .ethereumAddress(eip55String: string)
+                self = .ethereumAddress(eip55String: VelasConvertUtil.vlxToEth(vlxAddress: string))
                    Self.cache[string] = self
                    return
             }

@@ -68,8 +68,10 @@ class UniversalLinkCoordinator: Coordinator {
             return "xDAI"
         case .binance_smart_chain, .binance_smart_chain_testnet:
             return "BNB"
-        case .classic, .main, .velas, .velastestnet , .poa, .callisto, .kovan, .ropsten, .rinkeby, .sokol, .goerli, .artis_sigma1, .artis_tau1, .custom:
+        case .classic, .main, .poa, .callisto, .kovan, .ropsten, .rinkeby, .sokol, .goerli, .artis_sigma1, .artis_tau1, .custom:
             return "ETH"
+        case .velas, .velastestnet:
+            return "VLX"
         }
     }
 

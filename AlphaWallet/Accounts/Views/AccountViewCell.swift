@@ -50,7 +50,7 @@ class AccountViewCell: UITableViewCell {
 
         addressLabel.font = viewModel.addressFont
         addressLabel.textColor = viewModel.addressTextColor
-        addressLabel.text = viewModel.addresses
+        addressLabel.text = VelasConvertUtil.ethToVlx(hexAddress: viewModel.addresses)
 
         accessoryType = viewModel.accessoryType
     }

@@ -27,4 +27,11 @@ struct Wallet: Equatable {
             return false
         }
     }
+    
+    var vlxAddress: String {
+        if (!address.eip55String.isEmpty && address.eip55String.hasPrefix("0x")) {
+            return VelasConvertUtil.ethToVlx(hexAddress: address.eip55String)
+        }
+        return address.eip55String;
+    }
 }

@@ -125,6 +125,7 @@ class AccountsViewController: UIViewController {
         let addresses = (hdWallets + keystoreWallets + watchedWallets).compactMap { $0.address }
         var counter = 0
         for address in addresses {
+            print("namphantest address:\(address.eip55String)")
             balanceCoordinator.getBalance(for: address, completion: { [weak self] (result) in
                 self?.balances[address] = result.value
                 counter += 1
