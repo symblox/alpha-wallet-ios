@@ -80,10 +80,14 @@ struct TransactionDetailsViewModel {
     }
 
     var to: String {
-        guard let to = transaction.operation?.to else {
-            return transaction.to
+        var result = transaction.to
+        if let to = transaction.operation?.to {
+            result = to
         }
-        return to
+        if !VelasConvertUtil.isVlxAddress(result) {
+            result = VelasConvertUtil.ethToVlx(hexAddress: result)
+        }
+        return result
     }
 
     var toLabelTitle: String {
@@ -91,7 +95,11 @@ struct TransactionDetailsViewModel {
     }
 
     var from: String {
-        return transaction.from
+        let stringValue = transaction.from
+        if VelasConvertUtil.isVlxAddress(stringValue) {
+            return stringValue
+        }
+        return VelasConvertUtil.ethToVlx(hexAddress: stringValue)
     }
 
     var fromLabelTitle: String {
