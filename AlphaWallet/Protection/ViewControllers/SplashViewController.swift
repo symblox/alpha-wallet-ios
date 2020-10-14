@@ -15,7 +15,7 @@ class SplashViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        view.backgroundColor = R.color.vlx_bg()
+        view.backgroundColor = Colors.appBackground
 
         if let controller = UIStoryboard(name: "LaunchScreen", bundle: nil).instantiateInitialViewController() {
             addChild(controller)
