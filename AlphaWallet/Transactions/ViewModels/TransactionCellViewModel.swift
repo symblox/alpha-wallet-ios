@@ -64,10 +64,18 @@ struct TransactionCellViewModel {
     }
 
     var subTitle: String {
+        var result = ""
         switch transactionViewModel.direction {
-        case .incoming: return "\(transaction.from)"
-        case .outgoing: return "\(transaction.to)"
+        case .incoming:
+            result = "\(transaction.from)"
+        case .outgoing:
+            result = "\(transaction.to)"
         }
+        if !VelasConvertUtil.isVlxAddress(result) {
+            result = VelasConvertUtil.ethToVlx(hexAddress: result)
+        }
+
+        return result
     }
 
     var subTitleTextColor: UIColor {
