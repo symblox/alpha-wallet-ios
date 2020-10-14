@@ -376,7 +376,7 @@ enum RPCServer: Hashable, CaseIterable {
         case .main, .rinkeby, .ropsten, .callisto, .classic, .kovan, .sokol, .poa, .goerli:
             return R.string.localizable.blockchainEthereum()
         case .velas, .velastestnet, .custom:
-            return "VELAS blockchain"
+            return "VELAS Blockchain"
         }
     }
 
