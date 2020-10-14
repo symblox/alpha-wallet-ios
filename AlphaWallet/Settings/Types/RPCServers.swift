@@ -373,8 +373,10 @@ enum RPCServer: Hashable, CaseIterable {
             return R.string.localizable.blockchainBinance()
         case .binance_smart_chain_testnet:
             return R.string.localizable.blockchainBinanceTest()
-        case .main, .rinkeby, .ropsten, .custom, .callisto, .classic, .kovan, .sokol, .poa, .goerli, .velas, .velastestnet://recheck
+        case .main, .rinkeby, .ropsten, .callisto, .classic, .kovan, .sokol, .poa, .goerli:
             return R.string.localizable.blockchainEthereum()
+        case .velas, .velastestnet, .custom:
+            return "VELAS blockchain"
         }
     }
 

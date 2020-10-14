@@ -134,11 +134,11 @@ class ConfirmPaymentViewController: UIViewController {
             .spacer(),
             TransactionAppearance.item(
                 title: detailsViewModel.paymentFromTitle,
-                subTitle: session.account.address.eip55String
+                subTitle: VelasConvertUtil.ethToVlx(hexAddress: session.account.address.eip55String)
             ),
             TransactionAppearance.item(
                 title: detailsViewModel.paymentToTitle,
-                subTitle: detailsViewModel.paymentToText
+                subTitle: VelasConvertUtil.ethToVlx(hexAddress: detailsViewModel.paymentToText)
             ),
             TransactionAppearance.item(
                 title: detailsViewModel.gasLimitTitle,

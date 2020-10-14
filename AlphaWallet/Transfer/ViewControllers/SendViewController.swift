@@ -231,7 +231,7 @@ class SendViewController: UIViewController, CanScanQRCode {
         switch transferType {
         case .nativeCryptocurrency(_, let recipient, let amount):
             if let recipient = recipient {
-                targetAddressTextField.value = recipient.stringValue
+                targetAddressTextField.value = VelasConvertUtil.ethToVlx(hexAddress: recipient.stringValue)
             }
             if let amount = amount {
                 amountTextField.ethCost = EtherNumberFormatter.full.string(from: amount, units: .ether)
@@ -246,7 +246,7 @@ class SendViewController: UIViewController, CanScanQRCode {
             amountTextField.cryptoToDollarRate = nil
 
             if let recipient = recipient {
-                targetAddressTextField.value = recipient.stringValue
+                targetAddressTextField.value = VelasConvertUtil.ethToVlx(hexAddress: recipient.stringValue)
             }
             if let amount = amount {
                 amountTextField.ethCost = amount
