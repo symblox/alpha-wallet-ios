@@ -197,18 +197,15 @@ class RequestViewController: UIViewController {
 	}
 
 	func changeQRCode(value: Int) {
-        var string: String// = viewModel.generatingAddressString
-        if VelasConvertUtil.isVlxAddress(viewModel.generatingAddressString) {
-            string = viewModel.generatingAddressString
-        } else {
-            string = VelasConvertUtil.ethToVlx(hexAddress: viewModel.generatingAddressString)
-        }
+//        var string: String// = viewModel.generatingAddressString
+        let inputString = viewModel.generatingAddressString
+        
 		// EIP67 format not being used much yet, use hex value for now
 		// let string = "ethereum:\(account.address.address)?value=\(value)"
 
 		DispatchQueue.global(qos: .background).async { [weak self] in
             guard let strongSelf = self else { return }
-			let image = strongSelf.generateQRCode(from: string)
+			let image = strongSelf.generateQRCode(from: inputString)
 			DispatchQueue.main.async {
 				strongSelf.imageView.image = image
 			}
@@ -216,8 +213,10 @@ class RequestViewController: UIViewController {
 	}
 
 	@objc func copyAddress() {
-		UIPasteboard.general.string = viewModel.copiedAddressString
 
+        let coppiedString = viewModel.copiedAddressString
+        UIPasteboard.general.string = coppiedString
+                
 		let hud = MBProgressHUD.showAdded(to: view, animated: true)
 		hud.mode = .text
 		hud.label.text = viewModel.addressCopiedText

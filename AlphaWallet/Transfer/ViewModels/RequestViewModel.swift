@@ -7,9 +7,6 @@ struct RequestViewModel {
 	private let account: Wallet
     private let server: RPCServer
 
-    private let generatingImageCodeType = RPCServer.main
-    private let copiedAddressType = Constants.MyAddressStringRPCServerType
-    
 	init(account: Wallet, server: RPCServer) {
 		self.account = account
 		self.server = server
@@ -22,18 +19,22 @@ struct RequestViewModel {
 		return account.address.eip55String
 	}
 
-    var generatingAddressString : String {
-//        if generatingImageCodeType == .velas {
-//            return vlxAddressString
-//        }
-        return account.address.eip55String
+    var generatingAddressString: String {
+        let inputString = account.address.eip55String
+        var string = inputString
+        if !VelasConvertUtil.isVlxAddress(inputString) {
+            string = VelasConvertUtil.ethToVlx(hexAddress: inputString)
+        }
+        return string
     }
     
-    var copiedAddressString : String {
-//        if copiedAddressType == .velas {
-//            return vlxAddressString
-//        }
-        return account.address.eip55String
+    var copiedAddressString: String {
+        let inputString = account.address.eip55String
+        var string = inputString
+        if !VelasConvertUtil.isVlxAddress(inputString) {
+            string = VelasConvertUtil.ethToVlx(hexAddress: inputString)
+        }
+        return string
     }
     
 	var myAddress: AlphaWallet.Address {
