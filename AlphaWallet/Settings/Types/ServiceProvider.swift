@@ -46,7 +46,7 @@ enum URLServiceProvider {
         case .facebook:
             return URL(string: "fb://profile?id=\(Constants.facebookUsername)")
         case .faq:
-            return URL(string: "https://help.symblox.io")!
+            return URL(string: "https://symblox.io")!
         case .website:
             return URL(string: "https://symblox.io")!
         }
@@ -66,7 +66,7 @@ enum URLServiceProvider {
         case .facebook:
             return URL(string: "https://www.facebook.com/\(Constants.facebookUsername)")!
         case .faq:
-            return URL(string: "https://help.symblox.io")!
+            return URL(string: "https://symblox.io")!
         case .website:
             return URL(string: "https://symblox.io")!
         }

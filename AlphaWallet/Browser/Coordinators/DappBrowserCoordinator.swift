@@ -12,7 +12,7 @@ protocol DappBrowserCoordinatorDelegate: class {
 }
 
 final class DappBrowserCoordinator: NSObject, Coordinator {
-    private let defaultHomepage = "https://app.symblox.io/"
+    private let defaultHomepage = "https://symblox.io/"
         
     private var session: WalletSession {
         return sessions[server]
