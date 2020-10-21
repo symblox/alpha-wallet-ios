@@ -5,6 +5,8 @@ import UIKit
 extension AlphaWallet.Address {
     var tokenImage: UIImage? {
         switch eip55String {
+        case "0x2de7063fe77aAFB5b401d65E5A108649Ec577170":
+            return R.image.tokenSyx()
         case "0x5d3a536E4D6DbD6114cc1Ead35777bAB948E3643":
             return R.image.tokenCdai()
         case "0x89d24A6b4CcB1B6fAA2625fE562bDD9a23260359":
