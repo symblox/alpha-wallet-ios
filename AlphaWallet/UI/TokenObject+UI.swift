@@ -105,12 +105,12 @@ private class TokenImageFetcher {
             case .nativeCryptocurrency, .erc20, .erc875, .erc721ForTickets:
                 seal.reject(ImageAvailabilityError.notAvailable)
             }
-        }
+        } 
     }
 
     private func fetchFromAssetGitHubRepo(_ tokenObject: TokenObject) -> Promise<UIImage> {
         Promise { seal in
-            let request = URLRequest(url: URL(string: "https://raw.githubusercontent.com/symblox/assets/master/blockchains/velas-main/assets/\(tokenObject.contractAddress.eip55String)/logo.png")!)
+            let request = URLRequest(url: URL(string: "https://symblox.io/velas/assets/\(tokenObject.contractAddress.eip55String)/logo.png")!)
             fetch(request: request).done { image in
                 seal.fulfill(image)
             }.catch { error in
