@@ -5,7 +5,7 @@
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
 	<key>CFBundleDisplayName</key>
-	<string>Velas Defi Wallet</string>
+	<string>Velas DeFi Wallet</string>
 	<key>CFBundleDocumentTypes</key>
 	<array>
 		<dict>
