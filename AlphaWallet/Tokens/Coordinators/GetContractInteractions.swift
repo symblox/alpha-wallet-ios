@@ -10,7 +10,7 @@ import SwiftyJSON
 class GetContractInteractions {
 
     func getErc20Interactions(contractAddress: AlphaWallet.Address? = nil, address: AlphaWallet.Address, server: RPCServer, startBlock: Int? = nil, completion: @escaping ([Transaction]) -> Void) {
-        guard var etherscanURL = server.etherscanAPIURLForERC20TxList(for: address, startBlock: startBlock) else { return }
+        guard let etherscanURL = server.etherscanAPIURLForERC20TxList(for: address, startBlock: startBlock) else { return }
         Alamofire.request(etherscanURL).validate().responseJSON { response in
             switch response.result {
             case .success(let value):
@@ -44,6 +44,7 @@ class GetContractInteractions {
                                 id: transactionJson["hash"].description,
                                 server: server,
                                 blockNumber: transactionJson["blockNumber"].intValue,
+                                transactionIndex: transactionJson["transactionIndex"].intValue,
                                 from: transactionJson["from"].description,
                                 to: transactionJson["to"].description,
                                 value: transactionJson["value"].description,
@@ -53,6 +54,7 @@ class GetContractInteractions {
                                 nonce: transactionJson["nonce"].description,
                                 date: Date(timeIntervalSince1970: Double(string: transactionJson["timeStamp"].description) ?? Double(0)),
                                 localizedOperations: [localizedTokenObj],
+                                //The API only returns successful transactions
                                 state: .completed,
                                 isErc20Interaction: true
                         )

@@ -5,9 +5,6 @@ import AWSSNS
 //import AWSCognito
 import AWSCore
 import UserNotifications
-import AppCenter
-import AppCenterAnalytics
-import AppCenterCrashes
 
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate, UISplitViewControllerDelegate {
@@ -31,7 +28,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UISplitViewControllerDele
             let keystore = try EtherKeystore(analyticsCoordinator: nil)
             appCoordinator = AppCoordinator(window: window!, keystore: keystore)
             appCoordinator.start()
-            
+
             if let shortcutItem = launchOptions?[UIApplication.LaunchOptionsKey.shortcutItem] as? UIApplicationShortcutItem, shortcutItem.type == Constants.launchShortcutKey {
                 //Delay needed to work because app is launching..
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
@@ -42,10 +39,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UISplitViewControllerDele
             print("EtherKeystore init issue.")
         }
         protectionCoordinator.didFinishLaunchingWithOptions()
-       MSAppCenter.start("034dda73-f565-49c2-9035-409af0899bb4", withServices:[
-         MSAnalytics.self,
-         MSCrashes.self
-       ])
 
         return true
     }

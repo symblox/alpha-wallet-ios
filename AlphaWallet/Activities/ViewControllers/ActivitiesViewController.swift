@@ -34,7 +34,7 @@ class ActivitiesViewController: UIViewController {
         tableView.dataSource = self
         tableView.separatorStyle = .singleLine
         tableView.backgroundColor = viewModel.backgroundColor
-        tableView.estimatedRowHeight = TokensCardViewController.anArbitaryRowHeightSoAutoSizingCellsWorkIniOS10
+        tableView.estimatedRowHeight = TokensCardViewController.anArbitraryRowHeightSoAutoSizingCellsWorkIniOS10
         view.addSubview(tableView)
 
         NSLayoutConstraint.activate([
@@ -102,6 +102,19 @@ class ActivitiesViewController: UIViewController {
         if let value = AlphaWallet.Address(string: transaction.from) {
             cardAttributes["from"] = .address(value)
         }
+        var timestamp: GeneralisedTime = .init()
+        timestamp.date = transaction.date
+        cardAttributes["timestamp"] = .generalisedTime(timestamp)
+        let state: Activity.State
+        switch transaction.state {
+        case .pending:
+            state = .pending
+        case .completed:
+            state = .completed
+        //TODO we don't need the other states at the moment
+        case .error, .failed, .unknown:
+            state = .completed
+        }
         return .init(
                 //We only use this ID for refreshing the display of specific activity, since the display for ETH send/receives don't ever need to be refreshed, just need a number that don't clash with other activities
                 id: transaction.blockNumber + 10000000,
@@ -111,11 +124,15 @@ class ActivitiesViewController: UIViewController {
                 eventName: activityName,
                 blockNumber: transaction.blockNumber,
                 transactionId: transaction.id,
+                transactionIndex: transaction.transactionIndex,
+                //We don't use this for transactions, so it's ok
+                logIndex: 0,
                 date: transaction.date,
                 values: (token: .init(), card: cardAttributes),
                 view: (html: "", style: ""),
                 itemView: (html: "", style: ""),
-                isBaseCard: true
+                isBaseCard: true,
+                state: state
         )
     }
 }
@@ -149,7 +166,7 @@ extension ActivitiesViewController: UITableViewDelegate {
         .leastNormalMagnitude
     }
     func tableView(_ tableView: UITableView, viewForFooterInSection section: Int) -> UIView? {
-        UIView()
+        nil
     }
 }
 

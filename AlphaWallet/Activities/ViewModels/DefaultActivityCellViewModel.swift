@@ -116,7 +116,7 @@ struct DefaultActivityCellViewModel {
         case .erc20Sent, .erc20Received, .erc20OwnerApproved, .erc20ApprovalObtained, .nativeCryptoSent, .nativeCryptoReceived:
             if let value = cardAttributes["amount"]?.uintValue {
                 let formatter = EtherNumberFormatter.short
-                let value = formatter.string(from: BigInt(value) ?? BigInt(), decimals: activity.tokenObject.decimals)
+                let value = formatter.string(from: BigInt(value), decimals: activity.tokenObject.decimals)
                 return "\(sign)\(value) \(activity.tokenObject.symbol)"
             } else {
                 return ""
@@ -162,15 +162,20 @@ struct DefaultActivityCellViewModel {
     }
 
     var stateImage: UIImage? {
-        switch activity.nativeViewType {
-        case .erc20Sent, .erc721Sent, .nativeCryptoSent:
-            return R.image.activitySend()
-        case .erc20Received, .erc721Received, .nativeCryptoReceived:
-            return R.image.activityReceive()
-        case .erc20OwnerApproved, .erc20ApprovalObtained, .erc721OwnerApproved, .erc721ApprovalObtained:
-            return nil
-        case .none:
-            return nil
+        switch activity.state {
+        case .completed:
+            switch activity.nativeViewType {
+            case .erc20Sent, .erc721Sent, .nativeCryptoSent:
+                return R.image.activitySend()
+            case .erc20Received, .erc721Received, .nativeCryptoReceived:
+                return R.image.activityReceive()
+            case .erc20OwnerApproved, .erc20ApprovalObtained, .erc721OwnerApproved, .erc721ApprovalObtained:
+                return nil
+            case .none:
+                return nil
+            }
+        case .pending:
+            return R.image.activityPending()
         }
     }
 }

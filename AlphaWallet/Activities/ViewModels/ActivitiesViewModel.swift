@@ -14,12 +14,39 @@ struct ActivitiesViewModel {
         var newItems: [String: NSMutableArray] = [:]
         for each in activities {
             let date = formatter.string(from: each.date)
-            var currentItems = newItems[date] ?? .init()
+            let currentItems = newItems[date] ?? .init()
             currentItems.add(each)
             newItems[date] = currentItems
         }
         let tuple = newItems.map { each in
-            (date: each.key, items: (each.value as! [ActivityOrTransaction]).sorted { $0.date > $1.date })
+            (date: each.key, items: (each.value as! [ActivityOrTransaction]).sorted {
+                if $0.blockNumber > $1.blockNumber {
+                    return true
+                } else if $0.blockNumber < $1.blockNumber {
+                    return false
+                } else {
+                    if $0.transactionIndex > $1.transactionIndex {
+                        return true
+                    } else if $0.transactionIndex < $1.transactionIndex {
+                        return false
+                    } else {
+                        switch ($0, $1) {
+                        case let (.activity(a0), .activity(a1)):
+                            return a0.logIndex > a1.logIndex
+                        case let (.transaction, .activity):
+                            return false
+                        case let (.activity, .transaction):
+                            return true
+                        case let (.transaction(t0), .transaction(t1)):
+                            if let n0 = Int(t0.nonce), let n1 = Int(t1.nonce) {
+                                return n0 > n1
+                            } else {
+                                return false
+                            }
+                        }
+                    }
+                }
+            })
         }
         items = tuple.sorted { (object1, object2) -> Bool in
             formatter.date(from: object1.date)! > formatter.date(from: object2.date)!

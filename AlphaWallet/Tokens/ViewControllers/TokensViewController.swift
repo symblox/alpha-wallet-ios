@@ -26,7 +26,6 @@ class TokensViewController: UIViewController {
     private let assetDefinitionStore: AssetDefinitionStore
     private let eventsDataStore: EventsDataStoreProtocol
     private let sections: [Section] = Section.allCases
-    private var timeOfLastFetchBecauseViewAppears: Date?
 
     private var viewModel: TokensViewModel {
         didSet {
@@ -227,7 +226,7 @@ class TokensViewController: UIViewController {
         navigationController?.navigationBar.prefersLargeTitles = true
         hidesBottomBarWhenPushed = false
 
-        fetchWithThrottling()
+        fetch()
         fixNavigationBarAndStatusBarBackgroundColorForiOS13Dot1()
         keyboardChecker.viewWillAppear()
     }
@@ -244,7 +243,7 @@ class TokensViewController: UIViewController {
     @objc func pullToRefresh() {
         tableViewRefreshControl.beginRefreshing()
         collectiblesCollectionViewRefreshControl.beginRefreshing()
-        fetchWithThrottling()
+        fetch()
     }
 
     @objc func openConsole() {
@@ -254,23 +253,6 @@ class TokensViewController: UIViewController {
     func fetch() {
         startLoading()
         tokenCollection.fetch()
-    }
-
-    //To reduce chance of this error occurring:
-    //Error Domain=NSPOSIXErrorDomain Code=28 "No space left on device" UserInfo={_kCFStreamErrorCodeKey=28, _kCFStreamErrorDomainKey=1}
-    private func fetchWithThrottling() {
-        let ttl: TimeInterval = 60 * 5
-        if let timeOfLastFetchBecauseViewAppears = timeOfLastFetchBecauseViewAppears {
-            if Date().timeIntervalSince(timeOfLastFetchBecauseViewAppears) < ttl {
-                //no-op
-            } else {
-                fetch()
-                self.timeOfLastFetchBecauseViewAppears = Date()
-            }
-        } else {
-            fetch()
-            timeOfLastFetchBecauseViewAppears = Date()
-        }
     }
 
     override func viewDidLayoutSubviews() {
@@ -363,12 +345,12 @@ extension TokensViewController: UITableViewDelegate {
         delegate?.didSelect(token: token, in: self)
     }
 
-    func tableView(_ tableView: UITableView, viewForFooterInSection section: Int) -> UIView? {
-        return nil
-    }
-
+    //Hide the footer
     func tableView(_ tableView: UITableView, heightForFooterInSection section: Int) -> CGFloat {
-        return 0.01
+        .leastNormalMagnitude
+    }
+    func tableView(_ tableView: UITableView, viewForFooterInSection section: Int) -> UIView? {
+        nil
     }
 
     func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {

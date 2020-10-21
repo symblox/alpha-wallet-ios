@@ -16,15 +16,19 @@ protocol InCoordinatorDelegate: class {
 enum Tabs {
     case wallet
     case alphaWalletSettings
-    case transactions
+    case transactionsOrActivity
     case browser
 
     var className: String {
         switch self {
         case .wallet:
             return String(describing: TokensViewController.self)
-        case .transactions:
-            return String(describing: TransactionsViewController.self)
+        case .transactionsOrActivity:
+            if Features.isActivityEnabled {
+                return String(describing: ActivitiesViewController.self)
+            } else {
+                return String(describing: TransactionsViewController.self)
+            }
         case .alphaWalletSettings:
             return String(describing: SettingsViewController.self)
         case .browser:
@@ -115,7 +119,8 @@ class InCoordinator: NSObject, Coordinator {
         self.appTracker = appTracker
         self.analyticsCoordinator = analyticsCoordinator
         self.assetDefinitionStore = assetDefinitionStore
-        self.assetDefinitionStore.enableFetchXMLForContractInPasteboard()
+        //Disabled for now. Refer to function's comment
+        //self.assetDefinitionStore.enableFetchXMLForContractInPasteboard()
 
         super.init()
     }
@@ -416,7 +421,6 @@ class InCoordinator: NSObject, Coordinator {
     }
 
     private func createActivityCoordinator() -> ActivitiesCoordinator {
-        let realm = self.realm(forAccount: wallet)
         let coordinator = ActivitiesCoordinator(
                 config: config,
                 sessions: walletSessions,
@@ -600,7 +604,7 @@ class InCoordinator: NSObject, Coordinator {
         })
         alertController.addAction(copyAction)
         alertController.addAction(UIAlertAction(title: R.string.localizable.oK(), style: .default, handler: nil))
-        navigationController.present(alertController, animated: true, completion: nil)
+        presentationViewController.present(alertController, animated: true, completion: nil)
     }
 
     private func fetchXMLAssetDefinitions() {
@@ -861,14 +865,16 @@ extension InCoordinator: PaymentCoordinatorDelegate {
         switch result {
         case .sentTransaction(let transaction):
             handlePendingTransaction(transaction: transaction)
-            showTransactionSent(transaction: transaction)
             removeCoordinator(coordinator)
 
             guard let currentTab = tabBarController?.selectedViewController else { return }
             currentTab.dismiss(animated: true)
 
             // Once transaction sent, show transactions screen.
-            showTab(.transactions)
+            showTab(.transactionsOrActivity)
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.8) {
+                self.showTransactionSent(transaction: transaction)
+            }
         case .signedTransaction: break
         }
     }

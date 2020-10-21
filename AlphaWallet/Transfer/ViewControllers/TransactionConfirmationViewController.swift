@@ -90,14 +90,14 @@ class TransactionConfirmationViewController: UIViewController, UpdatablePreferre
         navigationItem.rightBarButtonItem = UIBarButtonItem.closeBarButton(self, selector: #selector(dismissViewController))
 
         //NOTE: we observe UITableView.contentSize to determine view controller height.
-        //we are using Throttler because during UITableViewUpdate procces contentSize changes with range of values, so we need latest valid value.
-        let limitter = RateLimiter(limit: 0.05) { [weak self] in
+        //we are throttling because during UITableViewUpdate processing, contentSize changes with range of values, so we need latest valid value.
+        let limiter = RateLimiter(limit: 0.05) { [weak self] in
             guard let strongSelf = self, let controller = strongSelf.navigationController else { return }
             controller.preferredContentSize = strongSelf.contentSize
         }
 
         contentSizeObservation = tableView.observe(\.contentSize, options: [.new, .initial]) { _, _ in
-            limitter.run()
+            limiter.run()
         }
     }
 
@@ -157,12 +157,12 @@ extension TransactionConfirmationViewController: UITableViewDataSource {
         return header
     }
 
-    func tableView(_ tableView: UITableView, viewForFooterInSection section: Int) -> UIView? {
-        return nil
-    }
-
+    //Hide the footer
     func tableView(_ tableView: UITableView, heightForFooterInSection section: Int) -> CGFloat {
-        return 0.0
+        .leastNormalMagnitude
+    }
+    func tableView(_ tableView: UITableView, viewForFooterInSection section: Int) -> UIView? {
+        nil
     }
 }
 
@@ -185,5 +185,5 @@ private extension UIBarButtonItem {
         ])
 
         return UIBarButtonItem(customView: container)
-    } 
+    }
 }

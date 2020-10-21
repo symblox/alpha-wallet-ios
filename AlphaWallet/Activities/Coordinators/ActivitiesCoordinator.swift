@@ -121,7 +121,7 @@ class ActivitiesCoordinator: Coordinator {
             return (contract: eachContract, server: eachServer, xmlHandler: xmlHandler)
         }
 
-        let contractsAndCardsOptional: [[(tokenContract: AlphaWallet.Address, server: RPCServer, card: TokenScriptCard, interpolatedFilter: String)]] = contractServerXmlHandlers.flatMap { eachContract, eachServer, xmlHandler in
+        let contractsAndCardsOptional: [[(tokenContract: AlphaWallet.Address, server: RPCServer, card: TokenScriptCard, interpolatedFilter: String)]] = contractServerXmlHandlers.compactMap { eachContract, eachServer, xmlHandler in
             var contractAndCard: [(tokenContract: AlphaWallet.Address, server: RPCServer, card: TokenScriptCard, interpolatedFilter: String)] = .init()
             for card in xmlHandler.activityCards {
                 let (filterName, filterValue) = card.eventOrigin.eventFilter
@@ -219,7 +219,7 @@ class ActivitiesCoordinator: Coordinator {
                 }
                 tokensAndTokenHolders[contract] = (tokenObject: tokenObject, tokenHolders: tokenHolders)
             }
-            return (activity: .init(id: Int.random(in: 0..<Int.max), tokenObject: tokenObject, server: eachEvent.server, name: card.name, eventName: eachEvent.eventName, blockNumber: eachEvent.blockNumber, transactionId: eachEvent.transactionId, date: eachEvent.date, values: (token: tokenAttributes, card: cardAttributes), view: card.view, itemView: card.itemView, isBaseCard: card.isBase), tokenObject: tokenObject, tokenHolder: tokenHolders[0])
+            return (activity: .init(id: Int.random(in: 0..<Int.max), tokenObject: tokenObject, server: eachEvent.server, name: card.name, eventName: eachEvent.eventName, blockNumber: eachEvent.blockNumber, transactionId: eachEvent.transactionId, transactionIndex: eachEvent.transactionIndex, logIndex: eachEvent.logIndex, date: eachEvent.date, values: (token: tokenAttributes, card: cardAttributes), view: card.view, itemView: card.itemView, isBaseCard: card.isBase, state: .completed), tokenObject: tokenObject, tokenHolder: tokenHolders[0])
         }
 
         //TODO fix for activities: special fix to filter out the event we don't want - need to doc this and have to handle with TokenScript design
@@ -275,7 +275,7 @@ class ActivitiesCoordinator: Coordinator {
         }
         if let (index, oldActivity) = activitiesIndexLookup[activity.id] {
             let updatedValues = (token: oldActivity.values.token.merging(resolvedAttributeNameValues) { _, new in new }, card: oldActivity.values.card)
-            let updatedActivity: Activity = .init(id: oldActivity.id, tokenObject: tokenObject, server: oldActivity.server, name: oldActivity.name, eventName: oldActivity.eventName, blockNumber: oldActivity.blockNumber, transactionId: oldActivity.transactionId, date: oldActivity.date, values: updatedValues, view: oldActivity.view, itemView: oldActivity.itemView, isBaseCard: oldActivity.isBaseCard)
+            let updatedActivity: Activity = .init(id: oldActivity.id, tokenObject: tokenObject, server: oldActivity.server, name: oldActivity.name, eventName: oldActivity.eventName, blockNumber: oldActivity.blockNumber, transactionId: oldActivity.transactionId, transactionIndex: oldActivity.transactionIndex, logIndex: oldActivity.logIndex, date: oldActivity.date, values: updatedValues, view: oldActivity.view, itemView: oldActivity.itemView, isBaseCard: oldActivity.isBaseCard, state: oldActivity.state)
             activities[index] = updatedActivity
             reloadViewController()
             if let activityViewController = activityViewController, activityViewController.isForActivity(updatedActivity) {
@@ -367,7 +367,7 @@ extension ActivitiesCoordinator: TransactionDataCoordinatorDelegate {
         case .success(let items):
             transactions = items
             reloadViewController()
-        case .failure(let error):
+        case .failure:
             break
         }
     }
