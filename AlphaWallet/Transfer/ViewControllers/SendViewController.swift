@@ -10,11 +10,7 @@ import BigInt
 import MBProgressHUD
 
 protocol SendViewControllerDelegate: class, CanOpenURL {
-    func didPressConfirm(
-            transaction: UnconfirmedTransaction,
-            transferType: TransferType,
-            in viewController: SendViewController
-    )
+    func didPressConfirm(transaction: UnconfirmedTransaction, in viewController: SendViewController)
     func lookup(contract: AlphaWallet.Address, in viewController: SendViewController, completion: @escaping (ContractData) -> Void)
     func openQRCode(in controller: SendViewController)
 }
@@ -31,7 +27,7 @@ class SendViewController: UIViewController, CanScanQRCode {
     private var viewModel: SendViewModel
     private var balanceViewModel: BalanceBaseViewModel?
     private let session: WalletSession
-    private let account: EthereumAccount
+    private let account: AlphaWallet.Address
     private let ethPrice: Subscribable<Double>
     private let assetDefinitionStore: AssetDefinitionStore
     private var data = Data()
@@ -64,7 +60,7 @@ class SendViewController: UIViewController, CanScanQRCode {
     init(
             session: WalletSession,
             storage: TokensDataStore,
-            account: EthereumAccount,
+            account: AlphaWallet.Address,
             transferType: TransferType,
             cryptoPrice: Subscribable<Double>,
             assetDefinitionStore: AssetDefinitionStore
@@ -169,7 +165,7 @@ class SendViewController: UIViewController, CanScanQRCode {
 
             footerBar.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             footerBar.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            footerBar.topAnchor.constraint(equalTo: view.layoutGuide.bottomAnchor, constant: -ButtonsBar.buttonsHeight - ButtonsBar.marginAtBottomScreen),
+            footerBar.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -ButtonsBar.buttonsHeight - ButtonsBar.marginAtBottomScreen),
             footerBar.bottomAnchor.constraint(equalTo: view.bottomAnchor),
 
             scrollView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
@@ -305,7 +301,7 @@ class SendViewController: UIViewController, CanScanQRCode {
                 tokenIds: .none
         )
 
-        delegate?.didPressConfirm(transaction: transaction, transferType: transferType, in: self)
+        delegate?.didPressConfirm(transaction: transaction, in: self)
     }
 
     func activateAmountView() {
