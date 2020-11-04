@@ -151,7 +151,7 @@ enum RPCServer: Hashable, CaseIterable {
         switch self {
         case .main:
             return Constants.mainnetEtherscanTokenDetailsWebPageURL
-        case .ropsten, .rinkeby, .kovan, .xDai, .goerli, .poa, .sokol, .classic, .callisto, .artis_sigma1, .artis_tau1, .binance_smart_chain, .binance_smart_chain_testnet, .custom:
+        case .ropsten, .rinkeby, .kovan, .xDai, .goerli, .poa, .sokol, .classic, .callisto, .artis_sigma1, .artis_tau1, .binance_smart_chain, .binance_smart_chain_testnet, .velas, .velastestnet, .custom:
             return etherscanContractDetailsWebPageURL
         }
     }
