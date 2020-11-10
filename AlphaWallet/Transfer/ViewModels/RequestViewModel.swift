@@ -29,12 +29,12 @@ struct RequestViewModel {
     }
     
     var copiedAddressString: String {
-        let inputString = account.address.eip55String
-        var string = inputString
-        if !VelasConvertUtil.isVlxAddress(inputString) {
-            string = VelasConvertUtil.ethToVlx(hexAddress: inputString)
-        }
-        return string
+        return account.address.eip55String
+//        var string = inputString
+//        if !VelasConvertUtil.isVlxAddress(inputString) {
+//            string = VelasConvertUtil.ethToVlx(hexAddress: inputString)
+//        }
+//        return string
     }
     
 	var myAddress: AlphaWallet.Address {
