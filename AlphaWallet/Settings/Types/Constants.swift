@@ -79,6 +79,8 @@ public struct Constants {
     public static let goerliEtherscanAPI = "https://api-goerli.etherscan.io/api?module=account&action=txlist&address="
     public static let artisSigma1NetworkCoreAPI = "https://explorer.sigma1.artis.network/api?module=account&action=txlist&address="
     public static let artisTau1NetworkCoreAPI = "https://explorer.tau1.artis.network/api?module=account&action=txlist&address="
+    public static let velasEtherscanAPI = "https://explorer.velas.com/api?module=account&action=txlist&address="
+    public static let velasTestnetEtherscanAPI = "https://explorer.testnet.veladev.net/api?module=account&action=txlist&address="
 
     //etherscan-compatible erc20 transaction event APIs
     //The fetch ERC20 transactions endpoint from Etherscan returns only ERC20 token transactions but the Blockscout version also includes ERC721 transactions too (so it's likely other types that it can detect will be returned too); thus we check the token type rather than assume that they are all ERC20
@@ -92,7 +94,9 @@ public struct Constants {
     public static let goerliEtherscanAPIErc20Events = "https://api-goerli.etherscan.io/api?module=account&action=tokentx&address="
     public static let artisSigma1NetworkCoreAPIErc20Events = "https://explorer.sigma1.artis.network/api?module=account&action=tokentx&address="
     public static let artisTau1NetworkCoreAPIErc20Events = "https://explorer.tau1.artis.network/api?module=account&action=tokentx&address="
-
+    public static let velasEtherscanAPIErc20Events = "https://explorer.velas.com/api?module=account&&action=tokentx&address="
+    public static let velasTestnetEtherscanAPIErc20Events = "https://explorer.testnet.veladev.net/api?module=account&&action=tokentx&address="
+    
     //etherscan-compatible contract details web page
     public static let mainnetEtherscanTokenDetailsWebPageURL = "https://cn.etherscan.com/token/"
     public static let mainnetEtherscanContractDetailsWebPageURL = "https://cn.etherscan.com/address/"
@@ -110,7 +114,9 @@ public struct Constants {
     public static let artisTau1ContractPage = "https://explorer.tau1.artis.network/search?q="
     public static let binanceContractPage = "https://explorer.binance.org/smart/search?q="
     public static let binanceTestnetContractPage = "https://explorer.binance.org/smart-testnet/search?q="
-
+    public static let velasContractPage = "https://explorer.velas.com/address/"
+    public static let velasTestnetContractPage = "https://explorer.testnet.veladev.net/address/"
+    
     //OpenSea links for erc721 assets
     public static let openseaAPI = "https://api.opensea.io/"
     public static let openseaRinkebyAPI = "https://rinkeby-api.opensea.io/"
