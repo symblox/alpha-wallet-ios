@@ -3,12 +3,12 @@
 import UIKit
 
 protocol TransferTokensCardViaWalletAddressViewControllerDelegate: class, CanOpenURL {
-    func didEnterWalletAddress(tokenHolder: TokenHolder, to walletAddress: AlphaWallet.Address, paymentFlow: PaymentFlow, in viewController: TransferTokensCardViaWalletAddressViewController)
+    func didEnterWalletAddress(tokenHolder: TokenHolder, to recipient: AlphaWallet.Address, paymentFlow: PaymentFlow, in viewController: TransferTokensCardViaWalletAddressViewController)
     func didPressViewInfo(in viewController: TransferTokensCardViaWalletAddressViewController)
     func openQRCode(in controller: TransferTokensCardViaWalletAddressViewController)
 }
 
-class TransferTokensCardViaWalletAddressViewController: UIViewController, TokenVerifiableStatusViewController, CanScanQRCode {
+class TransferTokensCardViaWalletAddressViewController: UIViewController, TokenVerifiableStatusViewController {
     private let token: TokenObject
     private let roundedBackground = RoundedBackground()
     private let header = TokensCardViewControllerTitleHeader()
