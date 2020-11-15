@@ -96,7 +96,7 @@ enum RPCServer: Hashable, CaseIterable {
         case .binance_smart_chain: return nil
         case .binance_smart_chain_testnet: return nil
         case .velas: return "https://explorer.velas.com/tx/"
-        case .velastestnet: return "https://xtn.yopta.net/"
+        case .velastestnet: return "https://explorer.testnet.veladev.net//"
         case .custom: return nil
         }
     }
@@ -119,7 +119,7 @@ enum RPCServer: Hashable, CaseIterable {
         case .binance_smart_chain: return nil
         case .binance_smart_chain_testnet: return nil
         case .velas: return "https://explorer.velas.com/"
-        case .velastestnet: return "https://xtn.yopta.net/"
+        case .velastestnet: return "https://explorer.testnet.veladev.net//"
         case .custom: return nil
         }
     }
@@ -141,7 +141,7 @@ enum RPCServer: Hashable, CaseIterable {
         case .binance_smart_chain: return Constants.binanceContractPage
         case .binance_smart_chain_testnet: return Constants.binanceTestnetContractPage
         case .velas: return "https://explorer.velas.com/"
-        case .velastestnet: return "https://xtn.yopta.net/"
+        case .velastestnet: return "https://explorer.testnet.veladev.net//"
         case .custom: return Constants.mainnetEtherscanContractDetailsWebPageURL
         }
     }
@@ -319,8 +319,8 @@ enum RPCServer: Hashable, CaseIterable {
             case .artis_tau1: return "https://rpc.tau1.artis.network"
             case .binance_smart_chain: return "https://bsc-dataseed1.binance.org:443"
             case .binance_smart_chain_testnet: return "https://data-seed-prebsc-1-s1.binance.org:8545"
-            case .velas: return "https://explorer.velas.com/rpc"
-            case .velastestnet: return "https://tn.yopta.net"
+            case .velas: return "https://rpc.symblox.net"
+            case .velastestnet: return "https://explorer.testnet.veladev.net/rpc"
             case .custom(let custom):
                 return custom.endpoint
             }
@@ -346,7 +346,7 @@ enum RPCServer: Hashable, CaseIterable {
             case .artis_tau1: return "https://explorer.tau1.artis.network/api"
             case .binance_smart_chain: return "https://explorer.binance.org/smart/tx/"
             case .binance_smart_chain_testnet: return "https://explorer.binance.org/smart-testnet/tx/"
-            case .velastestnet: return "https://xtn.yopta.net"
+            case .velastestnet: return "https://explorer.testnet.veladev.net/"
             case .custom:
                 return "" // Enable? make optional
             }
