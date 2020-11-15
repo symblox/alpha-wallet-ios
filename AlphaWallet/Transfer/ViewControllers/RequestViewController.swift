@@ -42,12 +42,11 @@ class RequestViewController: UIViewController {
 		let label = UILabel(frame: .zero)
 		label.textColor = viewModel.addressLabelColor
 		label.font = viewModel.addressFont
-        label.text = viewModel.myAddressText
-//        if VelasConvertUtil.isVlxAddress(viewModel.myAddressText) {
-//            label.text = viewModel.myAddressText
-//        } else {
-//            label.text = VelasConvertUtil.ethToVlx(hexAddress: viewModel.myAddressText)
-//        }
+        if VelasConvertUtil.isVlxAddress(viewModel.myAddressText) {
+            label.text = viewModel.myAddressText
+        } else {
+            label.text = VelasConvertUtil.ethToVlx(hexAddress: viewModel.myAddressText)
+        }
 		
 		label.textAlignment = .center
 		label.numberOfLines = 0
@@ -198,14 +197,13 @@ class RequestViewController: UIViewController {
 	}
 
 	func changeQRCode(value: Int) {
-        //let inputString = viewModel.generatingAddressString
+        let inputString = viewModel.generatingAddressString
 		// EIP67 format not being used much yet, use hex value for now
 		// let string = "ethereum:\(account.address.address)?value=\(value)"
 
-        let string = viewModel.myAddressText
 		DispatchQueue.global(qos: .background).async { [weak self] in
             guard let strongSelf = self else { return }
-			let image = strongSelf.generateQRCode(from: string)
+			let image = strongSelf.generateQRCode(from: inputString)
 			DispatchQueue.main.async {
 				strongSelf.imageView.image = image
 			}
