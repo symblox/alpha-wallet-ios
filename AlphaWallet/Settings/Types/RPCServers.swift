@@ -63,7 +63,7 @@ enum RPCServer: Hashable, CaseIterable {
         case .artis_tau1: return "ARTIS tau1"
         case .binance_smart_chain: return "Binance"
         case .binance_smart_chain_testnet: return "Binance"
-        case .velas: return "Velas"
+        case .velas: return "Velas China"
         case .velastestnet: return "Velas Testnet"
         case .custom(let custom):
             return custom.name
@@ -305,7 +305,8 @@ enum RPCServer: Hashable, CaseIterable {
             case .artis_tau1: return "https://rpc.tau1.artis.network"
             case .binance_smart_chain: return "https://bsc-dataseed1.binance.org:443"
             case .binance_smart_chain_testnet: return "https://data-seed-prebsc-1-s1.binance.org:8545"
-            case .velas: return "https://explorer.velas.com/rpc"
+//            case .velas: return "https://explorer.velas.com/rpc"
+            case .velas: return "https://rpc.symblox.net"
             case .velastestnet: return "https://tn.yopta.net"
             case .custom(let custom):
                 return custom.endpoint
