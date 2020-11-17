@@ -170,8 +170,12 @@ class TokensDataStore {
     private func addEthToken() {
         //Check if we have previous values.
         let etherToken = TokensDataStore.etherToken(forServer: server)
-        if objects.first(where: { $0 == etherToken }) == nil {
+        guard let existedToken = objects.first(where: { $0 == etherToken }) else {
             add(tokens: [etherToken])
+            return
+        }
+        if existedToken.name != etherToken.name {
+            update(token: existedToken, action: .name(etherToken.name))
         }
     }
 
