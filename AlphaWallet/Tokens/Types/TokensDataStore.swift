@@ -78,7 +78,7 @@ class TokensDataStore {
     private var chainId: Int {
         return server.chainID
     }
-    private var addChainId : Int {
+    private var addChainId: Int {
         return server.addChainID
     }
     private var isFetchingPrices = false
@@ -95,6 +95,7 @@ class TokensDataStore {
         return Array(
                 realm.objects(TokenObject.self)
                         .filter("chainId = \(self.chainId)")
+                        .filter("addChainServerID = \(self.addChainId)")
                         .filter("contract != ''")
         )
     }
@@ -466,7 +467,8 @@ class TokensDataStore {
     func token(forContract contract: AlphaWallet.Address) -> TokenObject? {
         realm.objects(TokenObject.self)
                 .filter("contract = '\(contract.eip55String)'")
-                .filter("chainId = \(chainId)").first
+                .filter("chainId = \(chainId)")
+                .filter("addChainServerID = \(self.addChainId)").first
     }
 
     func refreshBalance() {
