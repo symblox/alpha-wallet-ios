@@ -1420,6 +1420,14 @@
 		CCA4FE381FD428B300749AE4 /* JailbreakChecker.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCA4FE371FD428B300749AE4 /* JailbreakChecker.swift */; };
 		CCA4FE3A1FD42B4100749AE4 /* FakeJailbreakChecker.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCA4FE391FD42B4100749AE4 /* FakeJailbreakChecker.swift */; };
 		CCCD74FD1FD2D38D004A087D /* CheckDeviceCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCCD74FC1FD2D38D004A087D /* CheckDeviceCoordinator.swift */; };
+		D12DE7BB256810D300DC78A1 /* Radio.swift in Sources */ = {isa = PBXBuildFile; fileRef = D12DE7BA256810D300DC78A1 /* Radio.swift */; };
+		D12DE7BC256812D900DC78A1 /* Radio.swift in Sources */ = {isa = PBXBuildFile; fileRef = D12DE7BA256810D300DC78A1 /* Radio.swift */; };
+		D1589AA72566B8B50014A94D /* ServerHeaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D122B07A2566832C00A85B9E /* ServerHeaderView.swift */; };
+		D1589AA82566B8E70014A94D /* ServerHeaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D122B07A2566832C00A85B9E /* ServerHeaderView.swift */; };
+		D1589AAA2566BCEA0014A94D /* ServerHeaderModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = D1589AA92566BCEA0014A94D /* ServerHeaderModel.swift */; };
+		D1589AAB2566BCEA0014A94D /* ServerHeaderModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = D1589AA92566BCEA0014A94D /* ServerHeaderModel.swift */; };
+		D1820CCF2567B979005942D1 /* RadidoServerViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = D1820CCE2567B979005942D1 /* RadidoServerViewCell.swift */; };
+		D1820CD02567B992005942D1 /* RadidoServerViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = D1820CCE2567B979005942D1 /* RadidoServerViewCell.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -2210,6 +2218,10 @@
 		CCA4FE371FD428B300749AE4 /* JailbreakChecker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JailbreakChecker.swift; sourceTree = "<group>"; };
 		CCA4FE391FD42B4100749AE4 /* FakeJailbreakChecker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FakeJailbreakChecker.swift; sourceTree = "<group>"; };
 		CCCD74FC1FD2D38D004A087D /* CheckDeviceCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CheckDeviceCoordinator.swift; sourceTree = "<group>"; };
+		D122B07A2566832C00A85B9E /* ServerHeaderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ServerHeaderView.swift; sourceTree = "<group>"; };
+		D12DE7BA256810D300DC78A1 /* Radio.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Radio.swift; sourceTree = "<group>"; };
+		D1589AA92566BCEA0014A94D /* ServerHeaderModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ServerHeaderModel.swift; sourceTree = "<group>"; };
+		D1820CCE2567B979005942D1 /* RadidoServerViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RadidoServerViewCell.swift; sourceTree = "<group>"; };
 		E36AB2DC7832A980726A4AB1 /* Pods_AlphaWalletTests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_AlphaWalletTests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
@@ -2467,6 +2479,7 @@
 				5E7C74F1B6944E7BD06DD2C2 /* TokenObject+UI.swift */,
 				5E7C7C67C1FF0BFDDA82C61E /* TokenImageView.swift */,
 				5E7C7D111692DE8ED67D29B7 /* AlphaWalletAddress+UI.swift */,
+				D12DE7BA256810D300DC78A1 /* Radio.swift */,
 			);
 			path = UI;
 			sourceTree = "<group>";
@@ -2905,6 +2918,7 @@
 				87ED8F98248541380005C69B /* AdvancedSettingsViewModel.swift */,
 				87ED8F9C248647C80005C69B /* SettingViewHeaderViewModel.swift */,
 				87ED8FAE2488EA9C0005C69B /* SupportViewModel.swift */,
+				D1589AA92566BCEA0014A94D /* ServerHeaderModel.swift */,
 			);
 			path = ViewModels;
 			sourceTree = "<group>";
@@ -3919,6 +3933,8 @@
 				5E7C75D384C0D727BB43305E /* SettingsHeaderView.swift */,
 				5E7C7553BB089397B7E74BE0 /* WalletSecurityLevelIndicator.swift */,
 				87ED8F92248534E30005C69B /* SwitchTableViewCell.swift */,
+				D122B07A2566832C00A85B9E /* ServerHeaderView.swift */,
+				D1820CCE2567B979005942D1 /* RadidoServerViewCell.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -5144,6 +5160,7 @@
 				29F1C85D2003698A003780D8 /* WellDoneViewController.swift in Sources */,
 				29E9CFCF1FE7347200017744 /* ERCToken.swift in Sources */,
 				29C9F5FB1F720C050025C494 /* FloatLabelTextField.swift in Sources */,
+				D1589AAA2566BCEA0014A94D /* ServerHeaderModel.swift in Sources */,
 				296421951F70C1EC00EB363B /* LoadingView.swift in Sources */,
 				2961BD071FB146EB00C4B840 /* ChainState.swift in Sources */,
 				73D26837202E827E009777A1 /* DecimalFormatter.swift in Sources */,
@@ -5246,6 +5263,7 @@
 				73C41C73201B5EFF00243C6C /* LockCreatePasscodeViewModel.swift in Sources */,
 				29B6AED61F7CA4A700EC6DE3 /* TransactionConfiguration.swift in Sources */,
 				29F114F41FA8117C00114A29 /* SendCoordinator.swift in Sources */,
+				D12DE7BB256810D300DC78A1 /* Radio.swift in Sources */,
 				87ED8FAF2488EA9C0005C69B /* SupportViewModel.swift in Sources */,
 				293B8B411F707F4600356286 /* TransactionViewModel.swift in Sources */,
 				29BB94951F6FC54C009B09CC /* EthereumUnit.swift in Sources */,
@@ -5299,6 +5317,7 @@
 				76F1D91659771C9EEA7B48DC /* CreateRedeem.swift in Sources */,
 				442FCE0DAE5527A93F54022C /* RedeemTokenCardQuantitySelectionViewController.swift in Sources */,
 				442FC0B59B23C0F3068621C0 /* NumberStepper.swift in Sources */,
+				D1820CCF2567B979005942D1 /* RadidoServerViewCell.swift in Sources */,
 				442FCE2BEE8D475C7DEB39C1 /* RedeemTokenCardQuantitySelectionViewModel.swift in Sources */,
 				442FCB9CF5BC243F0705F4FE /* TokenCardRedemptionViewController.swift in Sources */,
 				874DED0C24C05E88006C8FCE /* TransactionConfirmationViewModel.swift in Sources */,
@@ -5452,6 +5471,7 @@
 				5E7C708D05DBC08C8304F274 /* GetIsERC875Encode.swift in Sources */,
 				8769888D24C6ED04002BF62B /* TransactionInProgressCoordinator.swift in Sources */,
 				5E7C7F95F75D39673B88D774 /* GetERC721BalanceEncode.swift in Sources */,
+				D1589AA82566B8E70014A94D /* ServerHeaderView.swift in Sources */,
 				5E7C7CDE2814481CD7BC47AC /* PushNotificationsCoordinator.swift in Sources */,
 				5E7C768AA9654954A0DD87F0 /* OpenSeaNonFungibleTokenCardRowViewModel.swift in Sources */,
 				5E7C7FDCAE5ED2EEE02CE661 /* OpenSeaNonFungibleTokenCardRowView.swift in Sources */,
@@ -5883,6 +5903,7 @@
 				89AED05F253014230008AAEF /* WellDoneViewController.swift in Sources */,
 				89AED060253014230008AAEF /* ERCToken.swift in Sources */,
 				89AED061253014230008AAEF /* FloatLabelTextField.swift in Sources */,
+				D1589AAB2566BCEA0014A94D /* ServerHeaderModel.swift in Sources */,
 				89AED062253014230008AAEF /* LoadingView.swift in Sources */,
 				89AED063253014230008AAEF /* ChainState.swift in Sources */,
 				89AED064253014230008AAEF /* DecimalFormatter.swift in Sources */,
@@ -5985,6 +6006,7 @@
 				89AED0C5253014230008AAEF /* LockCreatePasscodeViewModel.swift in Sources */,
 				89AED0C6253014230008AAEF /* TransactionConfiguration.swift in Sources */,
 				89AED0C7253014230008AAEF /* SendCoordinator.swift in Sources */,
+				D12DE7BC256812D900DC78A1 /* Radio.swift in Sources */,
 				89AED0C8253014230008AAEF /* SupportViewModel.swift in Sources */,
 				89AED0C9253014230008AAEF /* TransactionViewModel.swift in Sources */,
 				89AED0CA253014230008AAEF /* EthereumUnit.swift in Sources */,
@@ -6038,6 +6060,7 @@
 				89AED0FA253014230008AAEF /* CreateRedeem.swift in Sources */,
 				89AED0FB253014230008AAEF /* RedeemTokenCardQuantitySelectionViewController.swift in Sources */,
 				89AED0FC253014230008AAEF /* NumberStepper.swift in Sources */,
+				D1820CD02567B992005942D1 /* RadidoServerViewCell.swift in Sources */,
 				89AED0FD253014230008AAEF /* RedeemTokenCardQuantitySelectionViewModel.swift in Sources */,
 				89AED0FE253014230008AAEF /* TokenCardRedemptionViewController.swift in Sources */,
 				89AED0FF253014230008AAEF /* TransactionConfirmationViewModel.swift in Sources */,
@@ -6191,6 +6214,7 @@
 				89AED192253014230008AAEF /* GetIsERC875Encode.swift in Sources */,
 				89AED193253014230008AAEF /* TransactionInProgressCoordinator.swift in Sources */,
 				89AED194253014230008AAEF /* GetERC721BalanceEncode.swift in Sources */,
+				D1589AA72566B8B50014A94D /* ServerHeaderView.swift in Sources */,
 				89AED195253014230008AAEF /* PushNotificationsCoordinator.swift in Sources */,
 				89AED196253014230008AAEF /* OpenSeaNonFungibleTokenCardRowViewModel.swift in Sources */,
 				89AED197253014230008AAEF /* OpenSeaNonFungibleTokenCardRowView.swift in Sources */,
@@ -6836,7 +6860,7 @@
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 5;
-				DEVELOPMENT_TEAM = G83E5W8633;
+				DEVELOPMENT_TEAM = HVP28J6V94;
 				ENABLE_BITCODE = YES;
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
@@ -6877,7 +6901,7 @@
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 5;
-				DEVELOPMENT_TEAM = G83E5W8633;
+				DEVELOPMENT_TEAM = HVP28J6V94;
 				ENABLE_BITCODE = YES;
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",

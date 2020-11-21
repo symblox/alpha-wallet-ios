@@ -28,9 +28,12 @@ class ServerViewCell: UITableViewCell {
         selectionStyle = .default
         backgroundColor = viewModel.backgroundColor
 
-        accessoryType = viewModel.accessoryType
-
+        setAccessoryType(type: viewModel.accessoryType)
         nameLabel.font = viewModel.serverFont
         nameLabel.text = viewModel.serverName
+    }
+    
+    func setAccessoryType (type: AccessoryType) {
+        accessoryType = type
     }
 }

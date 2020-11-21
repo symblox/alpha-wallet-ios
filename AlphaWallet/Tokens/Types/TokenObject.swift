@@ -6,11 +6,12 @@ import BigInt
 
 class TokenObject: Object {
     static func generatePrimaryKey(fromContract contract: AlphaWallet.Address, server: RPCServer) -> String {
-        return "\(contract.eip55String)-\(server.chainID)"
+        return "\(contract.eip55String)-\(server.chainID)-\(server.chainID != server.addChainID ? "\(server.addChainID)" : "" ) "
     }
 
     @objc dynamic var primaryKey: String = ""
     @objc dynamic var chainId: Int = 0
+    @objc dynamic var addChainServerID: Int = 0
     @objc dynamic var contract: String = Constants.nullAddress.eip55String
     @objc dynamic var name: String = ""
     @objc dynamic var symbol: String = ""
@@ -56,6 +57,7 @@ class TokenObject: Object {
         self.value = value
         self.isDisabled = isDisabled
         self.type = type
+        self.addChainServerID = server.addChainID
     }
 
     var contractAddress: AlphaWallet.Address {
@@ -81,7 +83,7 @@ class TokenObject: Object {
 
     override func isEqual(_ object: Any?) -> Bool {
         guard let object = object as? TokenObject else { return false }
-        return object.contractAddress.sameContract(as: contractAddress)
+        return object.contractAddress.sameContract(as: contractAddress) && addChainServerID == object.addChainServerID
     }
 
     func title(withAssetDefinitionStore assetDefinitionStore: AssetDefinitionStore) -> String {
@@ -139,6 +141,9 @@ class TokenObject: Object {
     }
 
     var server: RPCServer {
+        if chainId != addChainServerID {
+            return .init(addChainID: addChainServerID)
+        }
         return .init(chainID: chainId)
     }
 }
