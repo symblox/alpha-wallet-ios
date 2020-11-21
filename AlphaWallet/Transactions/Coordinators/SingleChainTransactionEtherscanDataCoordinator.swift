@@ -132,7 +132,7 @@ class SingleChainTransactionEtherscanDataCoordinator: SingleChainTransactionData
                 let contractsToTokenTypes = Dictionary(uniqueKeysWithValues: zip(contracts, tokenTypes))
                 return (transactions: filteredTransactions, contractTypes: contractsToTokenTypes)
             }
-        case .main, .classic, .kovan, .ropsten, .rinkeby, .sokol, .callisto, .goerli, .artis_sigma1, .artis_tau1, .binance_smart_chain, .binance_smart_chain_testnet, .custom, .velas, .velastestnet:
+        case .main, .classic, .kovan, .ropsten, .rinkeby, .sokol, .callisto, .goerli, .artis_sigma1, .artis_tau1, .binance_smart_chain, .binance_smart_chain_testnet, .custom, .velas, .velastestnet, .velaschina:
             return .value((transactions: filteredTransactions, contractTypes: .init()))
         }
     }
@@ -242,7 +242,7 @@ class SingleChainTransactionEtherscanDataCoordinator: SingleChainTransactionData
             etherReceivedUsedForBackupPrompt.flatMap { promptBackupCoordinator.showCreateBackupAfterReceiveNativeCryptoCurrencyPrompt(nativeCryptoCurrency: $0) }
         case .classic, .xDai:
             break
-        case .kovan, .ropsten, .rinkeby, .poa, .sokol, .callisto, .goerli, .artis_sigma1, .artis_tau1, .binance_smart_chain, .binance_smart_chain_testnet, .custom, .velas, .velastestnet:
+        case .kovan, .ropsten, .rinkeby, .poa, .sokol, .callisto, .goerli, .artis_sigma1, .artis_tau1, .binance_smart_chain, .binance_smart_chain_testnet, .custom, .velas, .velastestnet, .velaschina:
             break
         }
     }
@@ -251,7 +251,7 @@ class SingleChainTransactionEtherscanDataCoordinator: SingleChainTransactionData
         let notificationCenter = UNUserNotificationCenter.current()
         let content = UNMutableNotificationContent()
         switch session.server {
-        case .main, .xDai, .velas, .velastestnet:
+        case .main, .xDai, .velas, .velastestnet, .velaschina:
             content.body = R.string.localizable.transactionsReceivedEther(amount, session.server.symbol)
         case .kovan, .ropsten, .rinkeby, .poa, .sokol, .classic, .callisto, .goerli, .artis_sigma1, .artis_tau1, .binance_smart_chain, .binance_smart_chain_testnet, .custom:
             content.body = R.string.localizable.transactionsReceivedEther("\(amount) (\(session.server.name))", session.server.symbol)

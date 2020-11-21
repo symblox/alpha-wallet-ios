@@ -70,7 +70,7 @@ class UniversalLinkCoordinator: Coordinator {
             return "BNB"
         case .classic, .main, .poa, .callisto, .kovan, .ropsten, .rinkeby, .sokol, .goerli, .artis_sigma1, .artis_tau1, .custom:
             return "ETH"
-        case .velas, .velastestnet:
+        case .velas, .velastestnet, .velaschina:
             return "VLX"
         }
     }
@@ -421,7 +421,7 @@ class UniversalLinkCoordinator: Coordinator {
         switch server {
         case .xDai:
             errorMessage = R.string.localizable.aClaimTokenFailedNotEnoughXDAITitle()
-        case .classic, .main, .poa, .callisto, .kovan, .ropsten, .rinkeby, .sokol, .goerli, .artis_sigma1, .artis_tau1, .binance_smart_chain, .binance_smart_chain_testnet, .custom, .velas, .velastestnet:
+        case .classic, .main, .poa, .callisto, .kovan, .ropsten, .rinkeby, .sokol, .goerli, .artis_sigma1, .artis_tau1, .binance_smart_chain, .binance_smart_chain_testnet, .custom, .velas, .velastestnet, .velaschina:
             errorMessage = R.string.localizable.aClaimTokenFailedNotEnoughEthTitle()
         }
         if ethPrice.value == nil {

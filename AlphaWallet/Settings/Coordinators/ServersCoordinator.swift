@@ -11,6 +11,7 @@ class ServersCoordinator: Coordinator {
     static let serversOrdered: [RPCServer] = [
         .velas,
         .velastestnet,
+        .velaschina,
         .main,
         .xDai,
         .classic,
