@@ -13,7 +13,7 @@ struct Config {
         if let currency = defaults.string(forKey: Keys.currencyID) {
             return Currency(rawValue: currency)!
         }
-        //If ther is not saved currency try to use user local currency if it is supported.
+        //If the is not saved currency try to use user local currency if it is supported.
         let availableCurrency = Currency.allValues.first { currency in
             return currency.rawValue == Locale.current.currencySymbol
         }
@@ -199,7 +199,7 @@ extension Config {
     }
 
     func saveWalletName(_ walletName: String, forAddress address: AlphaWallet.Address) {
-        var walletName = walletName.trimmed
+        let walletName = walletName.trimmed
         guard !walletName.isEmpty else { return }
         var names = walletNames
         names[address] = walletName

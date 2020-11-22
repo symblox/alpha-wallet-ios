@@ -8,7 +8,7 @@ target 'AlphaWallet' do
   pod 'R.swift'
   pod 'JSONRPCKit', '~> 2.0.0'
   pod 'APIKit'
-  pod 'Eureka', '~> 5.2.1'
+  pod 'Eureka', :git => 'https://github.com/xmartlabs/Eureka.git', :branch => 'master'
   pod 'MBProgressHUD'
   pod 'StatefulViewController'
 
@@ -57,7 +57,7 @@ target 'Velas' do
   pod 'R.swift'
   pod 'JSONRPCKit', '~> 2.0.0'
   pod 'APIKit'
-  pod 'Eureka', '~> 5.2.1'
+  pod 'Eureka', :git => 'https://github.com/xmartlabs/Eureka.git', :branch => 'master'
   pod 'MBProgressHUD'
   pod 'StatefulViewController'
 

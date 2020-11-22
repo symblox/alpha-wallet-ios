@@ -39,11 +39,12 @@ class SettingsCoordinator: Coordinator {
     lazy var advancedSettingsViewController: AdvancedSettingsViewController = {
         let controller = AdvancedSettingsViewController()
         controller.delegate = self
+        controller.hidesBottomBarWhenPushed = true
         return controller
     }()
 
 	init(
-			navigationController: UINavigationController = NavigationController(),
+			navigationController: UINavigationController = UINavigationController(),
 			keystore: Keystore,
 			config: Config,
 			sessions: ServerDictionary<WalletSession>,
@@ -216,7 +217,7 @@ extension SettingsCoordinator: BackupCoordinatorDelegate {
 		removeCoordinator(coordinator)
 	}
 
-	func didFinish(account: EthereumAccount, in coordinator: BackupCoordinator) {
+	func didFinish(account: AlphaWallet.Address, in coordinator: BackupCoordinator) {
 		promptBackupCoordinator.markBackupDone()
 		promptBackupCoordinator.showHideCurrentPrompt()
 		removeCoordinator(coordinator)

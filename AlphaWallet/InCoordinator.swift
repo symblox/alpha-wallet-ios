@@ -16,15 +16,19 @@ protocol InCoordinatorDelegate: class {
 enum Tabs {
     case wallet
     case alphaWalletSettings
-    case transactions
+    case transactionsOrActivity
     case browser
 
     var className: String {
         switch self {
         case .wallet:
             return String(describing: TokensViewController.self)
-        case .transactions:
-            return String(describing: TransactionsViewController.self)
+        case .transactionsOrActivity:
+            if Features.isActivityEnabled {
+                return String(describing: ActivitiesViewController.self)
+            } else {
+                return String(describing: TransactionsViewController.self)
+            }
         case .alphaWalletSettings:
             return String(describing: SettingsViewController.self)
         case .browser:
@@ -100,7 +104,7 @@ class InCoordinator: NSObject, Coordinator {
     }
 
     init(
-            navigationController: UINavigationController = NavigationController(),
+            navigationController: UINavigationController = UINavigationController(),
             wallet: Wallet,
             keystore: Keystore,
             assetDefinitionStore: AssetDefinitionStore,
@@ -115,7 +119,8 @@ class InCoordinator: NSObject, Coordinator {
         self.appTracker = appTracker
         self.analyticsCoordinator = analyticsCoordinator
         self.assetDefinitionStore = assetDefinitionStore
-        self.assetDefinitionStore.enableFetchXMLForContractInPasteboard()
+        //Disabled for now. Refer to function's comment
+        //self.assetDefinitionStore.enableFetchXMLForContractInPasteboard()
 
         super.init()
     }
@@ -416,7 +421,6 @@ class InCoordinator: NSObject, Coordinator {
     }
 
     private func createActivityCoordinator() -> ActivitiesCoordinator {
-        let realm = self.realm(forAccount: wallet)
         let coordinator = ActivitiesCoordinator(
                 config: config,
                 sessions: walletSessions,
@@ -600,7 +604,7 @@ class InCoordinator: NSObject, Coordinator {
         })
         alertController.addAction(copyAction)
         alertController.addAction(UIAlertAction(title: R.string.localizable.oK(), style: .default, handler: nil))
-        navigationController.present(alertController, animated: true, completion: nil)
+        presentationViewController.present(alertController, animated: true, completion: nil)
     }
 
     private func fetchXMLAssetDefinitions() {
@@ -615,7 +619,7 @@ class InCoordinator: NSObject, Coordinator {
         let v = UInt8(signature.substring(from: 128), radix: 16)!
         let r = "0x" + signature.substring(with: Range(uncheckedBounds: (0, 64)))
         let s = "0x" + signature.substring(with: Range(uncheckedBounds: (64, 128)))
-        guard let wallet = keystore.recentlyUsedWallet else { return }
+        let wallet = keystore.currentWallet
         claimOrderCoordinator = ClaimOrderCoordinator()
         claimOrderCoordinator?.claimOrder(
                 signedOrder: signedOrder,
@@ -630,7 +634,7 @@ class InCoordinator: NSObject, Coordinator {
             switch result {
             case .success(let payload):
                 let session = strongSelf.walletSessions[server]
-                let account = try! EtherKeystore(analyticsCoordinator: strongSelf.analyticsCoordinator).getAccount(for: wallet.address)!
+                let account = wallet.address
                 TransactionConfigurator.estimateGasPrice(server: server).done { gasPrice in
                     //Note: since we have the data payload, it is unnecessary to load an UnconfirmedTransaction struct
                     let transactionToSign = UnsignedTransaction(
@@ -753,8 +757,7 @@ class InCoordinator: NSObject, Coordinator {
 
 extension InCoordinator: CanOpenURL {
     private func open(url: URL, in viewController: UIViewController) {
-        guard let account = keystore.recentlyUsedWallet else { return }
-
+        let account = keystore.currentWallet
         //TODO duplication of code to set up a BrowserCoordinator when creating the application's tabbar
         let realm = self.realm(forAccount: account)
         let browserCoordinator = createBrowserCoordinator(sessions: walletSessions, realm: realm, browserOnly: true)
@@ -769,7 +772,7 @@ extension InCoordinator: CanOpenURL {
             let url = server.etherscanContractDetailsWebPageURL(for: wallet.address)
             open(url: url, in: viewController)
         } else {
-            let url = server.etherscanContractDetailsWebPageURL(for: contract)
+            let url = server.etherscanTokenDetailsWebPageURL(for: contract)
             open(url: url, in: viewController)
         }
     }
@@ -861,14 +864,16 @@ extension InCoordinator: PaymentCoordinatorDelegate {
         switch result {
         case .sentTransaction(let transaction):
             handlePendingTransaction(transaction: transaction)
-            showTransactionSent(transaction: transaction)
             removeCoordinator(coordinator)
 
             guard let currentTab = tabBarController?.selectedViewController else { return }
             currentTab.dismiss(animated: true)
 
             // Once transaction sent, show transactions screen.
-            showTab(.transactions)
+            showTab(.transactionsOrActivity)
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.8) {
+                self.showTransactionSent(transaction: transaction)
+            }
         case .signedTransaction: break
         }
     }

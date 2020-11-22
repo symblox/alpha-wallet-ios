@@ -18,7 +18,7 @@ PODS:
   - BigInt (3.0.1):
     - SipHash (~> 1.2)
   - CryptoSwift (0.10.0)
-  - Eureka (5.2.1)
+  - Eureka (5.3.1)
   - iOSSnapshotTestCase (3.0.0):
     - iOSSnapshotTestCase/SwiftSupport (= 3.0.0)
   - iOSSnapshotTestCase/Core (3.0.0)
@@ -101,7 +101,7 @@ DEPENDENCIES:
   - AWSSNS
   - BigInt (~> 3.0)
   - CryptoSwift
-  - Eureka (~> 5.2.1)
+  - Eureka (from `https://github.com/xmartlabs/Eureka.git`, branch `master`)
   - iOSSnapshotTestCase
   - JavaScriptKit
   - JSONRPCKit (~> 2.0.0)
@@ -130,9 +130,11 @@ DEPENDENCIES:
   - web3swift (from `https://github.com/alpha-wallet/web3swift.git`, commit `d863662b08f112dee48538a04ab704244e9c7bae`)
 
 SPEC REPOS:
-  https://github.com/CocoaPods/Specs.git:
+  trunk:
     - Alamofire
+    - Alamofire-Synchronous
     - APIKit
+    - AppCenter
     - AWSCore
     - AWSSNS
     - BigInt
@@ -141,11 +143,15 @@ SPEC REPOS:
     - JavaScriptKit
     - JSONRPCKit
     - Kingfisher
+    - libsodium
     - MBProgressHUD
+    - Mixpanel-swift
     - Moya
     - PromiseKit
     - R.swift
     - R.swift.Library
+    - Realm
+    - RealmSwift
     - Result
     - SAMKeychain
     - secp256k1_ios
@@ -157,19 +163,14 @@ SPEC REPOS:
     - SwiftyJSON
     - SWXMLHash
     - TrustWalletCore
-  trunk:
-    - Alamofire-Synchronous
-    - AppCenter
-    - Eureka
-    - libsodium
-    - Mixpanel-swift
-    - Realm
-    - RealmSwift
 
 EXTERNAL SOURCES:
   AlphaWalletWeb3Provider:
     :commit: 1c1aafb566361e7067e69f6e38b0fdc30b801429
     :git: https://github.com/AlphaWallet/AlphaWallet-web3-provider
+  Eureka:
+    :branch: master
+    :git: https://github.com/xmartlabs/Eureka.git
   Kanna:
     :commit: 06a04bc28783ccbb40efba355dee845a024033e8
     :git: https://github.com/tid-kijyun/Kanna.git
@@ -198,6 +199,9 @@ CHECKOUT OPTIONS:
   AlphaWalletWeb3Provider:
     :commit: 1c1aafb566361e7067e69f6e38b0fdc30b801429
     :git: https://github.com/AlphaWallet/AlphaWallet-web3-provider
+  Eureka:
+    :commit: 4966703a61df8e17fc74939dfeec4e5c9e94db7c
+    :git: https://github.com/xmartlabs/Eureka.git
   Kanna:
     :commit: 06a04bc28783ccbb40efba355dee845a024033e8
     :git: https://github.com/tid-kijyun/Kanna.git
@@ -233,7 +237,7 @@ SPEC CHECKSUMS:
   AWSSNS: a67710a80c8d380e34248b16e503e0719f02a28d
   BigInt: 8e8a52161c745cd3ab78e3dc346a9fbee51e6cf6
   CryptoSwift: 6c778d69282bed3b4e975ff97a79d074f20bb011
-  Eureka: c883105488e05bc65539f583246ecf9657cabbfe
+  Eureka: 859877ab1e85661b6b7e810015d430e937d9cc7d
   iOSSnapshotTestCase: 23984ffe05289728d646cbb6a7a10b4fb1c93440
   JavaScriptKit: 9ff565209e6efe21bcb9c6d6ca3e863a67a8ecf7
   JSONRPCKit: b2991f2f242d72022083f9d869140dabd26d65c7
@@ -267,6 +271,6 @@ SPEC CHECKSUMS:
   TrustWalletCore: dd8c81d5958f1eb737abea1e14675efcc6a104aa
   web3swift: 1597d4997976d21325882db4c523f1dfd5459406
 
-PODFILE CHECKSUM: 079d126f7464fbe0ff09644e9fa143b38ff816ea
+PODFILE CHECKSUM: 294867db7ce4ab0493293ee7bbac648d5ac253a1
 
 COCOAPODS: 1.9.3

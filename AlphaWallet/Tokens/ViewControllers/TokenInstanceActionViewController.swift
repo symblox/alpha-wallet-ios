@@ -8,7 +8,7 @@ import PromiseKit
 protocol TokenInstanceActionViewControllerDelegate: class, CanOpenURL {
     func didPressViewRedemptionInfo(in viewController: TokenInstanceActionViewController)
     func shouldCloseFlow(inViewController viewController: TokenInstanceActionViewController)
-    func didCompleteTransaction(in viewController: TokenInstanceActionViewController)
+    func confirmTransactionSelected(in viewController: TokenInstanceActionViewController, tokenObject: TokenObject, contract: AlphaWallet.Address, tokenId: TokenId, values: [AttributeId: AssetInternalValue], localRefs: [AttributeId: AssetInternalValue], server: RPCServer, session: WalletSession, keystore: Keystore, transactionFunction: FunctionOrigin)
 }
 
 class TokenInstanceActionViewController: UIViewController, TokenVerifiableStatusViewController {
@@ -20,16 +20,13 @@ class TokenInstanceActionViewController: UIViewController, TokenVerifiableStatus
     private let tokensStorage: TokensDataStore
     private let roundedBackground = RoundedBackground()
     lazy private var tokenScriptRendererView: TokenInstanceWebView = {
-        //TODO pass in keystore or wallet address instead
-        let walletAddress = EtherKeystore.current!.address
-        let webView = TokenInstanceWebView(server: server, walletAddress: walletAddress, assetDefinitionStore: assetDefinitionStore)
+        let webView = TokenInstanceWebView(server: server, wallet: keystore.currentWallet, assetDefinitionStore: assetDefinitionStore)
         webView.isWebViewInteractionEnabled = true
         webView.delegate = self
         webView.isStandalone = true
         webView.isAction = true
         return webView
     }()
-
 
     //TODO might have to change the number of buttons? if the action type change or should we just go back since the flow may be broken if we remain in this screen
     private let buttonsBar = ButtonsBar(configuration: .green(buttons: 1))
@@ -117,7 +114,7 @@ class TokenInstanceActionViewController: UIViewController, TokenVerifiableStatus
 
             footerBar.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             footerBar.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            footerBar.topAnchor.constraint(equalTo: view.layoutGuide.bottomAnchor, constant: -ButtonsBar.buttonsHeight - ButtonsBar.marginAtBottomScreen),
+            footerBar.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -ButtonsBar.buttonsHeight - ButtonsBar.marginAtBottomScreen),
             footerBar.bottomAnchor.constraint(equalTo: view.bottomAnchor),
         ] + roundedBackground.createConstraintsWithContainer(view: view))
     }
@@ -192,34 +189,9 @@ class TokenInstanceActionViewController: UIViewController, TokenVerifiableStatus
             let contract = transactionFunction.originContractOrRecipientAddress
             let tokenId = strongSelf.tokenId
 
-            func notify(message: String) {
-                UIAlertController.alert(title: message,
-                    message: "",
-                    alertButtonTitles: [R.string.localizable.oK()],
-                    alertButtonStyles: [.default],
-                    viewController: strongSelf,
-                    completion: nil
-                )
-            }
-
-            func postTransaction() {
-                transactionFunction.postTransaction(withTokenId: tokenId, attributeAndValues: values, localRefs: strongSelf.tokenScriptRendererView.localRefs, server: strongSelf.server, session: strongSelf.session, keystore: strongSelf.keystore).done {_ in
-                    strongSelf.delegate?.didCompleteTransaction(in: strongSelf)
-                }.catch { error in
-                    notify(message: "Transaction Failed")
-                }
-            }
-
             guard transactionFunction.generateDataAndValue(withTokenId: tokenId, attributeAndValues: values, localRefs: strongSelf.tokenScriptRendererView.localRefs, server: strongSelf.server, session: strongSelf.session, keystore: strongSelf.keystore) != nil else { return }
 
-            guard let navigationController = strongSelf.navigationController else { return }
-
-            let viewModel = TransactionConfirmationViewModel(contract: contract)
-            let controller = TransactionConfirmationViewController(viewModel: viewModel)
-            controller.didCompleted = postTransaction
-
-            let transitionController = ConfirmationTransitionController(sourceViewController: navigationController, destinationViewController: controller)
-            transitionController.start()
+            strongSelf.delegate?.confirmTransactionSelected(in: strongSelf, tokenObject: strongSelf.tokenObject, contract: contract, tokenId: tokenId, values: values, localRefs: strongSelf.tokenScriptRendererView.localRefs, server: strongSelf.server, session: strongSelf.session, keystore: strongSelf.keystore, transactionFunction: transactionFunction)
 
         }.cauterize()
         //TODO catch

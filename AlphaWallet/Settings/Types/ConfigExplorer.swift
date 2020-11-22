@@ -58,7 +58,7 @@ struct ConfigExplorer {
         case .velas:
             return ("https://explorer.velas.com", nameForServer)
         case .velastestnet:
-            return ("https://xtn.yopta.net", nameForServer)
+            return ("https://explorer.testnet.veladev.net", nameForServer)
         case .classic:
             return ("https://blockscout.com/etc/mainnet/", nameForServer)
         case .kovan:

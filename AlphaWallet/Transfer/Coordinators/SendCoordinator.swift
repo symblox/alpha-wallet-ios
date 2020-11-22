@@ -4,6 +4,7 @@ import Foundation
 import UIKit
 import BigInt
 import PromiseKit
+import Result
 
 protocol SendCoordinatorDelegate: class, CanOpenURL {
     func didFinish(_ result: ConfirmResult, in coordinator: SendCoordinator)
@@ -13,13 +14,14 @@ protocol SendCoordinatorDelegate: class, CanOpenURL {
 class SendCoordinator: Coordinator {
     private let transferType: TransferType
     private let session: WalletSession
-    private let account: EthereumAccount
+    private let account: AlphaWallet.Address
     private let keystore: Keystore
     private let storage: TokensDataStore
     private let ethPrice: Subscribable<Double>
     private let tokenHolders: [TokenHolder]!
     private let assetDefinitionStore: AssetDefinitionStore
     private let analyticsCoordinator: AnalyticsCoordinator?
+    private var transactionConfirmationResult: TransactionConfirmationResult = .noData
 
     lazy var sendViewController: SendViewController = {
         return makeSendViewController()
@@ -35,7 +37,7 @@ class SendCoordinator: Coordinator {
             session: WalletSession,
             keystore: Keystore,
             storage: TokensDataStore,
-            account: EthereumAccount,
+            account: AlphaWallet.Address,
             ethPrice: Subscribable<Double>,
             tokenHolders: [TokenHolder] = [],
             assetDefinitionStore: AssetDefinitionStore,
@@ -100,12 +102,15 @@ class SendCoordinator: Coordinator {
         case .ERC721Token: break
         case .ERC721ForTicketToken: break
         case .dapp: break
+        case .tokenScript: break
         }
         controller.delegate = self
         return controller
     }
 
     @objc func dismiss() {
+        removeAllCoordinators()
+
         delegate?.didCancel(in: self)
     }
 }
@@ -131,34 +136,61 @@ extension SendCoordinator: SendViewControllerDelegate {
         coordinator.start()
     }
 
-    func didPressConfirm(transaction: UnconfirmedTransaction, transferType: TransferType, in viewController: SendViewController) {
-
-        let configurator = TransactionConfigurator(
-            session: session,
-            account: account,
-            transaction: transaction
-        )
-        let controller = ConfirmPaymentViewController(
-            session: session,
+    func didPressConfirm(transaction: UnconfirmedTransaction, in viewController: SendViewController, amount: String) {
+        let configuration: TransactionConfirmationConfiguration = .sendFungiblesTransaction(
+            confirmType: .signThenSend,
             keystore: keystore,
-            configurator: configurator,
-            confirmType: .signThenSend
+            assetDefinitionStore: assetDefinitionStore,
+            amount: amount,
+            ethPrice: ethPrice
         )
-        controller.didCompleted = { [weak self] result in
-            guard let strongSelf = self else { return }
-            switch result {
-            case .success(let type):
-                strongSelf.delegate?.didFinish(type, in: strongSelf)
-            case .failure(let error):
-                strongSelf.navigationController.displayError(error: error)
-            }
-        }
-        controller.navigationItem.largeTitleDisplayMode = .never
-        navigationController.pushViewController(controller, animated: true)
+        let coordinator = TransactionConfirmationCoordinator(navigationController: navigationController, session: session, transaction: transaction, configuration: configuration)
+        addCoordinator(coordinator)
+        coordinator.delegate = self
+        coordinator.start()
     }
 
     func lookup(contract: AlphaWallet.Address, in viewController: SendViewController, completion: @escaping (ContractData) -> Void) {
         fetchContractDataFor(address: contract, storage: storage, assetDefinitionStore: assetDefinitionStore, completion: completion)
+    }
+}
+
+extension SendCoordinator: TransactionConfirmationCoordinatorDelegate {
+    func coordinator(_ coordinator: TransactionConfirmationCoordinator, didFailTransaction error: AnyError) {
+        //TODO improve error message. Several of this delegate func
+        coordinator.navigationController.displayError(message: error.localizedDescription)
+    }
+
+    func coordinator(_ coordinator: TransactionConfirmationCoordinator, didCompleteTransaction result: TransactionConfirmationResult) {
+        coordinator.close { [weak self] in
+            guard let strongSelf = self else { return }
+
+            strongSelf.removeCoordinator(coordinator)
+
+            strongSelf.transactionConfirmationResult = result
+
+            let coordinator = TransactionInProgressCoordinator(navigationController: strongSelf.navigationController)
+            coordinator.delegate = strongSelf
+            strongSelf.addCoordinator(coordinator)
+
+            coordinator.start()
+        }
+    }
+
+    func didClose(in coordinator: TransactionConfirmationCoordinator) {
+        removeCoordinator(coordinator)
+    }
+}
+
+extension SendCoordinator: TransactionInProgressCoordinatorDelegate {
+
+    func transactionInProgressDidDismiss(in coordinator: TransactionInProgressCoordinator) {
+        switch transactionConfirmationResult {
+        case .confirmationResult(let result):
+            delegate?.didFinish(result, in: self)
+        case .noData:
+            break
+        }
     }
 }
 

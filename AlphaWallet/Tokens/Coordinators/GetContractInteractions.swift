@@ -10,7 +10,7 @@ import SwiftyJSON
 class GetContractInteractions {
 
     func getErc20Interactions(contractAddress: AlphaWallet.Address? = nil, address: AlphaWallet.Address, server: RPCServer, startBlock: Int? = nil, completion: @escaping ([Transaction]) -> Void) {
-        guard var etherscanURL = server.etherscanAPIURLForERC20TxList(for: address, startBlock: startBlock) else { return }
+        guard let etherscanURL = server.etherscanAPIURLForERC20TxList(for: address, startBlock: startBlock) else { return }
         Alamofire.request(etherscanURL).validate().responseJSON { response in
             switch response.result {
             case .success(let value):
@@ -21,38 +21,40 @@ class GetContractInteractions {
                     if let contractAddress = contractAddress {
                         //filter based on what contract you are after
                         filteredResult = json["result"].filter {
-                            $0.1["contractAddress"].description == contractAddress.eip55String.lowercased()
+                            $0.1["contractAddress"].stringValue == contractAddress.eip55String.lowercased()
                         }
                     } else {
                         filteredResult = json["result"].filter {
-                            $0.1["to"].description.contains("0x")
+                            $0.1["to"].stringValue.hasPrefix("0x")
                         }
                     }
                     let transactions: [Transaction] = filteredResult.map { result in
                         let transactionJson = result.1
                         let localizedTokenObj = LocalizedOperationObject(
-                                from: transactionJson["from"].description,
-                                to: transactionJson["to"].description,
-                                contract: AlphaWallet.Address(uncheckedAgainstNullAddress: transactionJson["contractAddress"].description),
-                                type: "erc20TokenTransfer",
-                                value: transactionJson["value"].description,
-                                symbol: transactionJson["tokenSymbol"].description,
-                                name: transactionJson["tokenName"].description,
+                                from: transactionJson["from"].stringValue,
+                                to: transactionJson["to"].stringValue,
+                                contract: AlphaWallet.Address(uncheckedAgainstNullAddress: transactionJson["contractAddress"].stringValue),
+                                type: OperationType.erc20TokenTransfer.rawValue,
+                                value: transactionJson["value"].stringValue,
+                                symbol: transactionJson["tokenSymbol"].stringValue,
+                                name: transactionJson["tokenName"].stringValue,
                                 decimals: transactionJson["tokenDecimal"].intValue
                         )
                         return Transaction(
-                                id: transactionJson["hash"].description,
+                                id: transactionJson["hash"].stringValue,
                                 server: server,
                                 blockNumber: transactionJson["blockNumber"].intValue,
-                                from: transactionJson["from"].description,
-                                to: transactionJson["to"].description,
-                                value: transactionJson["value"].description,
-                                gas: transactionJson["gas"].description,
-                                gasPrice: transactionJson["gasPrice"].description,
-                                gasUsed: transactionJson["gasUsed"].description,
-                                nonce: transactionJson["nonce"].description,
-                                date: Date(timeIntervalSince1970: Double(string: transactionJson["timeStamp"].description) ?? Double(0)),
+                                transactionIndex: transactionJson["transactionIndex"].intValue,
+                                from: transactionJson["from"].stringValue,
+                                to: transactionJson["to"].stringValue,
+                                value: transactionJson["value"].stringValue,
+                                gas: transactionJson["gas"].stringValue,
+                                gasPrice: transactionJson["gasPrice"].stringValue,
+                                gasUsed: transactionJson["gasUsed"].stringValue,
+                                nonce: transactionJson["nonce"].stringValue,
+                                date: Date(timeIntervalSince1970: transactionJson["timeStamp"].doubleValue),
                                 localizedOperations: [localizedTokenObj],
+                                //The API only returns successful transactions
                                 state: .completed,
                                 isErc20Interaction: true
                         )
@@ -95,10 +97,10 @@ class GetContractInteractions {
                             //every transaction that has input is by default a transaction to a contract
                             //Note: etherscan API only returns contractAddress for this call
                             //if it is an initialisation of a contract
-                            if transactionJson["contractAddress"].description == "" {
-                                return (transactionJson["to"].description, blockNumber)
+                            if transactionJson["contractAddress"].stringValue == "" {
+                                return (transactionJson["to"].stringValue, blockNumber)
                             } else {
-                                return (transactionJson["contractAddress"].description, blockNumber)
+                                return (transactionJson["contractAddress"].stringValue, blockNumber)
                             }
                         }
                         return ("", blockNumber)

@@ -21,19 +21,16 @@ class AccountsViewController: UIViewController {
     private let config: Config
     private let keystore: Keystore
     private let balanceCoordinator: GetNativeCryptoCurrencyBalanceCoordinator
-    private let analyticsCoordinator: AnalyticsCoordinator?
-    lazy private var etherKeystore = try? EtherKeystore(analyticsCoordinator: analyticsCoordinator)
     weak var delegate: AccountsViewControllerDelegate?
     var allowsAccountDeletion: Bool = false
     var hasWallets: Bool {
         return !keystore.wallets.isEmpty
     }
 
-    init(config: Config, keystore: Keystore, balanceCoordinator: GetNativeCryptoCurrencyBalanceCoordinator, analyticsCoordinator: AnalyticsCoordinator?) {
+    init(config: Config, keystore: Keystore, balanceCoordinator: GetNativeCryptoCurrencyBalanceCoordinator) {
         self.config = config
         self.keystore = keystore
         self.balanceCoordinator = balanceCoordinator
-        self.analyticsCoordinator = analyticsCoordinator
         super.init(nibName: nil, bundle: nil)
 
         view.backgroundColor = Colors.appBackground
@@ -108,9 +105,13 @@ class AccountsViewController: UIViewController {
 
     private func delete(account: Wallet) {
         navigationController?.displayLoading(text: R.string.localizable.deleting())
-        keystore.delete(wallet: account) { [weak self] result in
+        let result = keystore.delete(wallet: account)
+
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.4) { [weak self] in
             guard let strongSelf = self else { return }
+
             strongSelf.navigationController?.hideLoading()
+
             switch result {
             case .success:
                 strongSelf.fetch()
@@ -140,7 +141,7 @@ class AccountsViewController: UIViewController {
         let account = self.account(for: path)
         let walletName = viewModel.walletName(forAccount: account)
         let balance = self.balances[account.address].flatMap { $0 }
-        let model = AccountViewModel(wallet: account, current: etherKeystore?.recentlyUsedWallet, walletBalance: balance, server: balanceCoordinator.server, walletName: walletName)
+        let model = AccountViewModel(wallet: account, current: keystore.currentWallet, walletBalance: balance, server: balanceCoordinator.server, walletName: walletName)
         return model
     }
 
@@ -194,11 +195,11 @@ extension AccountsViewController: UITableViewDataSource {
         guard allowsAccountDeletion else { return false }
         switch AccountViewTableSectionHeader.HeaderType(rawValue: indexPath.section) {
         case .some(.hdWallet):
-            return etherKeystore?.recentlyUsedWallet != viewModel.hdWallets[indexPath.row]
+            return keystore.currentWallet != viewModel.hdWallets[indexPath.row]
         case .some(.keystoreWallet):
-            return etherKeystore?.recentlyUsedWallet != viewModel.keystoreWallets[indexPath.row]
+            return keystore.currentWallet != viewModel.keystoreWallets[indexPath.row]
         case .some(.watchedWallet):
-            return etherKeystore?.recentlyUsedWallet != viewModel.watchedWallets[indexPath.row]
+            return keystore.currentWallet != viewModel.watchedWallets[indexPath.row]
         case .none:
             return false
         }
@@ -252,12 +253,12 @@ extension AccountsViewController: UITableViewDelegate {
         }
     }
 
-    func tableView(_ tableView: UITableView, viewForFooterInSection section: Int) -> UIView? {
-        return nil
-    }
-
+    //Hide the footer
     func tableView(_ tableView: UITableView, heightForFooterInSection section: Int) -> CGFloat {
-        return 0.01
+        .leastNormalMagnitude
+    }
+    func tableView(_ tableView: UITableView, viewForFooterInSection section: Int) -> UIView? {
+        nil
     }
 
     func tableView(_ tableView: UITableView, trailingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
@@ -291,7 +292,7 @@ extension AccountsViewController: UITableViewDelegate {
         tableView.deselectRow(at: indexPath, animated: true)
 
         let account = self.account(for: indexPath)
-        guard etherKeystore?.recentlyUsedWallet != account else { return }
+        guard keystore.currentWallet != account else { return }
 
         delegate?.didSelectAccount(account: account, in: self)
     }

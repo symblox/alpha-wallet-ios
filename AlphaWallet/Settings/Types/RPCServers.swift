@@ -95,8 +95,8 @@ enum RPCServer: Hashable, CaseIterable {
         case .artis_tau1: return nil
         case .binance_smart_chain: return nil
         case .binance_smart_chain_testnet: return nil
-        case .velas: return "https://explorer.velas.com/tx/"
-        case .velastestnet: return "https://xtn.yopta.net/"
+        case .velas: return Constants.velasEtherscanAPI
+        case .velastestnet: return Constants.velasTestnetEtherscanAPI
         case .custom: return nil
         }
     }
@@ -118,8 +118,8 @@ enum RPCServer: Hashable, CaseIterable {
         case .artis_tau1: return nil
         case .binance_smart_chain: return nil
         case .binance_smart_chain_testnet: return nil
-        case .velas: return "https://explorer.velas.com/"
-        case .velastestnet: return "https://xtn.yopta.net/"
+        case .velas: return Constants.velasEtherscanAPIErc20Events
+        case .velastestnet: return Constants.velasTestnetEtherscanAPIErc20Events
         case .custom: return nil
         }
     }
@@ -140,9 +140,19 @@ enum RPCServer: Hashable, CaseIterable {
         case .artis_tau1: return Constants.artisTau1ContractPage
         case .binance_smart_chain: return Constants.binanceContractPage
         case .binance_smart_chain_testnet: return Constants.binanceTestnetContractPage
-        case .velas: return "https://explorer.velas.com/"
-        case .velastestnet: return "https://xtn.yopta.net/"
+        case .velas: return Constants.velasContractPage
+        case .velastestnet: return Constants.velasTestnetContractPage
         case .custom: return Constants.mainnetEtherscanContractDetailsWebPageURL
+        }
+    }
+
+    //We assume that only Etherscan supports this and only for Ethereum mainnet: The token page instead of contract page
+    var etherscanTokenDetailsWebPageURL: String {
+        switch self {
+        case .main:
+            return Constants.mainnetEtherscanTokenDetailsWebPageURL
+        case .ropsten, .rinkeby, .kovan, .xDai, .goerli, .poa, .sokol, .classic, .callisto, .artis_sigma1, .artis_tau1, .binance_smart_chain, .binance_smart_chain_testnet, .velas, .velastestnet, .custom:
+            return etherscanContractDetailsWebPageURL
         }
     }
 
@@ -168,6 +178,10 @@ enum RPCServer: Hashable, CaseIterable {
 
     func etherscanContractDetailsWebPageURL(for address: AlphaWallet.Address) -> URL {
         return URL(string: etherscanContractDetailsWebPageURL + address.eip55String)!
+    }
+
+    func etherscanTokenDetailsWebPageURL(for address: AlphaWallet.Address) -> URL {
+        return URL(string: etherscanTokenDetailsWebPageURL + address.eip55String)!
     }
 
     var priceID: AlphaWallet.Address {
@@ -308,6 +322,7 @@ enum RPCServer: Hashable, CaseIterable {
 //            case .velas: return "https://explorer.velas.com/rpc"
             case .velas: return "https://rpc.symblox.net"
             case .velastestnet: return "https://tn.yopta.net"
+//            case .velastestnet: return "https://explorer.testnet.veladev.net/rpc"
             case .custom(let custom):
                 return custom.endpoint
             }
@@ -333,7 +348,7 @@ enum RPCServer: Hashable, CaseIterable {
             case .artis_tau1: return "https://explorer.tau1.artis.network/api"
             case .binance_smart_chain: return "https://explorer.binance.org/smart/tx/"
             case .binance_smart_chain_testnet: return "https://explorer.binance.org/smart-testnet/tx/"
-            case .velastestnet: return "https://xtn.yopta.net"
+            case .velastestnet: return "https://explorer.testnet.veladev.net/"
             case .custom:
                 return "" // Enable? make optional
             }

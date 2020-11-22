@@ -18,6 +18,12 @@ struct Activity {
         case none
     }
 
+    enum State {
+        case pending
+        case completed
+        case failed
+    }
+
     //We use the internal id to track which activity to replace/update
     let id: Int
     //TODO safe to have TokenObject here? Maybe a struct is better
@@ -27,11 +33,14 @@ struct Activity {
     let eventName: String
     let blockNumber: Int
     let transactionId: String
+    let transactionIndex: Int
+    let logIndex: Int
     let date: Date
     let values: (token: [AttributeId: AssetInternalValue], card: [AttributeId: AssetInternalValue])
     let view: (html: String, style: String)
     let itemView: (html: String, style: String)
     let isBaseCard: Bool
+    let state: State
 
     var viewHtml: (html: String, hash: Int) {
         let hash = "\(view.style)\(view.html)".hashForCachingHeight

@@ -84,7 +84,7 @@ class SingleChainTransactionEtherscanDataCoordinator: SingleChainTransactionData
                 server: session.server,
                 startBlock: startBlock
         ) { result in
-            if let maxBlockNumber = result.map { $0.blockNumber }.max() {
+            if let maxBlockNumber = result.map({ $0.blockNumber }).max() {
                 Config.setLastFetchedErc20InteractionBlockNumber(maxBlockNumber, server: self.session.server, wallet: wallet)
             }
             self.update(items: result)
@@ -212,7 +212,7 @@ class SingleChainTransactionEtherscanDataCoordinator: SingleChainTransactionData
     //TODO notify user of received tokens too
     private func notifyUserEtherReceived(inNewTransactions transactions: [Transaction]) {
         guard !transactions.isEmpty else { return }
-        guard let wallet = keystore.recentlyUsedWallet else { return }
+        let wallet = keystore.currentWallet
         var toNotify: [Transaction]
         if let newestCached = storage.objects.first {
             toNotify = transactions.filter { $0.blockNumber > newestCached.blockNumber }
@@ -224,7 +224,8 @@ class SingleChainTransactionEtherscanDataCoordinator: SingleChainTransactionData
         if toNotify.count > maximumNumberOfNotifications {
             toNotify = Array(toNotify[0..<maximumNumberOfNotifications])
         }
-        let newIncomingEthTransactions = toNotify.filter { wallet.address.sameContract(as: $0.to) }
+        let toNotifyUnique: [Transaction] = filterUniqueTransactions(toNotify)
+        let newIncomingEthTransactions = toNotifyUnique.filter { wallet.address.sameContract(as: $0.to) }
         let formatter = EtherNumberFormatter.short
         let thresholdToShowNotification = Date.yesterday
         for each in newIncomingEthTransactions {
@@ -245,6 +246,17 @@ class SingleChainTransactionEtherscanDataCoordinator: SingleChainTransactionData
         case .kovan, .ropsten, .rinkeby, .poa, .sokol, .callisto, .goerli, .artis_sigma1, .artis_tau1, .binance_smart_chain, .binance_smart_chain_testnet, .custom, .velas, .velastestnet:
             break
         }
+    }
+
+    //Etherscan for Ropsten returns the same transaction twice. Normally Realm will take care of this, but since we are showing user a notification, we don't want to show duplicates
+    private func filterUniqueTransactions(_ transactions: [Transaction]) -> [Transaction] {
+        var results = [Transaction]()
+        for each in transactions {
+            if !results.contains(where: { each.id == $0.id }) {
+                results.append(each)
+            }
+        }
+        return results
     }
 
     private func notifyUserEtherReceived(for transactionId: String, amount: String) {

@@ -39,7 +39,7 @@ struct SendHeaderViewViewModel {
         token.icon
     }
 
-    var blockChaintagViewModel: BlockchainTagLabelViewModel {
+    var blockChainTagViewModel: BlockchainTagLabelViewModel {
         .init(server: server)
     }
 
@@ -61,7 +61,7 @@ struct SendHeaderViewViewModel {
                 } else {
                     return marketPriceAttributedString
                 }
-            case .ERC20Token, .ERC875Token, .ERC875TokenOrder, .ERC721Token, .ERC721ForTicketToken, .dapp:
+            case .ERC20Token, .ERC875Token, .ERC875TokenOrder, .ERC721Token, .ERC721ForTicketToken, .dapp, .tokenScript:
                 return nil
             }
         }

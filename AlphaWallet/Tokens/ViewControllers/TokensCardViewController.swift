@@ -23,7 +23,7 @@ protocol TokensCardViewControllerDelegate: class, CanOpenURL {
 
 //TODO rename to be appropriate for TokenScript
 class TokensCardViewController: UIViewController, TokenVerifiableStatusViewController {
-    static let anArbitaryRowHeightSoAutoSizingCellsWorkIniOS10 = CGFloat(100)
+    static let anArbitraryRowHeightSoAutoSizingCellsWorkIniOS10 = CGFloat(100)
     private var sizingCell: TokenCardTableViewCellWithCheckbox?
 
     private let tokenObject: TokenObject
@@ -99,7 +99,7 @@ class TokensCardViewController: UIViewController, TokenVerifiableStatusViewContr
         tableView.separatorStyle = .none
         tableView.backgroundColor = GroupedTable.Color.background
         tableView.tableHeaderView = header
-        tableView.estimatedRowHeight = TokensCardViewController.anArbitaryRowHeightSoAutoSizingCellsWorkIniOS10
+        tableView.estimatedRowHeight = TokensCardViewController.anArbitraryRowHeightSoAutoSizingCellsWorkIniOS10
         roundedBackground.addSubview(tableView)
 
         let footerBar = ButtonsBarBackgroundView(buttonsBar: buttonsBar)
@@ -331,7 +331,7 @@ class TokensCardViewController: UIViewController, TokenVerifiableStatusViewContr
                 }
             }()
         }
-        rowView.bounds = CGRect(x: 0, y: 0, width: tableView.frame.size.width, height: TokensCardViewController.anArbitaryRowHeightSoAutoSizingCellsWorkIniOS10)
+        rowView.bounds = CGRect(x: 0, y: 0, width: tableView.frame.size.width, height: TokensCardViewController.anArbitraryRowHeightSoAutoSizingCellsWorkIniOS10)
         rowView.setNeedsLayout()
         rowView.layoutIfNeeded()
         rowView.shouldOnlyRenderIfHeightIsCached = false
@@ -422,16 +422,6 @@ extension TokensCardViewController: UITableViewDelegate, UITableViewDataSource {
             let tokenHolder = viewModel.item(for: indexPath)
             delegate?.didTapTokenInstanceIconified(tokenHolder: tokenHolder, in: self)
         }
-    }
-
-    //Needed to make gap between cells narrower
-    func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
-        return 0
-    }
-
-    //Needed to make gap between cells narrower
-    func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
-        return nil
     }
 }
 

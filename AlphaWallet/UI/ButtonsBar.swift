@@ -66,7 +66,7 @@ enum ButtonsBarButtonType {
     case white
 }
 
-class BarButton: UIButton {
+class BarButton: TransitionButton {
 
     private var observation: NSKeyValueObservation?
     private var borderColorMap: [UInt: UIColor?] = [:]
@@ -74,7 +74,7 @@ class BarButton: UIButton {
 
     init() {
         super.init(frame: .zero)
-        self.observation = observe(\.isEnabled, options: [.old, .new]) { [weak self] object, change in
+        observation = observe(\.isEnabled, options: [.old, .new]) { [weak self] object, change in
             guard let strongSelf = self else { return }
 
             for pair in strongSelf.borderColorMap where pair.key == object.state.rawValue {
@@ -84,7 +84,7 @@ class BarButton: UIButton {
     }
 
     required init?(coder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
+        return nil
     }
 
     func setBorderColor(_ color: UIColor?, for state: UIControl.State) {
@@ -142,14 +142,14 @@ class ButtonsBarBackgroundView: UIView {
     }
 }
 
-@objc class ButtonsBar: UIView {
+class ButtonsBar: UIView {
     static let buttonsHeight = CGFloat(ScreenChecker().isNarrowScreen ? 38 : 48)
     //A gap so it doesn't stick to the bottom of devices without a bottom safe area
     static let marginAtBottomScreen = CGFloat(3)
 
     private var buttonContainerViews: [ContainerViewWithShadow<BarButton>] = []
     private var moreButtonContainerViews: [ContainerViewWithShadow<BarButton>] = []
-    //NOTE: we need to handle buttont changes, for this we will use buttonsStackView, to make sure that number of button has changed
+    //NOTE: we need to handle button changes, for this we will use buttonsStackView, to make sure that number of button has changed
     private var buttonsStackView: UIStackView
     private var innerStackView: UIStackView
     private var observations: [NSKeyValueObservation] = []

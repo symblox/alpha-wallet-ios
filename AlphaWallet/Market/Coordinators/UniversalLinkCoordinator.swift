@@ -21,6 +21,7 @@ class UniversalLinkCoordinator: Coordinator {
         case paid(signedOrder: SignedOrder, tokenObject: TokenObject)
     }
 
+    private let wallet: Wallet
     private let config: Config
     private var importTokenViewController: ImportMagicTokenViewController?
     private let ethPrice: Subscribable<Double>
@@ -52,10 +53,6 @@ class UniversalLinkCoordinator: Coordinator {
             return false
         }
     }
-    private var walletAddress: AlphaWallet.Address {
-        //TODO pass in the wallet instead
-        return EtherKeystore.current!.address
-    }
 
     var coordinators: [Coordinator] = []
     let server: RPCServer
@@ -75,9 +72,10 @@ class UniversalLinkCoordinator: Coordinator {
         }
     }
 
-    init?(config: Config, ethPrices: ServerDictionary<Subscribable<Double>>, ethBalances: ServerDictionary<Subscribable<BigInt>>, tokensDatastores: ServerDictionary<TokensDataStore>, assetDefinitionStore: AssetDefinitionStore, url: URL) {
+    init?(wallet: Wallet, config: Config, ethPrices: ServerDictionary<Subscribable<Double>>, ethBalances: ServerDictionary<Subscribable<BigInt>>, tokensDatastores: ServerDictionary<TokensDataStore>, assetDefinitionStore: AssetDefinitionStore, url: URL) {
         guard let server = RPCServer(withMagicLink: url) else { return nil }
 
+        self.wallet = wallet
         self.config = config
         self.ethPrice = ethPrices[server]
         self.ethBalance = ethBalances[server]
@@ -102,7 +100,7 @@ class UniversalLinkCoordinator: Coordinator {
             "expiry": signedOrder.order.expiry.description,
             "nonce": signedOrder.order.nonce,
             "v": signature.substring(from: 128),
-            //Use string interpolation instead of concatentation to speed up build time. 160ms -> <100ms, as of Xcode 11.7
+            //Use string interpolation instead of concatenation to speed up build time. 160ms -> <100ms, as of Xcode 11.7
             "r": "0x\(signature.substring(with: Range(uncheckedBounds: (0, 64))))",
             "s": "0x\(signature.substring(with: Range(uncheckedBounds: (64, 128))))",
             "networkId": server.chainID.description,
@@ -121,7 +119,7 @@ class UniversalLinkCoordinator: Coordinator {
         let indicesStringEncoded = stringEncodeIndices(indices)
         let tokenIdsEncoded = stringEncodeTokenIds(signedOrder.order.tokenIds)
         var parameters: Parameters = [
-            "address": walletAddress,
+            "address": wallet.address,
             "contractAddress": signedOrder.order.contractAddress,
             "indices": indicesStringEncoded,
             "tokenIds": tokenIdsEncoded ?? "",
@@ -193,7 +191,7 @@ class UniversalLinkCoordinator: Coordinator {
         case true:
             return createHTTPParametersForCurrencyLinksToPaymentServer(
                     signedOrder: signedOrder,
-                    recipient: walletAddress
+                    recipient: wallet.address
             )
         case false:
             return createHTTPParametersForNormalLinksToPaymentServer(
@@ -401,7 +399,7 @@ class UniversalLinkCoordinator: Coordinator {
         let provider = Web3HttpProvider(nodeURL, network: server.web3Network)!
         return web3(provider: provider).personal.ecrecover(
                 hash: messageHash,
-                signature: Data(bytes: signature.hexa2Bytes)
+                signature: Data(bytes: signature.hexToBytes)
         )
     }
 
@@ -499,13 +497,12 @@ class UniversalLinkCoordinator: Coordinator {
         //TODO pass in the wallet instead
         let tokensDatastore = tokensDatastores[server]
         guard let tokenType = type ?? (tokensDatastore.token(forContract: contractAddress)?.type) else { return }
-        let account = EtherKeystore.current!
         var tokens = [Token]()
         let xmlHandler = XMLHandler(contract: contractAddress, tokenType: tokenType, assetDefinitionStore: assetDefinitionStore)
         for i in 0..<bytes32Tokens.count {
             let token = bytes32Tokens[i]
             if let tokenId = BigUInt(token.drop0x, radix: 16) {
-                let token = xmlHandler.getToken(name: name, symbol: symbol, fromTokenIdOrEvent: .tokenId(tokenId: tokenId), index: UInt16(i), inWallet: account, server: server, tokenType: tokenType)
+                let token = xmlHandler.getToken(name: name, symbol: symbol, fromTokenIdOrEvent: .tokenId(tokenId: tokenId), index: UInt16(i), inWallet: wallet, server: server, tokenType: tokenType)
                 tokens.append(token)
             }
         }

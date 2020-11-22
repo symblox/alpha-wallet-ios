@@ -5,6 +5,8 @@ import UIKit
 extension AlphaWallet.Address {
     var tokenImage: UIImage? {
         switch eip55String {
+        case "0x2de7063fe77aAFB5b401d65E5A108649Ec577170":
+            return R.image.tokenSyx()
         case "0x5d3a536E4D6DbD6114cc1Ead35777bAB948E3643":
             return R.image.tokenCdai()
         case "0x89d24A6b4CcB1B6fAA2625fE562bDD9a23260359":
@@ -33,6 +35,12 @@ extension AlphaWallet.Address {
 //            return R.image.tokenPsai()
 //        case "p-eos":
 //            return R.image.tokenPeos()
+
+        //CoFiX
+        case "0x1a23a6BfBAdB59fa563008c0fB7cf96dfCF34Ea1":
+            return R.image.tokenCofi()
+        case "0xb2b7BeDd7d7fc19804C7Dd4a4E8174C4c73C210d":
+            return R.image.tokenCofix()
 
         //other
         case "0xbd31496feb604F9eC6a1C78c3371f8cFd220f5F2":

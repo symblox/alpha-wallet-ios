@@ -11,6 +11,7 @@ protocol ActivityViewControllerDelegate: class {
 
 class ActivityViewController: UIViewController {
     private let roundedBackground = RoundedBackground()
+    private let wallet: Wallet
     private let assetDefinitionStore: AssetDefinitionStore
     private let buttonsBar = ButtonsBar(configuration: .green(buttons: 1))
     private let tokenImageView = TokenImageView()
@@ -21,9 +22,7 @@ class ActivityViewController: UIViewController {
     private let separator = UIView()
     private let bottomFiller = UIView.spacerWidth()
     lazy private var tokenScriptRendererView: TokenInstanceWebView = {
-        //TODO pass in keystore or wallet address instead
-        let walletAddress = EtherKeystore.current!.address
-        let webView = TokenInstanceWebView(server: server, walletAddress: walletAddress, assetDefinitionStore: assetDefinitionStore)
+        let webView = TokenInstanceWebView(server: server, wallet: wallet, assetDefinitionStore: assetDefinitionStore)
         webView.isWebViewInteractionEnabled = true
         webView.delegate = self
         webView.isStandalone = true
@@ -41,7 +40,8 @@ class ActivityViewController: UIViewController {
 
     weak var delegate: ActivityViewControllerDelegate?
 
-    init(assetDefinitionStore: AssetDefinitionStore, viewModel: ActivityViewModel) {
+    init(wallet: Wallet, assetDefinitionStore: AssetDefinitionStore, viewModel: ActivityViewModel) {
+        self.wallet = wallet
         self.assetDefinitionStore = assetDefinitionStore
         self.viewModel = viewModel
 
@@ -94,7 +94,7 @@ class ActivityViewController: UIViewController {
         NSLayoutConstraint.activate([
             //Setting height for labels to get their heights to be correct. If we want to remove them, make sure to test with both the native Activity view and TokenScript (HTML) Activity views
             timestampLabel.heightAnchor.constraint(equalToConstant: 20),
-            titleLabel.heightAnchor.constraint(equalToConstant: 20),
+            titleLabel.heightAnchor.constraint(equalToConstant: 26),
             subTitleLabel.heightAnchor.constraint(equalToConstant: 20),
 
             tokenImageView.heightAnchor.constraint(equalToConstant: 60),
@@ -119,7 +119,7 @@ class ActivityViewController: UIViewController {
 
             footerBar.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             footerBar.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            footerBar.topAnchor.constraint(equalTo: view.layoutGuide.bottomAnchor, constant: -ButtonsBar.buttonsHeight - ButtonsBar.marginAtBottomScreen),
+            footerBar.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -ButtonsBar.buttonsHeight - ButtonsBar.marginAtBottomScreen),
             footerBar.bottomAnchor.constraint(equalTo: view.bottomAnchor),
         ] + roundedBackground.createConstraintsWithContainer(view: view))
 
@@ -138,7 +138,7 @@ class ActivityViewController: UIViewController {
 
         titleLabel.textColor = viewModel.titleTextColor
         titleLabel.font = viewModel.titleFont
-        titleLabel.text = viewModel.title
+        titleLabel.attributedText = viewModel.title
 
         subTitleLabel.text = viewModel.subTitle
         subTitleLabel.textColor = viewModel.subTitleTextColor

@@ -22,7 +22,7 @@ class ActivitiesCoordinator: Coordinator {
     private var activities: [Activity] = .init()
     private var transactions: [Transaction] = .init()
     private var tokensAndTokenHolders: [AlphaWallet.Address: (tokenObject: TokenObject, tokenHolders: [TokenHolder])] = .init()
-    weak private var activityViewController:  ActivityViewController?
+    weak private var activityViewController: ActivityViewController?
     private var rateLimitedUpdater: RateLimiter?
     private var rateLimitedViewControllerReloader: RateLimiter?
     private var hasLoadedActivitiesTheFirstTime = false
@@ -31,6 +31,10 @@ class ActivitiesCoordinator: Coordinator {
 
     private var tokensInDatabase: [TokenObject] {
         tokensStorages.values.flatMap { $0.enabledObject }
+    }
+
+    private var wallet: Wallet {
+        sessions.anyValue.account
     }
 
     lazy var rootViewController: ActivitiesViewController = {
@@ -43,7 +47,7 @@ class ActivitiesCoordinator: Coordinator {
     init(
         config: Config,
         sessions: ServerDictionary<WalletSession>,
-        navigationController: UINavigationController = NavigationController(),
+        navigationController: UINavigationController = UINavigationController(),
         keystore: Keystore,
         tokensStorages: ServerDictionary<TokensDataStore>,
         assetDefinitionStore: AssetDefinitionStore,
@@ -68,26 +72,18 @@ class ActivitiesCoordinator: Coordinator {
 
     private func makeActivitiesViewController() -> ActivitiesViewController {
         let viewModel = ActivitiesViewModel()
-        let controller = ActivitiesViewController(viewModel: viewModel, sessions: sessions)
+        let controller = ActivitiesViewController(viewModel: viewModel, wallet: wallet.address, sessions: sessions, tokensStorages: tokensStorages)
         controller.delegate = self
         return controller
     }
 
     func showActivity(_ activity: Activity) {
-        let controller = ActivityViewController(assetDefinitionStore: assetDefinitionStore, viewModel: .init(activity: activity))
+        let controller = ActivityViewController(wallet: wallet, assetDefinitionStore: assetDefinitionStore, viewModel: .init(activity: activity))
         controller.delegate = self
         activityViewController = controller
-        if UIDevice.current.userInterfaceIdiom == .pad {
-            let nav = UINavigationController(rootViewController: controller)
-            nav.modalPresentationStyle = .formSheet
-            controller.navigationItem.leftBarButtonItem = UIBarButtonItem(title: R.string.localizable.cancel(), style: .plain, target: self, action: #selector(dismiss))
-            nav.makePresentationFullScreenForiOS13Migration()
-            navigationController.present(nav, animated: true, completion: nil)
-        } else {
-            controller.hidesBottomBarWhenPushed = true
-            controller.navigationItem.largeTitleDisplayMode = .never
-            navigationController.pushViewController(controller, animated: true)
-        }
+        controller.hidesBottomBarWhenPushed = true
+        controller.navigationItem.largeTitleDisplayMode = .never
+        navigationController.pushViewController(controller, animated: true)
     }
 
     @objc func dismiss() {
@@ -117,11 +113,11 @@ class ActivitiesCoordinator: Coordinator {
             let eachServer = each.server
             let xmlHandler = XMLHandler(token: each, assetDefinitionStore: assetDefinitionStore)
             guard xmlHandler.hasAssetDefinition else { return nil }
-            guard (xmlHandler.server?.matches(server: eachServer) ?? false) else { return nil }
+            guard xmlHandler.server?.matches(server: eachServer) ?? false else { return nil }
             return (contract: eachContract, server: eachServer, xmlHandler: xmlHandler)
         }
 
-        let contractsAndCardsOptional: [[(tokenContract: AlphaWallet.Address, server: RPCServer, card: TokenScriptCard, interpolatedFilter: String)]] = contractServerXmlHandlers.flatMap { eachContract, eachServer, xmlHandler in
+        let contractsAndCardsOptional: [[(tokenContract: AlphaWallet.Address, server: RPCServer, card: TokenScriptCard, interpolatedFilter: String)]] = contractServerXmlHandlers.compactMap { eachContract, eachServer, xmlHandler in
             var contractAndCard: [(tokenContract: AlphaWallet.Address, server: RPCServer, card: TokenScriptCard, interpolatedFilter: String)] = .init()
             for card in xmlHandler.activityCards {
                 let (filterName, filterValue) = card.eventOrigin.eventFilter
@@ -131,8 +127,7 @@ class ActivitiesCoordinator: Coordinator {
                     case .tokenId:
                         continue
                     case .ownerAddress:
-                        let wallet = sessions.anyValue.account.address
-                        interpolatedFilter = "\(filterName)=\(wallet.eip55String)"
+                        interpolatedFilter = "\(filterName)=\(wallet.address.eip55String)"
                     case .label, .contractAddress, .symbol:
                         //TODO support more?
                         continue
@@ -169,7 +164,7 @@ class ActivitiesCoordinator: Coordinator {
         activities = activitiesAndTokens.map { $0.0 }
         activities.sort { $0.blockNumber > $1.blockNumber }
         updateActivitiesIndexLookup()
-        reloadViewController()
+        reloadViewController(reloadImmediately: false)
         for (activity, tokenObject, tokenHolder) in activitiesAndTokens {
             refreshActivity(tokenObject: tokenObject, tokenHolder: tokenHolder, activity: activity)
         }
@@ -219,7 +214,7 @@ class ActivitiesCoordinator: Coordinator {
                 }
                 tokensAndTokenHolders[contract] = (tokenObject: tokenObject, tokenHolders: tokenHolders)
             }
-            return (activity: .init(id: Int.random(in: 0..<Int.max), tokenObject: tokenObject, server: eachEvent.server, name: card.name, eventName: eachEvent.eventName, blockNumber: eachEvent.blockNumber, transactionId: eachEvent.transactionId, date: eachEvent.date, values: (token: tokenAttributes, card: cardAttributes), view: card.view, itemView: card.itemView, isBaseCard: card.isBase), tokenObject: tokenObject, tokenHolder: tokenHolders[0])
+            return (activity: .init(id: Int.random(in: 0..<Int.max), tokenObject: tokenObject, server: eachEvent.server, name: card.name, eventName: eachEvent.eventName, blockNumber: eachEvent.blockNumber, transactionId: eachEvent.transactionId, transactionIndex: eachEvent.transactionIndex, logIndex: eachEvent.logIndex, date: eachEvent.date, values: (token: tokenAttributes, card: cardAttributes), view: card.view, itemView: card.itemView, isBaseCard: card.isBase, state: .completed), tokenObject: tokenObject, tokenHolder: tokenHolders[0])
         }
 
         //TODO fix for activities: special fix to filter out the event we don't want - need to doc this and have to handle with TokenScript design
@@ -235,7 +230,12 @@ class ActivitiesCoordinator: Coordinator {
     }
 
     //TODO throttling reloading because sorting the activities for every attribute in every activity refreshed is really slow: can we speed this up?
-    private func reloadViewController() {
+    private func reloadViewController(reloadImmediately: Bool) {
+        if reloadImmediately {
+            reloadViewControllerImpl()
+            return
+        }
+
         //We want to show the activities tab immediately the first time activities are available, otherwise when the app launch and user goes to the tab immediately and wait for a few seconds, they'll see some of the transactions transforming into activities. Very jarring
         if hasLoadedActivitiesTheFirstTime {
             if rateLimitedViewControllerReloader == nil {
@@ -246,14 +246,15 @@ class ActivitiesCoordinator: Coordinator {
                 rateLimitedViewControllerReloader?.run()
             }
         } else {
-            if !activities.isEmpty {
-                hasLoadedActivitiesTheFirstTime = true
-            }
             reloadViewControllerImpl()
         }
     }
 
     private func reloadViewControllerImpl() {
+        if !activities.isEmpty {
+            hasLoadedActivitiesTheFirstTime = true
+        }
+
         let transactionAlreadyRepresentedAsActivities = Set(activities.map { $0.transactionId })
         let transactions: [Transaction]
         if activities.count == EventsActivityDataStore.numberOfActivitiesToUse, let blockNumberOfOldestActivity = activities.last?.blockNumber {
@@ -275,9 +276,9 @@ class ActivitiesCoordinator: Coordinator {
         }
         if let (index, oldActivity) = activitiesIndexLookup[activity.id] {
             let updatedValues = (token: oldActivity.values.token.merging(resolvedAttributeNameValues) { _, new in new }, card: oldActivity.values.card)
-            let updatedActivity: Activity = .init(id: oldActivity.id, tokenObject: tokenObject, server: oldActivity.server, name: oldActivity.name, eventName: oldActivity.eventName, blockNumber: oldActivity.blockNumber, transactionId: oldActivity.transactionId, date: oldActivity.date, values: updatedValues, view: oldActivity.view, itemView: oldActivity.itemView, isBaseCard: oldActivity.isBaseCard)
+            let updatedActivity: Activity = .init(id: oldActivity.id, tokenObject: tokenObject, server: oldActivity.server, name: oldActivity.name, eventName: oldActivity.eventName, blockNumber: oldActivity.blockNumber, transactionId: oldActivity.transactionId, transactionIndex: oldActivity.transactionIndex, logIndex: oldActivity.logIndex, date: oldActivity.date, values: updatedValues, view: oldActivity.view, itemView: oldActivity.itemView, isBaseCard: oldActivity.isBaseCard, state: oldActivity.state)
             activities[index] = updatedActivity
-            reloadViewController()
+            reloadViewController(reloadImmediately: false)
             if let activityViewController = activityViewController, activityViewController.isForActivity(updatedActivity) {
                 activityViewController.configure(viewModel: .init(activity: updatedActivity))
             }
@@ -362,12 +363,12 @@ extension ActivitiesCoordinator: ActivityViewControllerDelegate {
 }
 
 extension ActivitiesCoordinator: TransactionDataCoordinatorDelegate {
-    func didUpdate(result: ResultResult<[Transaction], TransactionError>.t) {
+    func didUpdate(result: ResultResult<[Transaction], TransactionError>.t, reloadImmediately: Bool) {
         switch result {
         case .success(let items):
             transactions = items
-            reloadViewController()
-        case .failure(let error):
+            reloadViewController(reloadImmediately: reloadImmediately)
+        case .failure:
             break
         }
     }

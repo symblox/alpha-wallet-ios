@@ -6,6 +6,7 @@ import Alamofire
 import BigInt
 import RealmSwift
 import PromiseKit
+import Result
 
 enum ContractData {
     case name(String)
@@ -87,11 +88,10 @@ class SingleChainTokenCoordinator: Coordinator {
         //TODO we don't auto detect tokens if we are running tests. Maybe better to move this into app delegate's application(_:didFinishLaunchingWithOptions:)
         guard !isRunningTests() else { return }
         guard !session.config.isAutoFetchingDisabled else { return }
-        guard let address = keystore.recentlyUsedWallet?.address else { return }
         guard !isAutoDetectingTransactedTokens else { return }
 
         isAutoDetectingTransactedTokens = true
-        let operation = AutoDetectTransactedTokensOperation(forSession: session, coordinator: self, wallet: address)
+        let operation = AutoDetectTransactedTokensOperation(forSession: session, coordinator: self, wallet: keystore.currentWallet.address)
         autoDetectTransactedTokensQueue.addOperation(operation)
     }
 
@@ -115,7 +115,8 @@ class SingleChainTokenCoordinator: Coordinator {
                         Config.setLastFetchedAutoDetectedTransactedTokenNonErc20BlockNumber(maxBlockNumber, server: strongSelf.session.server, wallet: wallet)
                     }
                 }
-                guard let currentAddress = strongSelf.keystore.recentlyUsedWallet?.address, currentAddress.sameContract(as: wallet) else { return }
+                let currentAddress = strongSelf.keystore.currentWallet.address
+                guard currentAddress.sameContract(as: wallet) else { return }
                 let detectedContracts = contracts
                 let alreadyAddedContracts = strongSelf.storage.enabledObject.map { $0.contractAddress }
                 let deletedContracts = strongSelf.storage.deletedContracts.map { $0.contractAddress }
@@ -178,16 +179,16 @@ class SingleChainTokenCoordinator: Coordinator {
     }
 
     private func autoDetectTokens(withContracts contractsToDetect: [(name: String, contract: AlphaWallet.Address)]) {
-        guard let address = keystore.recentlyUsedWallet?.address else { return }
         guard !isAutoDetectingTokens else { return }
 
+        let address = keystore.currentWallet.address
         isAutoDetectingTokens = true
         let operation = AutoDetectTokensOperation(forSession: session, coordinator: self, wallet: address, tokens: contractsToDetect)
         autoDetectTokensQueue.addOperation(operation)
     }
 
     private func autoDetectTokensImpl(withContracts contractsToDetect: [(name: String, contract: AlphaWallet.Address)], completion: @escaping () -> Void) {
-        guard let address = keystore.recentlyUsedWallet?.address else { return }
+        let address = keystore.currentWallet.address
         let alreadyAddedContracts = storage.enabledObject.map { $0.contractAddress }
         let deletedContracts = storage.deletedContracts.map { $0.contractAddress }
         let hiddenContracts = storage.hiddenContracts.map { $0.contractAddress }
@@ -379,8 +380,7 @@ class SingleChainTokenCoordinator: Coordinator {
     }
 
     private func createTransactionsStore() -> TransactionsStorage? {
-        guard let wallet = keystore.recentlyUsedWallet else { return nil }
-        let realm = self.realm(forAccount: wallet)
+        let realm = self.realm(forAccount: keystore.currentWallet)
         return TransactionsStorage(realm: realm, server: session.server, delegate: self)
     }
 
@@ -556,7 +556,7 @@ extension TransferType {
         switch self {
         case .ERC20Token(let token, _, _):
             return .init(input: .input(token.contractAddress), theme: theme)
-        case .ERC721Token, .ERC721ForTicketToken, .ERC875TokenOrder, .ERC875Token, .dapp, .nativeCryptocurrency:
+        case .ERC721Token, .ERC721ForTicketToken, .ERC875TokenOrder, .ERC875Token, .dapp, .nativeCryptocurrency, .tokenScript:
             return .init(input: .none, theme: theme)
         }
     }
@@ -602,7 +602,7 @@ extension SingleChainTokenCoordinator: TokenViewControllerDelegate {
         switch transferType {
         case .ERC20Token(let erc20Token, _, _):
             token = erc20Token
-        case .dapp, .ERC721Token, .ERC875Token, .ERC875TokenOrder, .ERC721ForTicketToken:
+        case .dapp, .ERC721Token, .ERC875Token, .ERC875TokenOrder, .ERC721ForTicketToken, .tokenScript:
             return
         case .nativeCryptocurrency:
             token = TokensDataStore.etherToken(forServer: session.server)
@@ -633,13 +633,42 @@ extension SingleChainTokenCoordinator: CanOpenURL {
     }
 }
 
-extension SingleChainTokenCoordinator: TokenInstanceActionViewControllerDelegate {
-    func didCompleteTransaction(in viewController: TokenInstanceActionViewController) {
-        let coordinator = TransactionInProgressCoordinator(navigationController: navigationController)
-        coordinator.delegate = self
-        addCoordinator(coordinator)
+extension SingleChainTokenCoordinator: TransactionConfirmationCoordinatorDelegate {
+    func coordinator(_ coordinator: TransactionConfirmationCoordinator, didFailTransaction error: AnyError) {
+        //TODO improve error message. Several of this delegate func
+        coordinator.navigationController.displayError(message: error.localizedDescription)
+    }
 
-        coordinator.start()
+    func didClose(in coordinator: TransactionConfirmationCoordinator) {
+        removeCoordinator(coordinator)
+    }
+
+    func coordinator(_ coordinator: TransactionConfirmationCoordinator, didCompleteTransaction result: TransactionConfirmationResult) {
+        coordinator.close { [weak self] in
+            guard let strongSelf = self else { return }
+            strongSelf.removeCoordinator(coordinator)
+
+            let coordinator = TransactionInProgressCoordinator(navigationController: strongSelf.navigationController)
+            coordinator.delegate = strongSelf
+            strongSelf.addCoordinator(coordinator)
+
+            coordinator.start()
+        }
+    }
+}
+
+extension SingleChainTokenCoordinator: TokenInstanceActionViewControllerDelegate {
+    func confirmTransactionSelected(in viewController: TokenInstanceActionViewController, tokenObject: TokenObject, contract: AlphaWallet.Address, tokenId: TokenId, values: [AttributeId: AssetInternalValue], localRefs: [AttributeId: AssetInternalValue], server: RPCServer, session: WalletSession, keystore: Keystore, transactionFunction: FunctionOrigin) {
+        switch transactionFunction.makeUnConfirmedTransaction(withTokenObject: tokenObject, tokenId: tokenId, attributeAndValues: values, localRefs: localRefs, server: server, session: session) {
+        case .success(let transaction):
+            let coordinator = TransactionConfirmationCoordinator(navigationController: navigationController, session: session, transaction: transaction, configuration: .tokenScriptTransaction(confirmType: .signThenSend, contract: contract, keystore: keystore))
+            coordinator.delegate = self
+            addCoordinator(coordinator)
+            coordinator.start()
+        case .failure:
+            //TODO throw an error
+            break
+        }
     }
 
     func didPressViewRedemptionInfo(in viewController: TokenInstanceActionViewController) {
@@ -653,7 +682,7 @@ extension SingleChainTokenCoordinator: TokenInstanceActionViewControllerDelegate
 
 extension SingleChainTokenCoordinator: TransactionInProgressCoordinatorDelegate {
 
-    func transactionInProgressDidDissmiss(in coordinator: TransactionInProgressCoordinator) {
+    func transactionInProgressDidDismiss(in coordinator: TransactionInProgressCoordinator) {
         removeCoordinator(coordinator)
     }
 }

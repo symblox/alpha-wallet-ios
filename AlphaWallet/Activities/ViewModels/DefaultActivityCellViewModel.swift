@@ -30,24 +30,40 @@ struct DefaultActivityCellViewModel {
         let symbol = activity.tokenObject.symbol
         switch activity.nativeViewType {
         case .erc20Sent, .erc721Sent, .nativeCryptoSent:
-            let string = NSMutableAttributedString(string: "\(R.string.localizable.transactionCellSentTitle()) \(symbol)")
-            string.addAttribute(.font, value: Fonts.regular(size: 17)! , range: NSRange(location: 0, length: string.length))
-            string.addAttribute(.font, value: Fonts.semibold(size: 17)! , range: NSRange(location: string.length - symbol.count, length: symbol.count))
+            let string: NSMutableAttributedString
+            switch activity.state {
+            case .pending:
+                string = NSMutableAttributedString(string: "\(R.string.localizable.activitySendPending(symbol))")
+            case .completed:
+                string = NSMutableAttributedString(string: "\(R.string.localizable.transactionCellSentTitle()) \(symbol)")
+            case .failed:
+                string = NSMutableAttributedString(string: "\(R.string.localizable.activitySendFailed(symbol))")
+            }
+            string.addAttribute(.font, value: Fonts.regular(size: 17)!, range: NSRange(location: 0, length: string.length))
+            string.addAttribute(.font, value: Fonts.semibold(size: 17)!, range: NSRange(location: string.length - symbol.count, length: symbol.count))
             return string
         case .erc20Received, .erc721Received, .nativeCryptoReceived:
             let string = NSMutableAttributedString(string: "\(R.string.localizable.transactionCellReceivedTitle()) \(symbol)")
-            string.addAttribute(.font, value: Fonts.regular(size: 17)! , range: NSRange(location: 0, length: string.length))
-            string.addAttribute(.font, value: Fonts.semibold(size: 17)! , range: NSRange(location: string.length - symbol.count, length: symbol.count))
+            string.addAttribute(.font, value: Fonts.regular(size: 17)!, range: NSRange(location: 0, length: string.length))
+            string.addAttribute(.font, value: Fonts.semibold(size: 17)!, range: NSRange(location: string.length - symbol.count, length: symbol.count))
             return string
         case .erc20OwnerApproved, .erc721OwnerApproved:
-            let string = NSMutableAttributedString(string: R.string.localizable.activityOwnerApproved(symbol))
-            string.addAttribute(.font, value: Fonts.regular(size: 17)! , range: NSRange(location: 0, length: string.length))
-            string.addAttribute(.font, value: Fonts.semibold(size: 17)! , range: NSRange(location: string.length - symbol.count, length: symbol.count))
+            let string: NSMutableAttributedString
+            switch activity.state {
+            case .pending:
+                string = NSMutableAttributedString(string: "\(R.string.localizable.activityOwnerApprovedPending(symbol))")
+            case .completed:
+                string = NSMutableAttributedString(string: R.string.localizable.activityOwnerApproved(symbol))
+            case .failed:
+                string = NSMutableAttributedString(string: "\(R.string.localizable.activityOwnerApprovedFailed(symbol))")
+            }
+            string.addAttribute(.font, value: Fonts.regular(size: 17)!, range: NSRange(location: 0, length: string.length))
+            string.addAttribute(.font, value: Fonts.semibold(size: 17)!, range: NSRange(location: string.length - symbol.count, length: symbol.count))
             return string
         case .erc20ApprovalObtained, .erc721ApprovalObtained:
             let string = NSMutableAttributedString(string: R.string.localizable.activityApprovalObtained(symbol))
-            string.addAttribute(.font, value: Fonts.regular(size: 17)! , range: NSRange(location: 0, length: string.length))
-            string.addAttribute(.font, value: Fonts.semibold(size: 17)! , range: NSRange(location: string.length - symbol.count, length: symbol.count))
+            string.addAttribute(.font, value: Fonts.regular(size: 17)!, range: NSRange(location: 0, length: string.length))
+            string.addAttribute(.font, value: Fonts.semibold(size: 17)!, range: NSRange(location: string.length - symbol.count, length: symbol.count))
             return string
         case .none:
             return .init()
@@ -93,11 +109,7 @@ struct DefaultActivityCellViewModel {
         Fonts.regular(size: 12)!
     }
 
-    var amountFont: UIFont {
-        Fonts.semibold(size: 17)!
-    }
-
-    var amount: String {
+    var amount: NSAttributedString {
         let sign: String
         switch activity.nativeViewType {
         case .erc20Sent, .nativeCryptoSent:
@@ -112,28 +124,34 @@ struct DefaultActivityCellViewModel {
             sign = ""
         }
 
+        let string: String
         switch activity.nativeViewType {
         case .erc20Sent, .erc20Received, .erc20OwnerApproved, .erc20ApprovalObtained, .nativeCryptoSent, .nativeCryptoReceived:
             if let value = cardAttributes["amount"]?.uintValue {
                 let formatter = EtherNumberFormatter.short
-                let value = formatter.string(from: BigInt(value) ?? BigInt(), decimals: activity.tokenObject.decimals)
-                return "\(sign)\(value) \(activity.tokenObject.symbol)"
+                let value = formatter.string(from: BigInt(value), decimals: activity.tokenObject.decimals)
+                string = "\(sign)\(value) \(activity.tokenObject.symbol)"
             } else {
-                return ""
+                string = ""
             }
         case .erc721Sent, .erc721Received, .erc721OwnerApproved, .erc721ApprovalObtained:
             if let value = cardAttributes["tokenId"]?.uintValue {
-                return "\(value)"
+                string = "\(value)"
             } else {
-                return ""
+                string = ""
             }
         case .none:
-            return ""
+            string = ""
         }
-    }
 
-    var amountColor: UIColor {
-        R.color.black()!
+        switch activity.state {
+        case .pending:
+            return NSAttributedString(string: string, attributes: [.font: Fonts.semibold(size: 17)!, .foregroundColor: R.color.black()!])
+        case .completed:
+            return NSAttributedString(string: string, attributes: [.font: Fonts.semibold(size: 17)!, .foregroundColor: R.color.black()!])
+        case .failed:
+            return NSAttributedString(string: string, attributes: [.font: Fonts.semibold(size: 17)!, .foregroundColor: R.color.silver()!, .strikethroughStyle: NSUnderlineStyle.single.rawValue])
+        }
     }
 
     var timestampFont: UIFont {
@@ -162,15 +180,22 @@ struct DefaultActivityCellViewModel {
     }
 
     var stateImage: UIImage? {
-        switch activity.nativeViewType {
-        case .erc20Sent, .erc721Sent, .nativeCryptoSent:
-            return R.image.activitySend()
-        case .erc20Received, .erc721Received, .nativeCryptoReceived:
-            return R.image.activityReceive()
-        case .erc20OwnerApproved, .erc20ApprovalObtained, .erc721OwnerApproved, .erc721ApprovalObtained:
-            return nil
-        case .none:
-            return nil
+        switch activity.state {
+        case .completed:
+            switch activity.nativeViewType {
+            case .erc20Sent, .erc721Sent, .nativeCryptoSent:
+                return R.image.activitySend()
+            case .erc20Received, .erc721Received, .nativeCryptoReceived:
+                return R.image.activityReceive()
+            case .erc20OwnerApproved, .erc20ApprovalObtained, .erc721OwnerApproved, .erc721ApprovalObtained:
+                return nil
+            case .none:
+                return nil
+            }
+        case .pending:
+            return R.image.activityPending()
+        case .failed:
+            return R.image.activityFailed()
         }
     }
 }

@@ -27,7 +27,7 @@ class InCoordinatorTests: XCTestCase {
 
         XCTAssert(tabbarController?.viewControllers!.count == 4)
         XCTAssert((tabbarController?.viewControllers?[0] as? UINavigationController)?.viewControllers[0] is TokensViewController)
-        XCTAssert((tabbarController?.viewControllers?[1] as? UINavigationController)?.viewControllers[0] is TransactionsViewController)
+        XCTAssert((tabbarController?.viewControllers?[1] as? UINavigationController)?.viewControllers[0] is ActivitiesViewController)
         XCTAssert((tabbarController?.viewControllers?[2] as? UINavigationController)?.viewControllers[0] is DappsHomeViewController)
         XCTAssert((tabbarController?.viewControllers?[3] as? UINavigationController)?.viewControllers[0] is SettingsViewController)
     }
@@ -53,11 +53,11 @@ class InCoordinatorTests: XCTestCase {
 
         coordinator.showTabBar(for: account1)
 
-        XCTAssertEqual(coordinator.keystore.recentlyUsedWallet, account1)
+        XCTAssertEqual(coordinator.keystore.currentWallet, account1)
 
         coordinator.showTabBar(for: account2)
 
-        XCTAssertEqual(coordinator.keystore.recentlyUsedWallet, account2)
+        XCTAssertEqual(coordinator.keystore.currentWallet, account2)
     }
 
     func testShowSendFlow() {

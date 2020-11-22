@@ -10,32 +10,25 @@ import BigInt
 import MBProgressHUD
 
 protocol SendViewControllerDelegate: class, CanOpenURL {
-    func didPressConfirm(
-            transaction: UnconfirmedTransaction,
-            transferType: TransferType,
-            in viewController: SendViewController
-    )
+    func didPressConfirm(transaction: UnconfirmedTransaction, in viewController: SendViewController, amount: String)
     func lookup(contract: AlphaWallet.Address, in viewController: SendViewController, completion: @escaping (ContractData) -> Void)
     func openQRCode(in controller: SendViewController)
 }
 
-// swiftlint:disable type_body_length
-class SendViewController: UIViewController, CanScanQRCode {
+class SendViewController: UIViewController {
     private let roundedBackground = RoundedBackground()
     private let scrollView = UIScrollView()
     private let recipientHeader = SendViewSectionHeader()
     private let amountHeader = SendViewSectionHeader()
-    private let recepientAddressLabel = UILabel()
+    private let recipientAddressLabel = UILabel()
     private let amountLabel = UILabel()
     private let buttonsBar = ButtonsBar(configuration: .green(buttons: 1))
     private var viewModel: SendViewModel
     private var balanceViewModel: BalanceBaseViewModel?
     private let session: WalletSession
-    private let account: EthereumAccount
+    private let account: AlphaWallet.Address
     private let ethPrice: Subscribable<Double>
     private let assetDefinitionStore: AssetDefinitionStore
-    private var gasPrice: BigInt?
-    private var data = Data()
     private lazy var decimalFormatter: DecimalFormatter = {
         return DecimalFormatter()
     }()
@@ -49,7 +42,7 @@ class SendViewController: UIViewController, CanScanQRCode {
         text: R.string.localizable.sendRecipient().uppercased()
     )
     //We use weak link to make sure that token alert will be deallocated by close button tapping.
-    //We storing link to make shure that only one alert is displaying on the screen.
+    //We storing link to make sure that only one alert is displaying on the screen.
     private weak var invalidTokenAlert: UIViewController?
     let targetAddressTextField = AddressTextField()
     lazy var amountTextField = AmountTextField(tokenObject: transferType.tokenObject)
@@ -65,7 +58,7 @@ class SendViewController: UIViewController, CanScanQRCode {
     init(
             session: WalletSession,
             storage: TokensDataStore,
-            account: EthereumAccount,
+            account: AlphaWallet.Address,
             transferType: TransferType,
             cryptoPrice: Subscribable<Double>,
             assetDefinitionStore: AssetDefinitionStore
@@ -123,7 +116,7 @@ class SendViewController: UIViewController, CanScanQRCode {
             .spacer(height: ScreenChecker().isNarrowScreen ? 7: 14),
             recipientHeader,
             .spacer(height: ScreenChecker().isNarrowScreen ? 7: 16),
-            [.spacerWidth(16), recepientAddressLabel].asStackView(axis: .horizontal),
+            [.spacerWidth(16), recipientAddressLabel].asStackView(axis: .horizontal),
             .spacer(height: ScreenChecker().isNarrowScreen ? 2 : 4),
             targetAddressTextField,
             .spacer(height: 4), [
@@ -150,7 +143,7 @@ class SendViewController: UIViewController, CanScanQRCode {
             recipientHeader.trailingAnchor.constraint(equalTo: roundedBackground.trailingAnchor, constant: 0),
             recipientHeader.heightAnchor.constraint(equalToConstant: 50),
 
-            recepientAddressLabel.heightAnchor.constraint(equalToConstant: 22),
+            recipientAddressLabel.heightAnchor.constraint(equalToConstant: 22),
             targetAddressTextField.leadingAnchor.constraint(equalTo: roundedBackground.leadingAnchor, constant: 16),
             targetAddressTextField.trailingAnchor.constraint(equalTo: roundedBackground.trailingAnchor, constant: -16),
 
@@ -170,7 +163,7 @@ class SendViewController: UIViewController, CanScanQRCode {
 
             footerBar.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             footerBar.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            footerBar.topAnchor.constraint(equalTo: view.layoutGuide.bottomAnchor, constant: -ButtonsBar.buttonsHeight - ButtonsBar.marginAtBottomScreen),
+            footerBar.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -ButtonsBar.buttonsHeight - ButtonsBar.marginAtBottomScreen),
             footerBar.bottomAnchor.constraint(equalTo: view.bottomAnchor),
 
             scrollView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
@@ -187,7 +180,6 @@ class SendViewController: UIViewController, CanScanQRCode {
         ] + roundedBackground.createConstraintsWithContainer(view: view))
 
         storage.updatePrices()
-        getGasPrice()
     }
 // swiftlint:enable function_body_length
 
@@ -214,13 +206,12 @@ class SendViewController: UIViewController, CanScanQRCode {
         amountHeader.configure(viewModel: amountViewModel)
         recipientHeader.configure(viewModel: recipientViewModel)
 
-        recepientAddressLabel.text = viewModel.recipientsAddress
-        recepientAddressLabel.font = viewModel.recepientLabelFont
-        recepientAddressLabel.textColor = viewModel.recepientLabelTextColor
+        recipientAddressLabel.text = viewModel.recipientsAddress
+        recipientAddressLabel.font = viewModel.recipientLabelFont
+        recipientAddressLabel.textColor = viewModel.recepientLabelTextColor
 
         amountLabel.font = viewModel.textFieldsLabelFont
         amountLabel.textColor = viewModel.textFieldsLabelTextColor
-        amountTextField.currentPair = viewModel.amountTextFieldPair
         amountTextField.isAlternativeAmountEnabled = false
         amountTextField.selectCurrencyButton.isHidden = viewModel.currencyButtonHidden
         amountTextField.selectCurrencyButton.expandIconHidden = viewModel.selectCurrencyButtonHidden
@@ -238,7 +229,7 @@ class SendViewController: UIViewController, CanScanQRCode {
             }
             currentSubscribableKeyForNativeCryptoCurrencyPrice = ethPrice.subscribe { [weak self] value in
                 if let value = value {
-                    self?.amountTextField.cryptoToDollarRate = value
+                    self?.amountTextField.cryptoToDollarRate = NSDecimalNumber(value: value)
                 }
             }
         case .ERC20Token(_, let recipient, let amount):
@@ -251,7 +242,7 @@ class SendViewController: UIViewController, CanScanQRCode {
             if let amount = amount {
                 amountTextField.ethCost = amount
             }
-        case .ERC875Token, .ERC875TokenOrder, .ERC721Token, .ERC721ForTicketToken, .dapp:
+        case .ERC875Token, .ERC875TokenOrder, .ERC721Token, .ERC721ForTicketToken, .dapp, .tokenScript:
             currentSubscribableKeyForNativeCryptoCurrencyPrice.flatMap { ethPrice.unsubscribe($0) }
             amountTextField.cryptoToDollarRate = nil
         }
@@ -268,25 +259,13 @@ class SendViewController: UIViewController, CanScanQRCode {
         title = "\(R.string.localizable.send()) \(transferType.symbol)"
     }
 
-    func getGasPrice() {
-        let request = EtherServiceRequest(server: session.server, batch: BatchFactory().create(GasPriceRequest()))
-        Session.send(request) { [weak self] result in
-            switch result {
-            case .success(let balance):
-                self?.gasPrice = BigInt(balance.drop0x, radix: 16)
-            case .failure: break
-            }
-        }
-    }
-
     @objc func send() {
         let input = targetAddressTextField.value.trimmed
         targetAddressTextField.errorState = .none
         amountTextField.errorState = .none
         let checkIfGreaterThanZero: Bool
-        // allow users to input zero on native transactions as they may want to send custom data
         switch transferType {
-        case .nativeCryptocurrency, .dapp:
+        case .nativeCryptocurrency, .dapp, .tokenScript:
             checkIfGreaterThanZero = false
         case .ERC20Token, .ERC875Token, .ERC875TokenOrder, .ERC721Token, .ERC721ForTicketToken:
             checkIfGreaterThanZero = true
@@ -295,30 +274,18 @@ class SendViewController: UIViewController, CanScanQRCode {
             amountTextField.errorState = .error
             return
         }
-
-        guard let address = AlphaWallet.Address(string: input) else {
+        guard let recipient = AlphaWallet.Address(string: input) else {
             targetAddressTextField.errorState = .error(Errors.invalidAddress.prettyError)
             return
         }
-
         let transaction = UnconfirmedTransaction(
                 transferType: transferType,
                 value: value,
-                to: address,
-                data: data,
-                gasLimit: .none,
-                tokenId: .none,
-                gasPrice: gasPrice,
-                nonce: .none,
-                v: .none,
-                r: .none,
-                s: .none,
-                expiry: .none,
-                indices: .none,
-                tokenIds: .none
+                recipient: recipient,
+                contract: transferType.contractForFungibleSend,
+                data: nil
         )
-
-        delegate?.didPressConfirm(transaction: transaction, transferType: transferType, in: self)
+        delegate?.didPressConfirm(transaction: transaction, in: self, amount: amountTextField.ethCost)
     }
 
     func activateAmountView() {
@@ -343,7 +310,7 @@ class SendViewController: UIViewController, CanScanQRCode {
         case .ERC20Token(let token, let recipient, let amount):
             let amount = amount.flatMap { EtherNumberFormatter.full.number(from: $0, decimals: token.decimals) }
             configureFor(contract: viewModel.transferType.contract, recipient: recipient, amount: amount, shouldConfigureBalance: false)
-        case .ERC875Token, .ERC875TokenOrder, .ERC721Token, .ERC721ForTicketToken, .dapp:
+        case .ERC875Token, .ERC875TokenOrder, .ERC721Token, .ERC721ForTicketToken, .dapp, .tokenScript:
             break
         }
     }
@@ -438,7 +405,7 @@ class SendViewController: UIViewController, CanScanQRCode {
                 transferType = TransferType(token: tokenObject, recipient: recipient, amount: amount.flatMap { EtherNumberFormatter().string(from: $0, units: .ether) })
             case .ERC20Token(_, _, let amount):
                 transferType = TransferType(token: tokenObject, recipient: recipient, amount: amount)
-            case .ERC875Token, .ERC875TokenOrder, .ERC721Token, .ERC721ForTicketToken, .dapp:
+            case .ERC875Token, .ERC875TokenOrder, .ERC721Token, .ERC721ForTicketToken, .dapp, .tokenScript:
                 transferType = TransferType(token: tokenObject, recipient: recipient, amount: nil)
             }
         }
@@ -446,7 +413,6 @@ class SendViewController: UIViewController, CanScanQRCode {
         configure(viewModel: .init(transferType: transferType, session: session, storage: storage), shouldConfigureBalance: shouldConfigureBalance)
     }
 }
-// swiftlint:enable type_body_length
 
 extension SendViewController: AmountTextFieldDelegate {
 
@@ -459,7 +425,7 @@ extension SendViewController: AmountTextFieldDelegate {
         textField.errorState = .none
         textField.statusLabel.text = viewModel.availableLabelText
         textField.availableTextHidden = viewModel.availableTextHidden
-
+        
         guard viewModel.validatedAmount(value: textField.ethCost, checkIfGreaterThanZero: false) != nil else {
             textField.errorState = .error
             return

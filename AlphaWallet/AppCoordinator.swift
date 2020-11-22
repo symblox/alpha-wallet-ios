@@ -82,12 +82,29 @@ class AppCoordinator: NSObject, Coordinator {
             }
         }
     }
+    //NOTE: This function is using to make sure that wallets in user defaults will be removed after restoring backup from iCloud. Realm files don't backup to iCloud but user defaults does backed up.
+    private func removeWalletsIfRealmFilesMissed() {
+        for wallet in keystore.wallets {
+            let migration = MigrationInitializer(account: wallet)
+
+            guard let path = migration.config.fileURL else { continue }
+
+            //NOTE: make sure realm files exists, if not then delete this wallets from user defaults.
+            if FileManager.default.fileExists(atPath: path.path) {
+                //no op
+            } else {
+                _ = keystore.delete(wallet: wallet)
+            }
+        }
+    }
 
     //This function exist to handle what we think is a rare (but hard to reproduce) occurrence that NSUserDefaults are not accessible for a short while during startup. If that happens, we delay the "launch" and check again. If the app is killed by the iOS launch time watchdog, so be it. Better than to let the user create a wallet and wipe the list of wallets and lose access
     private func startImpl() -> Bool {
         if hasRealmDatabasesForWallet && !keystore.hasWallets && !isRunningTests() {
             return false
         }
+
+        removeWalletsIfRealmFilesMissed()
 
         setupAnalytics()
         window.rootViewController = navigationController
@@ -100,7 +117,7 @@ class AppCoordinator: NSObject, Coordinator {
         migrateToStoringRawPrivateKeysInKeychain()
 
         if keystore.hasWallets {
-            showTransactions(for: keystore.recentlyUsedWallet ?? keystore.wallets.first!)
+            showTransactions(for: keystore.currentWallet)
         } else {
             resetToWelcomeScreen()
         }
@@ -167,9 +184,7 @@ class AppCoordinator: NSObject, Coordinator {
             return
         }
         navigationController.dismiss(animated: true, completion: nil)
-        if let wallet = keystore.recentlyUsedWallet {
-            showTransactions(for: wallet)
-        }
+        showTransactions(for: keystore.currentWallet)
     }
 
     private func initializers() {
@@ -230,6 +245,7 @@ class AppCoordinator: NSObject, Coordinator {
         let prices = inCoordinator.nativeCryptoCurrencyPrices
         let balances = inCoordinator.nativeCryptoCurrencyBalances
         guard let universalLinkCoordinator = UniversalLinkCoordinator(
+                wallet: keystore.currentWallet,
                 config: config,
                 ethPrices: prices,
                 ethBalances: balances,
