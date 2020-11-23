@@ -35,7 +35,7 @@ extension AlphaWalletService: TargetType {
         switch self {
         case .getTransactions(_, let server, _, _, _, _):
             switch server {
-            case .main, .classic, .callisto, .kovan, .ropsten, .custom, .rinkeby, .poa, .sokol, .goerli, .xDai, .artis_sigma1, .artis_tau1, .binance_smart_chain, .binance_smart_chain_testnet, .velas, .velastestnet:
+            case .main, .classic, .callisto, .kovan, .ropsten, .custom, .rinkeby, .poa, .sokol, .goerli, .xDai, .artis_sigma1, .artis_tau1, .binance_smart_chain, .binance_smart_chain_testnet, .velas, .velastestnet, .velaschina:
                 return "/api"
             }
         case .register:
@@ -66,7 +66,7 @@ extension AlphaWalletService: TargetType {
         switch self {
         case .getTransactions(_, let server, let address, let startBlock, let endBlock, let sortOrder):
             switch server {
-            case .main, .kovan, .ropsten, .rinkeby, .goerli, .velas, .velastestnet:
+            case .main, .kovan, .ropsten, .rinkeby, .goerli, .velas, .velastestnet, .velaschina:
                 return .requestParameters(parameters: [
                     "module": "account",
                     "action": "txlist",
@@ -113,7 +113,7 @@ extension AlphaWalletService: TargetType {
         switch self {
         case .getTransactions(_, let server, _, _, _, _):
             switch server {
-            case .main, .classic, .callisto, .kovan, .ropsten, .custom, .rinkeby, .poa, .sokol, .goerli, .xDai, .artis_sigma1, .artis_tau1, .binance_smart_chain, .binance_smart_chain_testnet, .velas, .velastestnet:
+            case .main, .classic, .callisto, .kovan, .ropsten, .custom, .rinkeby, .poa, .sokol, .goerli, .xDai, .artis_sigma1, .artis_tau1, .binance_smart_chain, .binance_smart_chain_testnet, .velas, .velastestnet, .velaschina:
                 return [
                     "Content-type": "application/json",
                     "client": Bundle.main.bundleIdentifier ?? "",

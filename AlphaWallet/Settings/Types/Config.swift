@@ -129,13 +129,13 @@ struct Config {
     var enabledServers: [RPCServer] {
         get {
             if let chainIds = defaults.array(forKey: Keys.enabledServers) as? [Int] {
-                return chainIds.map { .init(chainID: $0) }
+                return chainIds.map { .init(addChainID: $0) }
             } else {
                 return Constants.defaultEnabledServers
             }
         }
         set {
-            let chainIds = newValue.map { $0.chainID }
+            let chainIds = newValue.map { $0.addChainID }
             defaults.set(chainIds, forKey: Keys.enabledServers)
         }
     }

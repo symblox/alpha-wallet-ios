@@ -193,7 +193,7 @@
 		29FF130A1F75F67200AFD326 /* Address.swift in Sources */ = {isa = PBXBuildFile; fileRef = 29FF13091F75F67200AFD326 /* Address.swift */; };
 		29FF130D1F7626E800AFD326 /* FakeNavigationController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 29FF130C1F7626E800AFD326 /* FakeNavigationController.swift */; };
 		29FF6D6B2011D2AF00A3011C /* InCoordinatorError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 29FF6D6A2011D2AF00A3011C /* InCoordinatorError.swift */; };
-		2A669F5585899E890EF26C57 /* Pods_AlphaWallet.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0B5A03D1E5E417FE79607D0F /* Pods_AlphaWallet.framework */; };
+		2A669F5585899E890EF26C57 /* (null) in Frameworks */ = {isa = PBXBuildFile; };
 		442FC01053E2F1B59355A961 /* Arguments.swift in Sources */ = {isa = PBXBuildFile; fileRef = 442FCC7DC5A13C023F7F2C26 /* Arguments.swift */; };
 		442FC0B59B23C0F3068621C0 /* NumberStepper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 442FC575B6A4A50B0555E1B0 /* NumberStepper.swift */; };
 		442FC249C2A39F85BDBD7987 /* GetDecimalsCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 442FC0F2E3BB3EE420BC2C16 /* GetDecimalsCoordinator.swift */; };
@@ -853,7 +853,6 @@
 		5004E9F125604C0E002CCAD2 /* DefaultActivityView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C7AEDAAE638601C7122A5 /* DefaultActivityView.swift */; };
 		5004E9F225604C0E002CCAD2 /* DefaultActivityViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C75B1BE3B68216AFC9C05 /* DefaultActivityViewModel.swift */; };
 		5004E9F325604C0E002CCAD2 /* GetWalletNameCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C769E7A78811BDF9463A3 /* GetWalletNameCoordinator.swift */; };
-		5004E9F525604C0E002CCAD2 /* Pods_AlphaWallet.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0B5A03D1E5E417FE79607D0F /* Pods_AlphaWallet.framework */; };
 		5004E9F725604C0E002CCAD2 /* SourceSansPro-Light.otf in Resources */ = {isa = PBXBuildFile; fileRef = C876FF74204A79D300B7D0EA /* SourceSansPro-Light.otf */; };
 		5004E9F825604C0E002CCAD2 /* SourceSansPro-Regular.otf in Resources */ = {isa = PBXBuildFile; fileRef = C876FF76204A79D300B7D0EA /* SourceSansPro-Regular.otf */; };
 		5004E9F925604C0E002CCAD2 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = C868C5282053BDE00059672B /* LaunchScreen.storyboard */; };
@@ -1393,6 +1392,7 @@
 		87ED8FAF2488EA9C0005C69B /* SupportViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87ED8FAE2488EA9C0005C69B /* SupportViewModel.swift */; };
 		87F9972824E155280092D262 /* SeedPhraseBackupIntroductionViewControllerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87F9972724E155280092D262 /* SeedPhraseBackupIntroductionViewControllerTests.swift */; };
 		87FBAE0124A1EE67005EF293 /* AddressOrEnsNameLabel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87FBAE0024A1EE67005EF293 /* AddressOrEnsNameLabel.swift */; };
+		925E8FEA97C6305DCEE9B980 /* Pods_Velas.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CB0B3D3C856092CEDD893A5D /* Pods_Velas.framework */; };
 		AA26C61F20412A1E00318B9B /* TokensCardViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA26C61D20412A1D00318B9B /* TokensCardViewController.swift */; };
 		AA26C62320412A4100318B9B /* UIViewInspectableEnhancements.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA26C62120412A4100318B9B /* UIViewInspectableEnhancements.swift */; };
 		AA26C62420412A4100318B9B /* Double.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA26C62220412A4100318B9B /* Double.swift */; };
@@ -1431,6 +1431,14 @@
 		CCA4FE381FD428B300749AE4 /* JailbreakChecker.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCA4FE371FD428B300749AE4 /* JailbreakChecker.swift */; };
 		CCA4FE3A1FD42B4100749AE4 /* FakeJailbreakChecker.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCA4FE391FD42B4100749AE4 /* FakeJailbreakChecker.swift */; };
 		CCCD74FD1FD2D38D004A087D /* CheckDeviceCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCCD74FC1FD2D38D004A087D /* CheckDeviceCoordinator.swift */; };
+		D12DE7BB256810D300DC78A1 /* Radio.swift in Sources */ = {isa = PBXBuildFile; fileRef = D12DE7BA256810D300DC78A1 /* Radio.swift */; };
+		D1589AA82566B8E70014A94D /* ServerHeaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D122B07A2566832C00A85B9E /* ServerHeaderView.swift */; };
+		D1589AAA2566BCEA0014A94D /* ServerHeaderModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = D1589AA92566BCEA0014A94D /* ServerHeaderModel.swift */; };
+		D1820CCF2567B979005942D1 /* RadidoServerViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = D1820CCE2567B979005942D1 /* RadidoServerViewCell.swift */; };
+		D1BA36AA256C01BB0003B3DC /* RadidoServerViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = D1820CCE2567B979005942D1 /* RadidoServerViewCell.swift */; };
+		D1BA36AB256C01BE0003B3DC /* ServerHeaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D122B07A2566832C00A85B9E /* ServerHeaderView.swift */; };
+		D1BA36AC256C01CD0003B3DC /* Radio.swift in Sources */ = {isa = PBXBuildFile; fileRef = D12DE7BA256810D300DC78A1 /* Radio.swift */; };
+		D1BA36AD256C01DB0003B3DC /* ServerHeaderModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = D1589AA92566BCEA0014A94D /* ServerHeaderModel.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -1451,7 +1459,6 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
-		0B5A03D1E5E417FE79607D0F /* Pods_AlphaWallet.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_AlphaWallet.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		120A2B8C48180E93DBCCC2EE /* Pods-AlphaWalletUITests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-AlphaWalletUITests.release.xcconfig"; path = "Pods/Target Support Files/Pods-AlphaWalletUITests/Pods-AlphaWalletUITests.release.xcconfig"; sourceTree = "<group>"; };
 		290B2B551F8F50030053C83E /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/Localizable.strings; sourceTree = "<group>"; };
 		290B2B5E1F9177860053C83E /* UIImage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UIImage.swift; sourceTree = "<group>"; };
@@ -1669,6 +1676,7 @@
 		5004E76F25604B9B002CCAD2 /* etherwallet.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = etherwallet.entitlements; sourceTree = "<group>"; };
 		5004EA1925604C0E002CCAD2 /* Velas.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Velas.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		5004EA1F25604C0F002CCAD2 /* velas-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "velas-Info.plist"; sourceTree = "<group>"; };
+		50AC4D8D0B03D8843FC7F579 /* Pods-Velas.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Velas.release.xcconfig"; path = "Pods/Target Support Files/Pods-Velas/Pods-Velas.release.xcconfig"; sourceTree = "<group>"; };
 		5E7C70021319DD5C92314A8A /* AssetFunctionCall.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AssetFunctionCall.swift; sourceTree = "<group>"; };
 		5E7C70088832B2D161EB4AAB /* SendViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SendViewController.swift; sourceTree = "<group>"; };
 		5E7C700AC0A7FFE95EC960FA /* MnemonicLengthRule.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MnemonicLengthRule.swift; sourceTree = "<group>"; };
@@ -2063,6 +2071,7 @@
 		61FC5ECE1FCFBAE500CCB12A /* EtherNumberFormatter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EtherNumberFormatter.swift; sourceTree = "<group>"; };
 		61FC5ED01FCFBDEB00CCB12A /* EtherNumberFormatterTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EtherNumberFormatterTests.swift; sourceTree = "<group>"; };
 		664D11A02007D59F0041A0B0 /* EstimateGasRequest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EstimateGasRequest.swift; sourceTree = "<group>"; };
+		71A9349EBAC3A1FA81A41A81 /* Pods-Velas.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Velas.debug.xcconfig"; path = "Pods/Target Support Files/Pods-Velas/Pods-Velas.debug.xcconfig"; sourceTree = "<group>"; };
 		732086B8201508690047F605 /* SplashCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SplashCoordinator.swift; sourceTree = "<group>"; };
 		732E0F4F2022716700B39C1F /* LockEnterPasscodeCoordinatorTest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LockEnterPasscodeCoordinatorTest.swift; sourceTree = "<group>"; };
 		732E0F512022754600B39C1F /* FakeLockProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FakeLockProtocol.swift; sourceTree = "<group>"; };
@@ -2220,11 +2229,16 @@
 		C887C5362057B703005ACF81 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.html; name = en; path = en.lproj/privacyPolicy.html; sourceTree = "<group>"; };
 		C887C5382057B703005ACF81 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.html; name = en; path = en.lproj/termsOfService.html; sourceTree = "<group>"; };
 		CA4F65A76A018D8DFF4A0314 /* Pods-AlphaWallet.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-AlphaWallet.debug.xcconfig"; path = "Pods/Target Support Files/Pods-AlphaWallet/Pods-AlphaWallet.debug.xcconfig"; sourceTree = "<group>"; };
+		CB0B3D3C856092CEDD893A5D /* Pods_Velas.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Velas.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		CCA4FE321FD3655900749AE4 /* CheckDeviceCoordinatorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CheckDeviceCoordinatorTests.swift; sourceTree = "<group>"; };
 		CCA4FE351FD4282400749AE4 /* DeviceChecker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeviceChecker.swift; sourceTree = "<group>"; };
 		CCA4FE371FD428B300749AE4 /* JailbreakChecker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JailbreakChecker.swift; sourceTree = "<group>"; };
 		CCA4FE391FD42B4100749AE4 /* FakeJailbreakChecker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FakeJailbreakChecker.swift; sourceTree = "<group>"; };
 		CCCD74FC1FD2D38D004A087D /* CheckDeviceCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CheckDeviceCoordinator.swift; sourceTree = "<group>"; };
+		D122B07A2566832C00A85B9E /* ServerHeaderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ServerHeaderView.swift; sourceTree = "<group>"; };
+		D12DE7BA256810D300DC78A1 /* Radio.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Radio.swift; sourceTree = "<group>"; };
+		D1589AA92566BCEA0014A94D /* ServerHeaderModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ServerHeaderModel.swift; sourceTree = "<group>"; };
+		D1820CCE2567B979005942D1 /* RadidoServerViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RadidoServerViewCell.swift; sourceTree = "<group>"; };
 		E36AB2DC7832A980726A4AB1 /* Pods_AlphaWalletTests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_AlphaWalletTests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
@@ -2233,7 +2247,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				2A669F5585899E890EF26C57 /* Pods_AlphaWallet.framework in Frameworks */,
+				2A669F5585899E890EF26C57 /* (null) in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2257,7 +2271,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				5004E9F525604C0E002CCAD2 /* Pods_AlphaWallet.framework in Frameworks */,
+				925E8FEA97C6305DCEE9B980 /* Pods_Velas.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2481,6 +2495,7 @@
 				5E7C74F1B6944E7BD06DD2C2 /* TokenObject+UI.swift */,
 				5E7C7C67C1FF0BFDDA82C61E /* TokenImageView.swift */,
 				5E7C7D111692DE8ED67D29B7 /* AlphaWalletAddress+UI.swift */,
+				D12DE7BA256810D300DC78A1 /* Radio.swift */,
 			);
 			path = UI;
 			sourceTree = "<group>";
@@ -2919,6 +2934,7 @@
 				87ED8F98248541380005C69B /* AdvancedSettingsViewModel.swift */,
 				87ED8F9C248647C80005C69B /* SettingViewHeaderViewModel.swift */,
 				87ED8FAE2488EA9C0005C69B /* SupportViewModel.swift */,
+				D1589AA92566BCEA0014A94D /* ServerHeaderModel.swift */,
 			);
 			path = ViewModels;
 			sourceTree = "<group>";
@@ -3932,6 +3948,8 @@
 				5E7C75D384C0D727BB43305E /* SettingsHeaderView.swift */,
 				5E7C7553BB089397B7E74BE0 /* WalletSecurityLevelIndicator.swift */,
 				87ED8F92248534E30005C69B /* SwitchTableViewCell.swift */,
+				D122B07A2566832C00A85B9E /* ServerHeaderView.swift */,
+				D1820CCE2567B979005942D1 /* RadidoServerViewCell.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -4064,9 +4082,9 @@
 			isa = PBXGroup;
 			children = (
 				C846409321B6DFA200031CA2 /* libxslt.tbd */,
-				0B5A03D1E5E417FE79607D0F /* Pods_AlphaWallet.framework */,
 				E36AB2DC7832A980726A4AB1 /* Pods_AlphaWalletTests.framework */,
 				7BEDA1C4253B796085A0E66C /* Pods_AlphaWalletUITests.framework */,
+				CB0B3D3C856092CEDD893A5D /* Pods_Velas.framework */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -4334,6 +4352,8 @@
 				4E16B6D97BD699F844AB4E2B /* Pods-AlphaWalletTests.release.xcconfig */,
 				C825940EC6CB472A443A7997 /* Pods-AlphaWalletUITests.debug.xcconfig */,
 				120A2B8C48180E93DBCCC2EE /* Pods-AlphaWalletUITests.release.xcconfig */,
+				71A9349EBAC3A1FA81A41A81 /* Pods-Velas.debug.xcconfig */,
+				50AC4D8D0B03D8843FC7F579 /* Pods-Velas.release.xcconfig */,
 			);
 			name = Pods;
 			sourceTree = "<group>";
@@ -4716,7 +4736,7 @@
 			);
 			name = "[CP] Check Pods Manifest.lock";
 			outputPaths = (
-				"$(DERIVED_FILE_DIR)/Pods-AlphaWallet-checkManifestLockResult.txt",
+				"$(DERIVED_FILE_DIR)/Pods-Velas-checkManifestLockResult.txt",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -4775,7 +4795,7 @@
 			files = (
 			);
 			inputPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-AlphaWallet/Pods-AlphaWallet-frameworks.sh",
+				"${PODS_ROOT}/Target Support Files/Pods-Velas/Pods-Velas-frameworks.sh",
 				"${BUILT_PRODUCTS_DIR}/APIKit/APIKit.framework",
 				"${BUILT_PRODUCTS_DIR}/AWSCore/AWSCore.framework",
 				"${BUILT_PRODUCTS_DIR}/AWSSNS/AWSSNS.framework",
@@ -4856,7 +4876,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-AlphaWallet/Pods-AlphaWallet-frameworks.sh\"\n";
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-Velas/Pods-Velas-frameworks.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
 		5004EA1525604C0E002CCAD2 /* [CP] Copy Pods Resources */ = {
@@ -4865,7 +4885,7 @@
 			files = (
 			);
 			inputPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-AlphaWallet/Pods-AlphaWallet-resources.sh",
+				"${PODS_ROOT}/Target Support Files/Pods-Velas/Pods-Velas-resources.sh",
 				"${PODS_CONFIGURATION_BUILD_DIR}/AlphaWalletWeb3Provider/AlphaWalletWeb3Provider.bundle",
 			);
 			name = "[CP] Copy Pods Resources";
@@ -4874,7 +4894,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-AlphaWallet/Pods-AlphaWallet-resources.sh\"\n";
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-Velas/Pods-Velas-resources.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
 		7C3903F7FBE1023CAA5AED0C /* [CP] Check Pods Manifest.lock */ = {
@@ -5158,6 +5178,7 @@
 				29F1C85D2003698A003780D8 /* WellDoneViewController.swift in Sources */,
 				29E9CFCF1FE7347200017744 /* ERCToken.swift in Sources */,
 				29C9F5FB1F720C050025C494 /* FloatLabelTextField.swift in Sources */,
+				D1589AAA2566BCEA0014A94D /* ServerHeaderModel.swift in Sources */,
 				296421951F70C1EC00EB363B /* LoadingView.swift in Sources */,
 				2961BD071FB146EB00C4B840 /* ChainState.swift in Sources */,
 				73D26837202E827E009777A1 /* DecimalFormatter.swift in Sources */,
@@ -5260,6 +5281,7 @@
 				73C41C73201B5EFF00243C6C /* LockCreatePasscodeViewModel.swift in Sources */,
 				29B6AED61F7CA4A700EC6DE3 /* TransactionConfiguration.swift in Sources */,
 				29F114F41FA8117C00114A29 /* SendCoordinator.swift in Sources */,
+				D12DE7BB256810D300DC78A1 /* Radio.swift in Sources */,
 				87ED8FAF2488EA9C0005C69B /* SupportViewModel.swift in Sources */,
 				293B8B411F707F4600356286 /* TransactionViewModel.swift in Sources */,
 				29BB94951F6FC54C009B09CC /* EthereumUnit.swift in Sources */,
@@ -5313,6 +5335,7 @@
 				76F1D91659771C9EEA7B48DC /* CreateRedeem.swift in Sources */,
 				442FCE0DAE5527A93F54022C /* RedeemTokenCardQuantitySelectionViewController.swift in Sources */,
 				442FC0B59B23C0F3068621C0 /* NumberStepper.swift in Sources */,
+				D1820CCF2567B979005942D1 /* RadidoServerViewCell.swift in Sources */,
 				442FCE2BEE8D475C7DEB39C1 /* RedeemTokenCardQuantitySelectionViewModel.swift in Sources */,
 				442FCB9CF5BC243F0705F4FE /* TokenCardRedemptionViewController.swift in Sources */,
 				874DED0C24C05E88006C8FCE /* TransactionConfirmationViewModel.swift in Sources */,
@@ -5470,6 +5493,7 @@
 				5E7C708D05DBC08C8304F274 /* GetIsERC875Encode.swift in Sources */,
 				8769888D24C6ED04002BF62B /* TransactionInProgressCoordinator.swift in Sources */,
 				5E7C7F95F75D39673B88D774 /* GetERC721BalanceEncode.swift in Sources */,
+				D1589AA82566B8E70014A94D /* ServerHeaderView.swift in Sources */,
 				5E7C7CDE2814481CD7BC47AC /* PushNotificationsCoordinator.swift in Sources */,
 				5E7C768AA9654954A0DD87F0 /* OpenSeaNonFungibleTokenCardRowViewModel.swift in Sources */,
 				5E7C7FDCAE5ED2EEE02CE661 /* OpenSeaNonFungibleTokenCardRowView.swift in Sources */,
@@ -5888,8 +5912,10 @@
 				5004E7A225604C0E002CCAD2 /* NSObject.swift in Sources */,
 				5004E7A325604C0E002CCAD2 /* DappAction.swift in Sources */,
 				5004E7A425604C0E002CCAD2 /* InCoordinatorError.swift in Sources */,
+				D1BA36AB256C01BE0003B3DC /* ServerHeaderView.swift in Sources */,
 				5004E7A525604C0E002CCAD2 /* ImportSelectionType.swift in Sources */,
 				5004E7A625604C0E002CCAD2 /* TokenBalance.swift in Sources */,
+				D1BA36AA256C01BB0003B3DC /* RadidoServerViewCell.swift in Sources */,
 				5004E7A725604C0E002CCAD2 /* R.generated.swift in Sources */,
 				5004E7A825604C0E002CCAD2 /* UINavigationController.swift in Sources */,
 				5004E7A925604C0E002CCAD2 /* Date.swift in Sources */,
@@ -6089,6 +6115,7 @@
 				5004E86A25604C0E002CCAD2 /* AlphaWalletSettingsTextRow.swift in Sources */,
 				5004E86B25604C0E002CCAD2 /* WelcomeViewController.swift in Sources */,
 				5004E86C25604C0E002CCAD2 /* OnboardingCollectionViewController.swift in Sources */,
+				D1BA36AD256C01DB0003B3DC /* ServerHeaderModel.swift in Sources */,
 				5004E86D25604C0E002CCAD2 /* OnboardingPageViewModel.swift in Sources */,
 				5004E86E25604C0E002CCAD2 /* WelcomeViewModel.swift in Sources */,
 				5004E86F25604C0E002CCAD2 /* OnboardingPageStyle.swift in Sources */,
@@ -6137,6 +6164,7 @@
 				5004E89A25604C0E002CCAD2 /* GenerateTransferMagicLinkViewController.swift in Sources */,
 				5004E89B25604C0E002CCAD2 /* GenerateTransferMagicLinkViewControllerViewModel.swift in Sources */,
 				5004E89C25604C0E002CCAD2 /* TransferTokensCardViaWalletAddressViewController.swift in Sources */,
+				D1BA36AC256C01CD0003B3DC /* Radio.swift in Sources */,
 				5004E89D25604C0E002CCAD2 /* TransferTokensCardViaWalletAddressViewControllerViewModel.swift in Sources */,
 				5004E89E25604C0E002CCAD2 /* EthCurrencyHelper.swift in Sources */,
 				5004E89F25604C0E002CCAD2 /* UIStackView+Array.swift in Sources */,
@@ -6849,7 +6877,7 @@
 		};
 		5004EA1725604C0E002CCAD2 /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = CA4F65A76A018D8DFF4A0314 /* Pods-AlphaWallet.debug.xcconfig */;
+			baseConfigurationReference = 71A9349EBAC3A1FA81A41A81 /* Pods-Velas.debug.xcconfig */;
 			buildSettings = {
 				ALPHAWALLET_INFO_PLIST_FILE = AlphaWallet/Info.plist;
 				ALPHAWALLET_PRODUCT_BUNDLE_IDENTIFIER = com.stormbird.alphawallet;
@@ -6891,7 +6919,7 @@
 		};
 		5004EA1825604C0E002CCAD2 /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = C6EE5EADD8373DB85ADD1966 /* Pods-AlphaWallet.release.xcconfig */;
+			baseConfigurationReference = 50AC4D8D0B03D8843FC7F579 /* Pods-Velas.release.xcconfig */;
 			buildSettings = {
 				ALPHAWALLET_INFO_PLIST_FILE = AlphaWallet/Info.plist;
 				ALPHAWALLET_PRODUCT_BUNDLE_IDENTIFIER = com.stormbird.alphawallet;

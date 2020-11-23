@@ -30,6 +30,8 @@ class EnabledServersViewController: UIViewController {
         tableView.backgroundColor = GroupedTable.Color.background
         tableView.tableFooterView = UIView.tableFooterToRemoveEmptyCellSeparators()
         tableView.register(ServerViewCell.self)
+        tableView.register(RadioServerViewCell.self)
+
         roundedBackground.addSubview(tableView)
 
         NSLayoutConstraint.activate([
@@ -66,26 +68,47 @@ class EnabledServersViewController: UIViewController {
 }
 
 extension EnabledServersViewController: UITableViewDelegate, UITableViewDataSource {
+    
+    func numberOfSections(in tableView: UITableView) -> Int {
+        return viewModel?.numberOfGroup() ?? 0
+    }
+    
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         guard let viewModel = viewModel else { return 0 }
-        return viewModel.servers.count
+        return viewModel.numberItemSection(section)
     }
 
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell: ServerViewCell = tableView.dequeueReusableCell(for: indexPath)
+        var cell: ServerViewCell = tableView.dequeueReusableCell(for: indexPath)
+        let radioCell: RadioServerViewCell = tableView.dequeueReusableCell(for: indexPath)
         if let viewModel = viewModel {
             let server = viewModel.server(for: indexPath)
+            let isRadio = [RPCServer.velas.chainID, RPCServer.velaschina.chainID].contains(server.chainID) // TODO: Refactor
+            cell = isRadio ? radioCell : cell
             let cellViewModel = ServerViewModel(server: server, selected: viewModel.isServerSelected(server))
             cell.configure(viewModel: cellViewModel)
         }
         return cell
     }
 
+    func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
+        let isUsingHeader = (viewModel?.numberOfGroup() ?? 0) > 1
+        let header: UIView = isUsingHeader ? ServerHeaderView() : UIView()
+        (header as? ServerHeaderView)?.config(.init(name: viewModel?.nameSection(section) ?? ""))
+        if !(header is ServerHeaderView) {
+            header.heightAnchor.constraint(equalToConstant: 0).isActive = true
+        }
+        return header
+    }
     
     func tableView(_ tableView: UITableView, willSelectRowAt indexPath: IndexPath) -> IndexPath? {
-        guard let viewModel = viewModel else { return nil}
+        guard let viewModel = viewModel else { return nil }
         let server = viewModel.server(for: indexPath)
-        return server.isAlwayVisible ? nil : indexPath
+        var canTouch = true
+        if server.isAlwayVisible {
+            canTouch = viewModel.numberOfGroup() != 1
+        }
+        return !canTouch ? nil : indexPath
     }
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
@@ -93,10 +116,18 @@ extension EnabledServersViewController: UITableViewDelegate, UITableViewDataSour
         guard let viewModel = viewModel else { return }
         let server = viewModel.server(for: indexPath)
         let servers: [RPCServer]
-        if viewModel.selectedServers.contains(server) {
-            servers = viewModel.selectedServers - [server]
-        } else {
-            servers = viewModel.selectedServers + [server]
+        switch server.chainID {
+        case RPCServer.velas.chainID,
+            RPCServer.velaschina.chainID:
+            var lastSelecteds = viewModel.selectedServers
+            lastSelecteds.removeAll { [RPCServer.velas, RPCServer.velaschina].contains($0) }
+            servers = lastSelecteds + [server]
+        default:
+            if viewModel.selectedServers.contains(server) {
+                servers = viewModel.selectedServers - [server]
+            } else {
+                servers = viewModel.selectedServers + [server]
+            }
         }
         configure(viewModel: .init(servers: viewModel.servers, selectedServers: servers))
         tableView.reloadData()
