@@ -82,8 +82,13 @@ struct TransactionDetailsViewModel {
     var to: String {
         var result = transaction.to
         if let to = transaction.operation?.to {
-            result = to
+                result = to
         }
+        
+        if !server.isVelasFamily {
+            return !VelasConvertUtil.isVlxAddress(result) ? result : VelasConvertUtil.vlxToEth(vlxAddress: result)
+        }
+        
         if !VelasConvertUtil.isVlxAddress(result) {
             result = VelasConvertUtil.ethToVlx(hexAddress: result)
         }
@@ -96,6 +101,10 @@ struct TransactionDetailsViewModel {
 
     var from: String {
         let stringValue = transaction.from
+        if !server.isVelasFamily {
+            return !VelasConvertUtil.isVlxAddress(stringValue) ? stringValue : VelasConvertUtil.vlxToEth(vlxAddress: stringValue)
+        }
+
         if VelasConvertUtil.isVlxAddress(stringValue) {
             return stringValue
         }

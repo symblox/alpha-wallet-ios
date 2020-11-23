@@ -159,4 +159,12 @@ struct VelasConvertUtil {
         }
         return data
     }
+    
+    public static func convertVlxStringIfNeed(server: RPCServer, address: String) -> String {
+        if server.isVelasFamily {
+            return VelasConvertUtil.isVlxAddress(address) ? address : VelasConvertUtil.ethToVlx(hexAddress: address)
+        } else {
+            return !VelasConvertUtil.isVlxAddress(address) ? address : VelasConvertUtil.vlxToEth(vlxAddress: address)
+        }
+    }
 }

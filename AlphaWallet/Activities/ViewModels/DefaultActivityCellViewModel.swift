@@ -73,25 +73,29 @@ struct DefaultActivityCellViewModel {
     var subTitle: String {
         switch activity.nativeViewType {
         case .erc20Sent, .erc721Sent, .nativeCryptoSent:
-            if let address = cardAttributes["to"]?.addressValue?.truncateMiddle {
+            if var address = cardAttributes["to"]?.addressValue?.eip55String {
+                address = VelasConvertUtil.convertVlxStringIfNeed(server: server, address: address).truncatedMiddle
                 return R.string.localizable.activityTo(address)
             } else {
                 return ""
             }
         case .erc20Received, .erc721Received, .nativeCryptoReceived:
-            if let address = cardAttributes["from"]?.addressValue?.truncateMiddle {
+            if var address = cardAttributes["from"]?.addressValue?.eip55String {
+                address = VelasConvertUtil.convertVlxStringIfNeed(server: server, address: address).truncatedMiddle
                 return R.string.localizable.activityFrom(address)
             } else {
                 return ""
             }
         case .erc20OwnerApproved, .erc721OwnerApproved:
-            if let address = cardAttributes["spender"]?.addressValue?.truncateMiddle {
+            if var address = cardAttributes["spender"]?.addressValue?.eip55String {
+                address = VelasConvertUtil.convertVlxStringIfNeed(server: server, address: address).truncatedMiddle
                 return R.string.localizable.activityTo(address)
             } else {
                 return ""
             }
         case .erc20ApprovalObtained, .erc721ApprovalObtained:
-            if let address = cardAttributes["owner"]?.addressValue?.truncateMiddle {
+            if var address = cardAttributes["owner"]?.addressValue?.eip55String {
+                address = VelasConvertUtil.convertVlxStringIfNeed(server: server, address: address).truncatedMiddle
                 return R.string.localizable.activityFrom(address)
             } else {
                 return ""

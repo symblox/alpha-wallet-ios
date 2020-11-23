@@ -136,6 +136,13 @@ extension String {
             return nil
         }
     }
+    
+    var truncatedMiddle : String {
+        guard !self.isEmpty else { return "" }
+        let front = self.prefix(6)
+        let back = self.suffix(4)
+        return "\(front)...\(back)"
+    }
 }
 
 extension String {

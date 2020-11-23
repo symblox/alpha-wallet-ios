@@ -64,11 +64,13 @@ struct TransactionCellViewModel {
     }
 
     var subTitle: String {
-        var result = ""
-        switch transactionViewModel.direction {
-        case .incoming: return "\(VelasConvertUtil.ethToVlx(hexAddress: transaction.from))"
-        case .outgoing: return "\(VelasConvertUtil.ethToVlx(hexAddress: transaction.to))"
-        }
+        var result = transactionViewModel.direction == .incoming ? transaction.from : transaction.to
+        return VelasConvertUtil.convertVlxStringIfNeed(server: server, address: result)
+//        switch transactionViewModel.direction {
+//        case .incoming: return "\(VelasConvertUtil.ethToVlx(hexAddress: transaction.from))"
+//        case .outgoing: return "\(VelasConvertUtil.ethToVlx(hexAddress: transaction.to))"
+//        }
+        
     }
 
     var subTitleTextColor: UIColor {

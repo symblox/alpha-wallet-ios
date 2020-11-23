@@ -335,8 +335,8 @@ enum RPCServer: Hashable, CaseIterable {
             case .artis_tau1: return "https://rpc.tau1.artis.network"
             case .binance_smart_chain: return "https://bsc-dataseed1.binance.org:443"
             case .binance_smart_chain_testnet: return "https://data-seed-prebsc-1-s1.binance.org:8545"
-//            case .velas: return "https://explorer.velas.com/rpc"
-            case .velas, .velaschina: return "https://rpc.symblox.net"
+            case .velas: return "https://explorer.velas.com/rpc"
+            case .velaschina: return "https://rpc.symblox.net"
             case .velastestnet: return "https://tn.yopta.net"
 //            case .velastestnet: return "https://explorer.testnet.veladev.net/rpc"
             case .custom(let custom):
@@ -571,6 +571,10 @@ enum RPCServer: Hashable, CaseIterable {
             .binance_smart_chain_testnet,
             .binance_smart_chain
         ]
+    }
+    
+    public var isVelasFamily: Bool {
+        return [RPCServer.velas, .velaschina, .velastestnet].contains(self)
     }
 }
 // swiftlint:enable type_body_length
