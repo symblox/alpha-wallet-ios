@@ -15,7 +15,7 @@ class MigrationInitializer: Initializer {
     }
 
     func perform() {
-        config.schemaVersion = 7
+        config.schemaVersion = 8
         config.migrationBlock = { migration, oldSchemaVersion in
             if oldSchemaVersion < 2 {
                 //Fix bug created during multi-chain implementation. Where TokenObject instances are created from transfer Transaction instances, with the primaryKey as a empty string; so instead of updating an existing TokenObject, a duplicate TokenObject instead was created but with primaryKey empty
