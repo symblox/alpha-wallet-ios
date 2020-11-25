@@ -516,8 +516,8 @@ extension NewTokenViewController: AddressTextFieldDelegate {
             } else if CryptoAddressValidator.isValidAddress(string) {
                 updateContractValue(value: string)
             }
-        default:
-             if CryptoAddressValidator.isValidAddress(string) {
+        case .auto:
+             if VelasConvertUtil.isVlxAddress(string) || CryptoAddressValidator.isValidAddress(string) {
                 updateContractValue(value: string)
             }
         }
