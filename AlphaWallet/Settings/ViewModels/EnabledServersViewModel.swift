@@ -47,6 +47,10 @@ struct EnabledServersViewModel {
         return dicServers.isEmpty ? 0 : dicServers?.count ?? 0
     }
     
+    func getSingleSelectionKey() -> [Int] {
+        return keys.filter{$0 != -1}
+    }
+    
     private func sortServer(_ server1: RPCServer, _ server2: RPCServer) -> Bool {
         return server1.chainID == server1.chainID ? server1.name > server1.name : server1.chainID > server1.chainID
     }

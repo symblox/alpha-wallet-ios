@@ -83,7 +83,7 @@ extension EnabledServersViewController: UITableViewDelegate, UITableViewDataSour
         let radioCell: RadioServerViewCell = tableView.dequeueReusableCell(for: indexPath)
         if let viewModel = viewModel {
             let server = viewModel.server(for: indexPath)
-            let isRadio = [RPCServer.velas.chainID, RPCServer.velaschina.chainID].contains(server.chainID) // TODO: Refactor
+            let isRadio = viewModel.getSingleSelectionKey().contains(server.chainID)
             cell = isRadio ? radioCell : cell
             let cellViewModel = ServerViewModel(server: server, selected: viewModel.isServerSelected(server))
             cell.configure(viewModel: cellViewModel)
@@ -105,8 +105,13 @@ extension EnabledServersViewController: UITableViewDelegate, UITableViewDataSour
         guard let viewModel = viewModel else { return nil }
         let server = viewModel.server(for: indexPath)
         var canTouch = true
+
         if server.isAlwayVisible {
             canTouch = viewModel.numberOfGroup() != 1
+        }
+
+        if viewModel.getSingleSelectionKey().contains(server.chainID) {
+            canTouch = !viewModel.selectedServers.contains(server)
         }
         return !canTouch ? nil : indexPath
     }
@@ -116,13 +121,11 @@ extension EnabledServersViewController: UITableViewDelegate, UITableViewDataSour
         guard let viewModel = viewModel else { return }
         let server = viewModel.server(for: indexPath)
         let servers: [RPCServer]
-        switch server.chainID {
-        case RPCServer.velas.chainID,
-            RPCServer.velaschina.chainID:
+        if viewModel.getSingleSelectionKey().contains(server.chainID){
             var lastSelecteds = viewModel.selectedServers
             lastSelecteds.removeAll { [RPCServer.velas, RPCServer.velaschina].contains($0) }
             servers = lastSelecteds + [server]
-        default:
+        } else {
             if viewModel.selectedServers.contains(server) {
                 servers = viewModel.selectedServers - [server]
             } else {
