@@ -42,12 +42,7 @@ class RequestViewController: UIViewController {
 		let label = UILabel(frame: .zero)
 		label.textColor = viewModel.addressLabelColor
 		label.font = viewModel.addressFont
-        if VelasConvertUtil.isVlxAddress(viewModel.myAddressText) {
-            label.text = viewModel.myAddressText
-        } else {
-            label.text = VelasConvertUtil.ethToVlx(hexAddress: viewModel.myAddressText)
-        }
-		
+        label.text = viewModel.myAddressText
 		label.textAlignment = .center
 		label.numberOfLines = 0
 

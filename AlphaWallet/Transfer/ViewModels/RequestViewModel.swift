@@ -13,28 +13,15 @@ struct RequestViewModel {
 	}
     
 	var myAddressText: String {
-//        if Constants.MyAddressStringRPCServerType == .velas {
-//            return vlxAddressString
-//        }
-		return account.address.eip55String
+		return VelasConvertUtil.convertVlxStringIfNeed(server: server, address: account.address.eip55String)
 	}
 
     var generatingAddressString: String {
-        let inputString = account.address.eip55String
-        var string = inputString
-        if !VelasConvertUtil.isVlxAddress(inputString) {
-            string = VelasConvertUtil.ethToVlx(hexAddress: inputString)
-        }
-        return string
+        return VelasConvertUtil.convertVlxStringIfNeed(server: server, address: account.address.eip55String)
     }
     
     var copiedAddressString: String {
-        let inputString =  account.address.eip55String
-        var string = inputString
-        if !VelasConvertUtil.isVlxAddress(inputString) {
-            string = VelasConvertUtil.ethToVlx(hexAddress: inputString)
-        }
-        return string
+        return VelasConvertUtil.convertVlxStringIfNeed(server: server, address: account.address.eip55String)
     }
     
 	var myAddress: AlphaWallet.Address {
