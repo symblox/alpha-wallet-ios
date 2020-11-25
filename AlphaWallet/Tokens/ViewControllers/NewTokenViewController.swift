@@ -509,8 +509,17 @@ extension NewTokenViewController: AddressTextFieldDelegate {
     }
 
     func didChange(to string: String, in textField: AddressTextField) {
-        if VelasConvertUtil.isVlxAddress(string) || CryptoAddressValidator.isValidAddress(string) {
-            updateContractValue(value: string)
+        switch server {
+        case .server(let server):
+            if server.isVelasFamily && VelasConvertUtil.isVlxAddress(string) {
+                updateContractValue(value: string)
+            } else if CryptoAddressValidator.isValidAddress(string) {
+                updateContractValue(value: string)
+            }
+        default:
+             if CryptoAddressValidator.isValidAddress(string) {
+                updateContractValue(value: string)
+            }
         }
     }
     
