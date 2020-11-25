@@ -79,6 +79,11 @@ final class DappBrowserCoordinator: NSObject, Coordinator {
             if enabled.contains(selected) {
                 return selected
             } else {
+                //try to check velas and velas china because they have the same chainId
+                if let rpcServer = enabled.first(where: { $0.chainID == selected.chainID }) {
+                    return rpcServer
+                }
+                
                 let fallback = enabled[0]
                 Config.setChainId(fallback.chainID)
                 return fallback
