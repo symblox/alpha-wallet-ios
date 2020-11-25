@@ -44,7 +44,7 @@ struct EnabledServersViewModel {
     }
     
     func numberOfGroup() -> Int {
-        return dicServers.isEmpty ? 0 : dicServers?.count ?? 0
+        return !keys.isEmpty ? keys.count : 0
     }
     
     func getSingleSelectionKey() -> [Int] {

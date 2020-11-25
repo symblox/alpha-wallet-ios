@@ -121,9 +121,9 @@ extension EnabledServersViewController: UITableViewDelegate, UITableViewDataSour
         guard let viewModel = viewModel else { return }
         let server = viewModel.server(for: indexPath)
         let servers: [RPCServer]
-        if viewModel.getSingleSelectionKey().contains(server.chainID){
+        if viewModel.getSingleSelectionKey().contains(server.chainID) {
             var lastSelecteds = viewModel.selectedServers
-            lastSelecteds.removeAll { [RPCServer.velas, RPCServer.velaschina].contains($0) }
+            lastSelecteds.removeAll {$0.chainID == server.chainID}
             servers = lastSelecteds + [server]
         } else {
             if viewModel.selectedServers.contains(server) {
