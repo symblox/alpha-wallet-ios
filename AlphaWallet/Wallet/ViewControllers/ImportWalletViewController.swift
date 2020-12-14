@@ -504,7 +504,7 @@ class ImportWalletViewController: UIViewController {
         let controller = UIDocumentPickerViewController(documentTypes: types, in: .import)
         controller.delegate = self
         switch UIDevice.current.userInterfaceIdiom {
-        case .pad:
+        case .pad, .mac:
             controller.modalPresentationStyle = .formSheet
         case .unspecified, .tv, .carPlay, .phone:
             controller.makePresentationFullScreenForiOS13Migration()

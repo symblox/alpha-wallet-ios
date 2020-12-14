@@ -32,7 +32,7 @@ target 'AlphaWallet' do
   pod 'PromiseKit/Alamofire'
   #To force SWXMLHash which Macaw depends on to be Swift >= 4
   pod 'SWXMLHash', '~> 5.0.0'
-  pod "Macaw", :git => 'https://github.com/alpha-wallet/Macaw.git', :commit => 'e1f4eb1d2b81676fb10e9835c5e2ce9e9f51faf9'
+  pod "Macaw", :git => 'https://github.com/symblox/Macaw.git', :commit => '6d60eac2ac0858ba4c1d235d7a5ee42918f6a2ef'
   pod "Kanna", :git => 'https://github.com/tid-kijyun/Kanna.git', :commit => '06a04bc28783ccbb40efba355dee845a024033e8'
   pod 'TrustWalletCore'
   pod 'AWSSNS'
@@ -81,14 +81,11 @@ target 'Velas' do
   pod 'PromiseKit/Alamofire'
   #To force SWXMLHash which Macaw depends on to be Swift >= 4
   pod 'SWXMLHash', '~> 5.0.0'
-  pod "Macaw", :git => 'https://github.com/alpha-wallet/Macaw.git', :commit => 'e1f4eb1d2b81676fb10e9835c5e2ce9e9f51faf9'
+  pod "Macaw", :git => 'https://github.com/symblox/Macaw.git', :commit => '6d60eac2ac0858ba4c1d235d7a5ee42918f6a2ef'
   pod "Kanna", :git => 'https://github.com/tid-kijyun/Kanna.git', :commit => '06a04bc28783ccbb40efba355dee845a024033e8'
   pod 'TrustWalletCore'
   pod 'AWSSNS'
   pod 'Mixpanel-swift'  # Pods for testing
-  
-  pod 'AppCenter'
-
 end
 
 post_install do |installer|
