@@ -49,9 +49,9 @@ class AmountTextField: UIControl {
         var statusLabelFont: UIFont {
             switch self {
             case .error:
-                return Fonts.semibold(size: 13)!
+                return Fonts.semibold(size: 13)
             case .none:
-                return Fonts.regular(size: 13)!
+                return Fonts.regular(size: 13)
             }
         }
 
@@ -113,7 +113,7 @@ class AmountTextField: UIControl {
     private lazy var textField: UITextField = {
         let textField = UITextField()
         textField.attributedPlaceholder = NSAttributedString(string: "0", attributes: [
-            .font: DataEntry.Font.amountTextField!, .foregroundColor: DataEntry.Color.placeholder
+            .font: DataEntry.Font.amountTextField, .foregroundColor: DataEntry.Color.placeholder
         ])
         textField.translatesAutoresizingMaskIntoConstraints = false
         textField.adjustsFontSizeToFitWidth = true
@@ -188,10 +188,10 @@ class AmountTextField: UIControl {
         get {
             switch currentPair.left {
             case .cryptoCurrency:
-                return textField.text ?? "0"
+                return textField.text?.droppedTrailingZeros ?? "0"
             case .usd:
                 guard let value = ethCostRawValue else { return "0" }
-                return StringFormatter().alternateAmount(value: value)
+                return StringFormatter().alternateAmount(value: value).droppedTrailingZeros
             }
         }
         set {
@@ -229,9 +229,9 @@ class AmountTextField: UIControl {
 
         switch currentPair.left {
         case .cryptoCurrency:
-            return StringFormatter().currency(with: amount, and: Constants.Currency.usd)
+            return StringFormatter().currency(with: amount, and: Constants.Currency.usd).droppedTrailingZeros
         case .usd:
-            return StringFormatter().alternateAmount(value: amount)
+            return StringFormatter().alternateAmount(value: amount).droppedTrailingZeros
         }
     }
 
@@ -264,7 +264,7 @@ class AmountTextField: UIControl {
             textField.textColor = errorState.textFieldTextColor
 
             textField.attributedPlaceholder = NSAttributedString(string: "0", attributes: [
-                .font: DataEntry.Font.amountTextField!, .foregroundColor: errorState.textFieldPlaceholderTextColor
+                .font: DataEntry.Font.amountTextField, .foregroundColor: errorState.textFieldPlaceholderTextColor
             ])
         }
     }
@@ -500,6 +500,22 @@ extension String {
     var optionalDecimalValue: NSDecimalNumber? {
         return EtherNumberFormatter.full.decimal(from: self)
     }
+
+    var droppedTrailingZeros: String {
+        var string = self
+        let decimalSeparator = Locale.current.decimalSeparator ?? "."
+
+        while string.last == "0" || string.last?.toString == decimalSeparator {
+            if string.last?.toString == decimalSeparator {
+                string = String(string.dropLast())
+                break
+            }
+            string = String(string.dropLast())
+        }
+
+        return string
+    }
+
 }
 
 extension EtherNumberFormatter {

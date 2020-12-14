@@ -1,9 +1,9 @@
 // Copyright SIX DAY LLC. All rights reserved.
 
-import Foundation
 import UIKit
-import RealmSwift
 import BigInt
+import RealmSwift
+import Result
 
 protocol InCoordinatorDelegate: class {
     func didCancel(in coordinator: InCoordinator)
@@ -51,8 +51,6 @@ class InCoordinator: NSObject, Coordinator {
             XMLHandler.callForAssetAttributeCoordinators = callForAssetAttributeCoordinators
         }
     }
-    //TODO We might not need this anymore once we stop using the vendored Web3Swift library which uses a WKWebView underneath
-    private var claimOrderCoordinator: ClaimOrderCoordinator?
     //TODO rename this generic name to reflect that it's for event instances, not for event activity
     lazy private var eventsDataStore: EventsDataStore = {
         EventsDataStore(realm: self.realm(forAccount: wallet))
@@ -63,6 +61,8 @@ class InCoordinator: NSObject, Coordinator {
     private var eventSourceCoordinator: EventSourceCoordinator?
     private var eventSourceCoordinatorForActivities: EventSourceCoordinatorForActivities?
     var tokensStorages = ServerDictionary<TokensDataStore>()
+    private var claimOrderCoordinatorCompletionBlock: ((Bool) -> Void)?
+
     lazy var nativeCryptoCurrencyPrices: ServerDictionary<Subscribable<Double>> = {
         return createEtherPricesSubscribablesForAllChains()
     }()
@@ -98,10 +98,26 @@ class InCoordinator: NSObject, Coordinator {
     let navigationController: UINavigationController
     var coordinators: [Coordinator] = []
     var keystore: Keystore
+    var urlSchemeCoordinator: UrlSchemeCoordinatorType
     weak var delegate: InCoordinatorDelegate?
     var tabBarController: UITabBarController? {
         return navigationController.viewControllers.first as? UITabBarController
     }
+
+    private lazy var oneInchSwapServie = Oneinch()
+    private lazy var swapTokenService: SwapTokenServiceType = {
+        let service = SwapTokenService()
+        service.register(service: oneInchSwapServie)
+
+        //NOTE: Disable uniswap swap provider
+
+        //var uniswap = Uniswap()
+        //uniswap.theme = navigationController.traitCollection.uniswapTheme
+
+        //service.register(service: uniswap)
+
+        return service
+    }()
 
     init(
             navigationController: UINavigationController = UINavigationController(),
@@ -110,7 +126,8 @@ class InCoordinator: NSObject, Coordinator {
             assetDefinitionStore: AssetDefinitionStore,
             config: Config,
             appTracker: AppTracker = AppTracker(),
-            analyticsCoordinator: AnalyticsCoordinator?
+            analyticsCoordinator: AnalyticsCoordinator?,
+            urlSchemeCoordinator: UrlSchemeCoordinatorType
     ) {
         self.navigationController = navigationController
         self.wallet = wallet
@@ -119,6 +136,7 @@ class InCoordinator: NSObject, Coordinator {
         self.appTracker = appTracker
         self.analyticsCoordinator = analyticsCoordinator
         self.assetDefinitionStore = assetDefinitionStore
+        self.urlSchemeCoordinator = urlSchemeCoordinator
         //Disabled for now. Refer to function's comment
         //self.assetDefinitionStore.enableFetchXMLForContractInPasteboard()
 
@@ -134,6 +152,9 @@ class InCoordinator: NSObject, Coordinator {
         fetchXMLAssetDefinitions()
         listOfBadTokenScriptFilesChanged(fileNames: assetDefinitionStore.listOfBadTokenScriptFiles + assetDefinitionStore.conflictingTokenScriptFileNames.all)
         setupWatchingTokenScriptFileChangesToFetchEvents()
+
+        urlSchemeCoordinator.processPendingURL(in: self)
+        oneInchSwapServie.fetchSupportedTokens()
     }
 
     func launchUniversalScanner() {
@@ -393,7 +414,8 @@ class InCoordinator: NSObject, Coordinator {
                 eventsDataStore: eventsDataStore,
                 promptBackupCoordinator: promptBackupCoordinator,
                 filterTokensCoordinator: filterTokensCoordinator,
-                analyticsCoordinator: analyticsCoordinator
+                analyticsCoordinator: analyticsCoordinator,
+                swapTokenActionsService: swapTokenService
         )
 
         coordinator.rootViewController.tabBarItem = UITabBarItem(title: R.string.localizable.walletTokensTabbarItemTitle(), image: R.image.tab_wallet(), selectedImage: nil)
@@ -438,8 +460,8 @@ class InCoordinator: NSObject, Coordinator {
         return coordinator
     }
 
-    private func createBrowserCoordinator(sessions: ServerDictionary<WalletSession>, realm: Realm, browserOnly: Bool) -> DappBrowserCoordinator {
-        let coordinator = DappBrowserCoordinator(sessions: sessions, keystore: keystore, config: config, sharedRealm: realm, browserOnly: browserOnly)
+    private func createBrowserCoordinator(sessions: ServerDictionary<WalletSession>, realm: Realm, browserOnly: Bool, analyticsCoordinator: AnalyticsCoordinator?) -> DappBrowserCoordinator {
+        let coordinator = DappBrowserCoordinator(sessions: sessions, keystore: keystore, config: config, sharedRealm: realm, browserOnly: browserOnly, nativeCryptoCurrencyPrices: nativeCryptoCurrencyPrices, analyticsCoordinator: analyticsCoordinator)
         coordinator.delegate = self
         coordinator.start()
         coordinator.rootViewController.tabBarItem = UITabBarItem(title: R.string.localizable.browserTabbarItemTitle(), image: R.image.tab_browser(), selectedImage: nil)
@@ -483,7 +505,7 @@ class InCoordinator: NSObject, Coordinator {
             viewControllers.append(transactionCoordinator.navigationController)
         }
 
-        let browserCoordinator = createBrowserCoordinator(sessions: walletSessions, realm: realm, browserOnly: false)
+        let browserCoordinator = createBrowserCoordinator(sessions: walletSessions, realm: realm, browserOnly: false, analyticsCoordinator: analyticsCoordinator)
         viewControllers.append(browserCoordinator.navigationController)
 
         let settingsCoordinator = createSettingsCoordinator(keystore: keystore, promptBackupCoordinator: promptBackupCoordinator)
@@ -613,59 +635,14 @@ class InCoordinator: NSObject, Coordinator {
         addCoordinator(coordinator)
     }
 
-    func importPaidSignedOrder(signedOrder: SignedOrder, tokenObject: TokenObject, completion: @escaping (Bool) -> Void) {
-        let server = tokenObject.server
-        let signature = signedOrder.signature.substring(from: 2)
-        let v = UInt8(signature.substring(from: 128), radix: 16)!
-        let r = "0x" + signature.substring(with: Range(uncheckedBounds: (0, 64)))
-        let s = "0x" + signature.substring(with: Range(uncheckedBounds: (64, 128)))
-        let wallet = keystore.currentWallet
-        claimOrderCoordinator = ClaimOrderCoordinator()
-        claimOrderCoordinator?.claimOrder(
-                signedOrder: signedOrder,
-                expiry: signedOrder.order.expiry,
-                v: v,
-                r: r,
-                s: s,
-                contractAddress: signedOrder.order.contractAddress,
-                recipient: wallet.address
-        ) { result in
-            let strongSelf = self
-            switch result {
-            case .success(let payload):
-                let session = strongSelf.walletSessions[server]
-                let account = wallet.address
-                TransactionConfigurator.estimateGasPrice(server: server).done { gasPrice in
-                    //Note: since we have the data payload, it is unnecessary to load an UnconfirmedTransaction struct
-                    let transactionToSign = UnsignedTransaction(
-                            value: BigInt(signedOrder.order.price),
-                            account: account,
-                            to: signedOrder.order.contractAddress,
-                            nonce: -1,
-                            data: payload,
-                            gasPrice: gasPrice,
-                            gasLimit: GasLimitConfiguration.maxGasLimit,
-                            server: server
-                    )
-                    let sendTransactionCoordinator = SendTransactionCoordinator(
-                            session: session,
-                            keystore: strongSelf.keystore,
-                            confirmType: .signThenSend
-                    )
-                    sendTransactionCoordinator.send(transaction: transactionToSign) { result in
-                        switch result {
-                        case .success(let res):
-                            completion(true)
-                            print(res)
-                        case .failure(let error):
-                            completion(false)
-                            print(error)
-                        }
-                    }
-                }.cauterize()
-            case .failure: break
-            }
-        }
+    func importPaidSignedOrder(signedOrder: SignedOrder, tokenObject: TokenObject, inViewController viewController: ImportMagicTokenViewController, completion: @escaping (Bool) -> Void) {
+        guard let navigationController = viewController.navigationController else { return }
+        let session = walletSessions[tokenObject.server]
+        claimOrderCoordinatorCompletionBlock = completion
+        let coordinator = ClaimPaidOrderCoordinator(navigationController: navigationController, keystore: keystore, session: session, tokenObject: tokenObject, signedOrder: signedOrder, ethPrice: nativeCryptoCurrencyPrices[session.server], analyticsCoordinator: analyticsCoordinator)
+        coordinator.delegate = self
+        addCoordinator(coordinator)
+        coordinator.start()
     }
 
     func addImported(contract: AlphaWallet.Address, forServer server: RPCServer) {
@@ -760,7 +737,7 @@ extension InCoordinator: CanOpenURL {
         let account = keystore.currentWallet
         //TODO duplication of code to set up a BrowserCoordinator when creating the application's tabbar
         let realm = self.realm(forAccount: account)
-        let browserCoordinator = createBrowserCoordinator(sessions: walletSessions, realm: realm, browserOnly: true)
+        let browserCoordinator = createBrowserCoordinator(sessions: walletSessions, realm: realm, browserOnly: true, analyticsCoordinator: analyticsCoordinator)
         let controller = browserCoordinator.navigationController
         browserCoordinator.open(url: url, animated: false)
         controller.makePresentationFullScreenForiOS13Migration()
@@ -830,11 +807,39 @@ extension InCoordinator: SettingsCoordinatorDelegate {
     }
 }
 
+extension InCoordinator: UrlSchemeResolver {
+
+    func openURLInBrowser(url: URL) {
+        openURLInBrowser(url: url, forceReload: false)
+    }
+
+    func openURLInBrowser(url: URL, forceReload: Bool) {
+        guard let dappBrowserCoordinator = dappBrowserCoordinator else { return }
+
+        showTab(.browser)
+
+        dappBrowserCoordinator.open(url: url, animated: true, forceReload: false)
+    }
+}
+
 extension InCoordinator: TokensCoordinatorDelegate {
+    func didTapSwap(forTransactionType transactionType: TransactionType, service: SwapTokenURLProviderType, in coordinator: TokensCoordinator) {
+        switch transactionType {
+        case .nativeCryptocurrency(let token, _, _):
+            guard let url = service.url(token: token) else { return }
+            
+            openSwapToken(for: url, coordinator: coordinator)
+        case .ERC20Token(let token, _, _):
+            guard let url = service.url(token: token) else { return }
 
-    func didPressErc20ExchangeOnUniswap(for holder: UniswapHolder, in coordinator: TokensCoordinator) {
-        guard let dappBrowserCoordinator = dappBrowserCoordinator, let url = holder.url else { return }
+            openSwapToken(for: url, coordinator: coordinator)
+        case .ERC875Token, .ERC875TokenOrder, .ERC721Token, .ERC721ForTicketToken, .dapp, .tokenScript, .claimPaidErc875MagicLink:
+            break
+        }
+    }
 
+    private func openSwapToken(for url: URL, coordinator: TokensCoordinator) {
+        guard let dappBrowserCoordinator = dappBrowserCoordinator else { return }
         coordinator.navigationController.popViewController(animated: false)
 
         showTab(.browser)
@@ -944,5 +949,21 @@ extension InCoordinator: ActivitiesCoordinatorDelegate {
 
     func didPressViewContractWebPage(forContract contract: AlphaWallet.Address, server: RPCServer, fromCoordinator coordinator: ActivitiesCoordinator, inViewController viewController: UIViewController) {
         didPressViewContractWebPage(forContract: contract, server: server, in: viewController)
+    }
+}
+extension InCoordinator: ClaimOrderCoordinatorDelegate {
+    func coordinator(_ coordinator: ClaimPaidOrderCoordinator, didFailTransaction error: AnyError) {
+        claimOrderCoordinatorCompletionBlock?(false)
+    }
+
+    func didClose(in coordinator: ClaimPaidOrderCoordinator) {
+        claimOrderCoordinatorCompletionBlock = nil
+        removeCoordinator(coordinator)
+    }
+
+    func coordinator(_ coordinator: ClaimPaidOrderCoordinator, didCompleteTransaction result: TransactionConfirmationResult) {
+        claimOrderCoordinatorCompletionBlock?(true)
+        claimOrderCoordinatorCompletionBlock = nil
+        removeCoordinator(coordinator)
     }
 }

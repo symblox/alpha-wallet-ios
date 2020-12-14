@@ -3,7 +3,7 @@
 import Foundation
 //TODO remove all dependencies
 import TrustKeystore
-import TrustWalletCore
+import WalletCore
 
 ///Use an enum as a namespace until Swift has proper namespaces
 enum AlphaWallet {}
@@ -91,6 +91,12 @@ extension AlphaWallet {
         func sameContract(as contract: AlphaWallet.Address) -> Bool {
             return eip55String == contract.eip55String
         }
+    }
+}
+
+extension AlphaWallet.Address {
+    static func ==(lsh: AlphaWallet.Address, rhs: AlphaWallet.Address) -> Bool {
+        return lsh.sameContract(as: rhs)
     }
 }
 

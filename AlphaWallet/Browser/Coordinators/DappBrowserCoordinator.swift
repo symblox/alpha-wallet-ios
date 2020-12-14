@@ -21,7 +21,7 @@ final class DappBrowserCoordinator: NSObject, Coordinator {
     private let sessions: ServerDictionary<WalletSession>
     private let keystore: Keystore
     private let config: Config
-
+    private let analyticsCoordinator: AnalyticsCoordinator?
     private var browserNavBar: DappBrowserNavigationBar? {
         return navigationController.navigationBar as? DappBrowserNavigationBar
     }
@@ -42,6 +42,7 @@ final class DappBrowserCoordinator: NSObject, Coordinator {
 
     private let sharedRealm: Realm
     private let browserOnly: Bool
+    private let nativeCryptoCurrencyPrices: ServerDictionary<Subscribable<Double>>
 
     private var nativeCryptoCurrencyBalanceView: NativeCryptoCurrencyBalanceView {
         //Not the best implementation. Hopefully this will be unnecessary
@@ -125,7 +126,9 @@ final class DappBrowserCoordinator: NSObject, Coordinator {
         keystore: Keystore,
         config: Config,
         sharedRealm: Realm,
-        browserOnly: Bool
+        browserOnly: Bool,
+        nativeCryptoCurrencyPrices: ServerDictionary<Subscribable<Double>>,
+        analyticsCoordinator: AnalyticsCoordinator?
     ) {
         self.navigationController = UINavigationController(navigationBarClass: DappBrowserNavigationBar.self, toolbarClass: nil)
         self.sessions = sessions
@@ -133,6 +136,8 @@ final class DappBrowserCoordinator: NSObject, Coordinator {
         self.config = config
         self.sharedRealm = sharedRealm
         self.browserOnly = browserOnly
+        self.nativeCryptoCurrencyPrices = nativeCryptoCurrencyPrices
+        self.analyticsCoordinator = analyticsCoordinator
 
         super.init()
 
@@ -169,7 +174,8 @@ final class DappBrowserCoordinator: NSObject, Coordinator {
 
     private func executeTransaction(account: AlphaWallet.Address, action: DappAction, callbackID: Int, transaction: UnconfirmedTransaction, type: ConfirmType, server: RPCServer) {
         pendingTransaction = .data(callbackID: callbackID)
-        let coordinator = TransactionConfirmationCoordinator(navigationController: navigationController, session: session, transaction: transaction, configuration: .dappTransaction(confirmType: type, keystore: keystore))
+        let ethPrice = nativeCryptoCurrencyPrices[server]
+        let coordinator = TransactionConfirmationCoordinator(navigationController: navigationController, session: session, transaction: transaction, configuration: .dappTransaction(confirmType: type, keystore: keystore, ethPrice: ethPrice), analyticsCoordinator: analyticsCoordinator)
         coordinator.delegate = self
         addCoordinator(coordinator)
         coordinator.start()

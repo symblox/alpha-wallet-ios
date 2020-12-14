@@ -345,8 +345,8 @@ class TokensCardCoordinator: NSObject, Coordinator {
     private func sellViaActivitySheet(tokenHolder: TokenHolder, linkExpiryDate: Date, ethCost: Ether, paymentFlow: PaymentFlow, in viewController: UIViewController, sender: UIView) {
         let server: RPCServer
         switch paymentFlow {
-        case .send(let transferType):
-            server = transferType.server
+        case .send(let transactionType):
+            server = transactionType.server
         case .request:
             return
         }
@@ -373,8 +373,8 @@ class TokensCardCoordinator: NSObject, Coordinator {
     private func transferViaActivitySheet(tokenHolder: TokenHolder, linkExpiryDate: Date, paymentFlow: PaymentFlow, in viewController: UIViewController, sender: UIView) {
         let server: RPCServer
         switch paymentFlow {
-        case .send(let transferType):
-            server = transferType.server
+        case .send(let transactionType):
+            server = transactionType.server
         case .request:
             return
         }
@@ -474,7 +474,7 @@ extension TokensCardCoordinator: TokensCardViewControllerDelegate {
         switch action.type {
         case .tokenScript:
             showTokenInstanceActionView(forAction: action, tokenHolder: tokenHolder, viewController: viewController)
-        case .erc20Send, .erc20Receive, .nftRedeem, .nftSell, .nonFungibleTransfer, .erc20ExchangeOnUniswap:
+        case .erc20Send, .erc20Receive, .nftRedeem, .nftSell, .nonFungibleTransfer, .swap:
             //Couldn't have reached here
             break
         }
@@ -655,8 +655,8 @@ extension TokensCardCoordinator: TransferTokensCardViaWalletAddressViewControlle
         case .real:
             switch paymentFlow {
             case .send:
-                if case .send(let transferType) = paymentFlow {
-                    let coordinator = TransferNFTCoordinator(navigationController: navigationController, transferType: transferType, tokenHolder: tokenHolder, recipient: recipient, keystore: keystore, session: session)
+                if case .send(let transactionType) = paymentFlow {
+                    let coordinator = TransferNFTCoordinator(navigationController: navigationController, transactionType: transactionType, tokenHolder: tokenHolder, recipient: recipient, keystore: keystore, session: session, ethPrice: ethPrice, analyticsCoordinator: analyticsCoordinator)
                     addCoordinator(coordinator)
                     coordinator.delegate = self
                     coordinator.start()
@@ -697,8 +697,8 @@ extension TokensCardCoordinator: StaticHTMLViewControllerDelegate {
 extension TokensCardCoordinator: TokenInstanceActionViewControllerDelegate {
     func confirmTransactionSelected(in viewController: TokenInstanceActionViewController, tokenObject: TokenObject, contract: AlphaWallet.Address, tokenId: TokenId, values: [AttributeId: AssetInternalValue], localRefs: [AttributeId: AssetInternalValue], server: RPCServer, session: WalletSession, keystore: Keystore, transactionFunction: FunctionOrigin) {
         switch transactionFunction.makeUnConfirmedTransaction(withTokenObject: tokenObject, tokenId: tokenId, attributeAndValues: values, localRefs: localRefs, server: server, session: session) {
-        case .success(let transaction):
-            let coordinator = TransactionConfirmationCoordinator(navigationController: navigationController, session: session, transaction: transaction, configuration: .tokenScriptTransaction(confirmType: .signThenSend, contract: contract, keystore: keystore))
+        case .success(let transaction, let functionCallMetaData):
+            let coordinator = TransactionConfirmationCoordinator(navigationController: navigationController, session: session, transaction: transaction, configuration: .tokenScriptTransaction(confirmType: .signThenSend, contract: contract, keystore: keystore, functionCallMetaData: functionCallMetaData, ethPrice: ethPrice), analyticsCoordinator: analyticsCoordinator)
             coordinator.delegate = self
             addCoordinator(coordinator)
             coordinator.start()

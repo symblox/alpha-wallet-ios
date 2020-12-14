@@ -5,7 +5,7 @@ import UIKit
 import PromiseKit
 
 protocol TokensCoordinatorDelegate: class, CanOpenURL {
-    func didPressErc20ExchangeOnUniswap(for holder: UniswapHolder, in coordinator: TokensCoordinator)
+    func didTapSwap(forTransactionType transactionType: TransactionType, service: SwapTokenURLProviderType, in coordinator: TokensCoordinator)
     func didPress(for type: PaymentFlow, server: RPCServer, in coordinator: TokensCoordinator)
     func didTap(transaction: Transaction, inViewController viewController: UIViewController, in coordinator: TokensCoordinator)
     func openConsole(inCoordinator coordinator: TokensCoordinator)
@@ -26,6 +26,7 @@ class TokensCoordinator: Coordinator {
     private let promptBackupCoordinator: PromptBackupCoordinator
     private let filterTokensCoordinator: FilterTokensCoordinator
     private let analyticsCoordinator: AnalyticsCoordinator?
+    private let swapTokenActionsService: SwapTokenActionsService
     private var serverToAddCustomTokenOn: RPCServerOrAuto = .auto {
         didSet {
             switch serverToAddCustomTokenOn {
@@ -56,7 +57,8 @@ class TokensCoordinator: Coordinator {
                 tokenCollection: tokenCollection,
                 assetDefinitionStore: assetDefinitionStore,
                 eventsDataStore: eventsDataStore,
-                filterTokensCoordinator: filterTokensCoordinator
+                filterTokensCoordinator: filterTokensCoordinator,
+                config: config
         )
         controller.delegate = self
         return controller
@@ -87,7 +89,8 @@ class TokensCoordinator: Coordinator {
             eventsDataStore: EventsDataStoreProtocol,
             promptBackupCoordinator: PromptBackupCoordinator,
             filterTokensCoordinator: FilterTokensCoordinator,
-            analyticsCoordinator: AnalyticsCoordinator?
+            analyticsCoordinator: AnalyticsCoordinator?,
+            swapTokenActionsService: SwapTokenActionsService
     ) {
         self.filterTokensCoordinator = filterTokensCoordinator
         self.navigationController = navigationController
@@ -101,6 +104,7 @@ class TokensCoordinator: Coordinator {
         self.eventsDataStore = eventsDataStore
         self.promptBackupCoordinator = promptBackupCoordinator
         self.analyticsCoordinator = analyticsCoordinator
+        self.swapTokenActionsService = swapTokenActionsService
         promptBackupCoordinator.prominentPromptDelegate = self
         setupSingleChainTokenCoordinators()
     }
@@ -118,7 +122,7 @@ class TokensCoordinator: Coordinator {
             let server = each.server
             let session = sessions[server]
             let price = nativeCryptoCurrencyPrices[server]
-            let coordinator = SingleChainTokenCoordinator(session: session, keystore: keystore, tokensStorage: each, ethPrice: price, assetDefinitionStore: assetDefinitionStore, eventsDataStore: eventsDataStore, analyticsCoordinator: analyticsCoordinator, navigationController: navigationController, withAutoDetectTransactedTokensQueue: autoDetectTransactedTokensQueue, withAutoDetectTokensQueue: autoDetectTokensQueue)
+            let coordinator = SingleChainTokenCoordinator(session: session, keystore: keystore, tokensStorage: each, ethPrice: price, assetDefinitionStore: assetDefinitionStore, eventsDataStore: eventsDataStore, analyticsCoordinator: analyticsCoordinator, navigationController: navigationController, withAutoDetectTransactedTokensQueue: autoDetectTransactedTokensQueue, withAutoDetectTokensQueue: autoDetectTokensQueue, swapTokenActionsService: swapTokenActionsService)
             coordinator.delegate = self
             addCoordinator(coordinator)
         }
@@ -183,9 +187,9 @@ extension TokensCoordinator: TokensViewControllerDelegate {
         guard let coordinator = singleChainTokenCoordinator(forServer: server) else { return }
         switch token.type {
         case .nativeCryptocurrency:
-            coordinator.show(fungibleToken: token, transferType: .nativeCryptocurrency(token, destination: .none, amount: nil))
+            coordinator.show(fungibleToken: token, transactionType: .nativeCryptocurrency(token, destination: .none, amount: nil))
         case .erc20:
-            coordinator.show(fungibleToken: token, transferType: .ERC20Token(token, destination: nil, amount: nil))
+            coordinator.show(fungibleToken: token, transactionType: .ERC20Token(token, destination: nil, amount: nil))
         case .erc721:
             coordinator.showTokenList(for: .send(type: .ERC721Token(token)), token: token)
         case .erc875, .erc721ForTickets:
@@ -239,10 +243,10 @@ extension TokensCoordinator: QRCodeResolutionCoordinatorDelegate {
         removeCoordinator(coordinator)
     }
 
-    func coordinator(_ coordinator: QRCodeResolutionCoordinator, didResolveTransferType transferType: TransferType, token: TokenObject) {
+    func coordinator(_ coordinator: QRCodeResolutionCoordinator, didResolveTransactionType transactionType: TransactionType, token: TokenObject) {
         removeCoordinator(coordinator)
 
-        let paymentFlow = PaymentFlow.send(type: transferType)
+        let paymentFlow = PaymentFlow.send(type: transactionType)
 
         delegate?.didPress(for: paymentFlow, server: token.server, in: self)
     }
@@ -352,8 +356,8 @@ extension TokensCoordinator: WalletCoordinatorDelegate {
 
 extension TokensCoordinator: SingleChainTokenCoordinatorDelegate {
 
-    func didPressErc20ExchangeOnUniswap(for holder: UniswapHolder, in coordinator: SingleChainTokenCoordinator) {
-        delegate?.didPressErc20ExchangeOnUniswap(for: holder, in: self)
+    func didTapSwap(forTransactionType transactionType: TransactionType, service: SwapTokenURLProviderType, in coordinator: SingleChainTokenCoordinator) {
+        delegate?.didTapSwap(forTransactionType: transactionType, service: service, in: self)
     }
 
     func tokensDidChange(inCoordinator coordinator: SingleChainTokenCoordinator) {

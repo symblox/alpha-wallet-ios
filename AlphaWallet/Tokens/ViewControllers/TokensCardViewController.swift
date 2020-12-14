@@ -207,14 +207,14 @@ class TokensCardViewController: UIViewController, TokenVerifiableStatusViewContr
 
     func transfer() {
         guard let selectedTokenHolder = selectedTokenHolder else { return }
-        let transferType = TransferType(token: viewModel.token)
-        delegate?.didPressTransfer(token: viewModel.token, tokenHolder: selectedTokenHolder, for: .send(type: transferType), tokenHolders: viewModel.tokenHolders, in: self)
+        let transactionType = TransactionType(token: viewModel.token)
+        delegate?.didPressTransfer(token: viewModel.token, tokenHolder: selectedTokenHolder, for: .send(type: transactionType), tokenHolders: viewModel.tokenHolders, in: self)
     }
 
     private func handle(action: TokenInstanceAction) {
         guard let tokenHolder = selectedTokenHolder else { return }
         switch action.type {
-        case .erc20Send, .erc20Receive, .erc20ExchangeOnUniswap:
+        case .erc20Send, .erc20Receive, .swap:
             break
         case .nftRedeem:
             redeem()

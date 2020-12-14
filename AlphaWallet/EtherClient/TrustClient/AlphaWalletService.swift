@@ -10,6 +10,8 @@ enum AlphaWalletService {
     case register(config: Config, device: PushDevice)
     case unregister(config: Config, device: PushDevice)
     case marketplace(config: Config, server: RPCServer)
+    case gasPriceEstimate
+    case oneInchTokens(config: Config)
 
     enum SortOrder: String {
         case asc
@@ -28,6 +30,10 @@ extension AlphaWalletService: TargetType {
             return config.priceInfoEndpoints
         case .marketplace(let config, _):
             return config.priceInfoEndpoints
+        case .gasPriceEstimate:
+            return URL(string: Constants.gasNowEndpointBaseUrl)!
+        case .oneInchTokens(let config):
+            return config.oneInch
         }
     }
 
@@ -48,6 +54,10 @@ extension AlphaWalletService: TargetType {
             return "/api/v3/coins/markets"
         case .marketplace:
             return "/marketplace"
+        case .gasPriceEstimate:
+            return "/api/v3/gas/price"
+        case .oneInchTokens:
+            return "/v1.1/tokens"
         }
     }
 
@@ -59,6 +69,8 @@ extension AlphaWalletService: TargetType {
         case .priceOfEth: return .get
         case .priceOfDai: return .get
         case .marketplace: return .get
+        case .gasPriceEstimate: return .get
+        case .oneInchTokens: return .get
         }
     }
 
@@ -102,6 +114,10 @@ extension AlphaWalletService: TargetType {
             ], encoding: URLEncoding())
         case .marketplace(_, let server):
             return .requestParameters(parameters: ["chainID": server.chainID], encoding: URLEncoding())
+        case .gasPriceEstimate:
+            return .requestPlain
+        case .oneInchTokens:
+            return .requestPlain
         }
     }
 
@@ -120,12 +136,14 @@ extension AlphaWalletService: TargetType {
                     "client-build": Bundle.main.buildNumber ?? "",
                 ]
             }
-        case .priceOfEth, .priceOfDai, .register, .unregister, .marketplace:
+        case .priceOfEth, .priceOfDai, .register, .unregister, .marketplace, .gasPriceEstimate:
             return [
                 "Content-type": "application/json",
                 "client": Bundle.main.bundleIdentifier ?? "",
                 "client-build": Bundle.main.buildNumber ?? "",
             ]
+        case .oneInchTokens:
+            return nil
         }
     }
 }

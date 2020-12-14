@@ -21,7 +21,7 @@ enum ContractData {
 
 protocol SingleChainTokenCoordinatorDelegate: class, CanOpenURL {
     func tokensDidChange(inCoordinator coordinator: SingleChainTokenCoordinator)
-    func didPressErc20ExchangeOnUniswap(for holder: UniswapHolder, in coordinator: SingleChainTokenCoordinator)
+    func didTapSwap(forTransactionType transactionType: TransactionType, service: SwapTokenURLProviderType, in coordinator: SingleChainTokenCoordinator)
     func didPress(for type: PaymentFlow, inCoordinator coordinator: SingleChainTokenCoordinator)
     func didTap(transaction: Transaction, inViewController viewController: UIViewController, in coordinator: SingleChainTokenCoordinator)
     func didPostTokenScriptTransaction(_ transaction: SentTransaction, in coordinator: SingleChainTokenCoordinator)
@@ -40,7 +40,7 @@ class SingleChainTokenCoordinator: Coordinator {
     private let autoDetectTokensQueue: OperationQueue
     private var isAutoDetectingTransactedTokens = false
     private var isAutoDetectingTokens = false
-
+    private let swapTokenActionsService: SwapTokenActionsService
     let session: WalletSession
     weak var delegate: SingleChainTokenCoordinatorDelegate?
     var coordinators: [Coordinator] = []
@@ -55,7 +55,8 @@ class SingleChainTokenCoordinator: Coordinator {
             analyticsCoordinator: AnalyticsCoordinator?,
             navigationController: UINavigationController,
             withAutoDetectTransactedTokensQueue autoDetectTransactedTokensQueue: OperationQueue,
-            withAutoDetectTokensQueue autoDetectTokensQueue: OperationQueue
+            withAutoDetectTokensQueue autoDetectTokensQueue: OperationQueue,
+            swapTokenActionsService: SwapTokenActionsService
     ) {
         self.session = session
         self.keystore = keystore
@@ -67,6 +68,7 @@ class SingleChainTokenCoordinator: Coordinator {
         self.navigationController = navigationController
         self.autoDetectTransactedTokensQueue = autoDetectTransactedTokensQueue
         self.autoDetectTokensQueue = autoDetectTokensQueue
+        self.swapTokenActionsService = swapTokenActionsService
     }
 
     func start() {
@@ -390,31 +392,31 @@ class SingleChainTokenCoordinator: Coordinator {
         return try! Realm(configuration: migration.config)
     }
 
-    func show(fungibleToken token: TokenObject, transferType: TransferType) {
+    func show(fungibleToken token: TokenObject, transactionType: TransactionType) {
         guard let transactionsStore = createTransactionsStore() else { return }
 
-        let viewController = TokenViewController(session: session, tokensDataStore: storage, assetDefinition: assetDefinitionStore, transferType: transferType, token: token)
+        let viewController = TokenViewController(session: session, tokensDataStore: storage, assetDefinition: assetDefinitionStore, transactionType: transactionType, token: token)
         viewController.delegate = self
-        let viewModel = TokenViewControllerViewModel(transferType: transferType, session: session, tokensStore: storage, transactionsStore: transactionsStore, assetDefinitionStore: assetDefinitionStore)
+        let viewModel = TokenViewControllerViewModel(transactionType: transactionType, session: session, tokensStore: storage, transactionsStore: transactionsStore, assetDefinitionStore: assetDefinitionStore, swapTokenActionsService: swapTokenActionsService)
         viewController.configure(viewModel: viewModel)
         viewController.navigationItem.leftBarButtonItem = UIBarButtonItem(image: R.image.backWhite(), style: .plain, target: self, action: #selector(dismiss))
 
         navigationController.pushViewController(viewController, animated: true)
 
-        refreshTokenViewControllerUponAssetDefinitionChanges(viewController, forTransferType: transferType, transactionsStore: transactionsStore)
+        refreshTokenViewControllerUponAssetDefinitionChanges(viewController, forTransactionType: transactionType, transactionsStore: transactionsStore)
     }
 
-    private func refreshTokenViewControllerUponAssetDefinitionChanges(_ viewController: TokenViewController, forTransferType transferType: TransferType, transactionsStore: TransactionsStorage) {
+    private func refreshTokenViewControllerUponAssetDefinitionChanges(_ viewController: TokenViewController, forTransactionType transactionType: TransactionType, transactionsStore: TransactionsStorage) {
         assetDefinitionStore.subscribeToBodyChanges { [weak self] contract in
             guard let strongSelf = self else { return }
-            guard contract.sameContract(as: transferType.contract) else { return }
-            let viewModel = TokenViewControllerViewModel(transferType: transferType, session: strongSelf.session, tokensStore: strongSelf.storage, transactionsStore: transactionsStore, assetDefinitionStore: strongSelf.assetDefinitionStore)
+            guard contract.sameContract(as: transactionType.contract) else { return }
+            let viewModel = TokenViewControllerViewModel(transactionType: transactionType, session: strongSelf.session, tokensStore: strongSelf.storage, transactionsStore: transactionsStore, assetDefinitionStore: strongSelf.assetDefinitionStore, swapTokenActionsService: strongSelf.swapTokenActionsService)
             viewController.configure(viewModel: viewModel)
         }
         assetDefinitionStore.subscribeToSignatureChanges { [weak self] contract in
             guard let strongSelf = self else { return }
-            guard contract.sameContract(as: transferType.contract) else { return }
-            let viewModel = TokenViewControllerViewModel(transferType: transferType, session: strongSelf.session, tokensStore: strongSelf.storage, transactionsStore: transactionsStore, assetDefinitionStore: strongSelf.assetDefinitionStore)
+            guard contract.sameContract(as: transactionType.contract) else { return }
+            let viewModel = TokenViewControllerViewModel(transactionType: transactionType, session: strongSelf.session, tokensStore: strongSelf.storage, transactionsStore: transactionsStore, assetDefinitionStore: strongSelf.assetDefinitionStore, swapTokenActionsService: strongSelf.swapTokenActionsService)
             viewController.configure(viewModel: viewModel)
         }
     }
@@ -550,46 +552,17 @@ extension SingleChainTokenCoordinator: TokensCardCoordinatorDelegate {
     }
 }
 
-extension TransferType {
-
-    func uniswapHolder(theme: UniswapHolder.Theme) -> UniswapHolder {
-        switch self {
-        case .ERC20Token(let token, _, _):
-            return .init(input: .input(token.contractAddress), theme: theme)
-        case .ERC721Token, .ERC721ForTicketToken, .ERC875TokenOrder, .ERC875Token, .dapp, .nativeCryptocurrency, .tokenScript:
-            return .init(input: .none, theme: theme)
-        }
-    }
-}
-
-extension UITraitCollection {
-    var uniswapTheme: UniswapHolder.Theme {
-        if #available(iOS 12.0, *) {
-            switch userInterfaceStyle {
-            case .dark:
-                return .dark
-            case .light, .unspecified:
-                return .light
-            }
-        } else {
-            return .light
-        }
-    }
-}
-
 extension SingleChainTokenCoordinator: TokenViewControllerDelegate {
 
-    func didTapErc20ExchangeOnUniswap(forTransferType transferType: TransferType, inViewController viewController: TokenViewController) {
-        let theme = viewController.traitCollection.uniswapTheme
-
-        delegate?.didPressErc20ExchangeOnUniswap(for: transferType.uniswapHolder(theme: theme), in: self)
+    func didTapSwap(forTransactionType transactionType: TransactionType, service: SwapTokenURLProviderType, inViewController viewController: TokenViewController) {
+        delegate?.didTapSwap(forTransactionType: transactionType, service: service, in: self)
     }
 
-    func didTapSend(forTransferType transferType: TransferType, inViewController viewController: TokenViewController) {
-        delegate?.didPress(for: .send(type: transferType), inCoordinator: self)
+    func didTapSend(forTransactionType transactionType: TransactionType, inViewController viewController: TokenViewController) {
+        delegate?.didPress(for: .send(type: transactionType), inCoordinator: self)
     }
 
-    func didTapReceive(forTransferType transferType: TransferType, inViewController viewController: TokenViewController) {
+    func didTapReceive(forTransactionType transactionType: TransactionType, inViewController viewController: TokenViewController) {
         delegate?.didPress(for: .request, inCoordinator: self)
     }
 
@@ -597,12 +570,12 @@ extension SingleChainTokenCoordinator: TokenViewControllerDelegate {
         delegate?.didTap(transaction: transaction, inViewController: viewController, in: self)
     }
 
-    func didTap(action: TokenInstanceAction, transferType: TransferType, viewController: TokenViewController) {
+    func didTap(action: TokenInstanceAction, transactionType: TransactionType, viewController: TokenViewController) {
         let token: TokenObject
-        switch transferType {
+        switch transactionType {
         case .ERC20Token(let erc20Token, _, _):
             token = erc20Token
-        case .dapp, .ERC721Token, .ERC875Token, .ERC875TokenOrder, .ERC721ForTicketToken, .tokenScript:
+        case .dapp, .ERC721Token, .ERC875Token, .ERC875TokenOrder, .ERC721ForTicketToken, .tokenScript, .claimPaidErc875MagicLink:
             return
         case .nativeCryptocurrency:
             token = TokensDataStore.etherToken(forServer: session.server)
@@ -612,7 +585,7 @@ extension SingleChainTokenCoordinator: TokenViewControllerDelegate {
         switch action.type {
         case .tokenScript:
             showTokenInstanceActionView(forAction: action, fungibleTokenObject: token, viewController: viewController)
-        case .erc20Send, .erc20Receive, .nftRedeem, .nftSell, .nonFungibleTransfer, .erc20ExchangeOnUniswap:
+        case .erc20Send, .erc20Receive, .nftRedeem, .nftSell, .nonFungibleTransfer, .swap:
             //Couldn't have reached here
             break
         }
@@ -660,8 +633,8 @@ extension SingleChainTokenCoordinator: TransactionConfirmationCoordinatorDelegat
 extension SingleChainTokenCoordinator: TokenInstanceActionViewControllerDelegate {
     func confirmTransactionSelected(in viewController: TokenInstanceActionViewController, tokenObject: TokenObject, contract: AlphaWallet.Address, tokenId: TokenId, values: [AttributeId: AssetInternalValue], localRefs: [AttributeId: AssetInternalValue], server: RPCServer, session: WalletSession, keystore: Keystore, transactionFunction: FunctionOrigin) {
         switch transactionFunction.makeUnConfirmedTransaction(withTokenObject: tokenObject, tokenId: tokenId, attributeAndValues: values, localRefs: localRefs, server: server, session: session) {
-        case .success(let transaction):
-            let coordinator = TransactionConfirmationCoordinator(navigationController: navigationController, session: session, transaction: transaction, configuration: .tokenScriptTransaction(confirmType: .signThenSend, contract: contract, keystore: keystore))
+        case .success(let transaction, let functionCallMetaData):
+            let coordinator = TransactionConfirmationCoordinator(navigationController: navigationController, session: session, transaction: transaction, configuration: .tokenScriptTransaction(confirmType: .signThenSend, contract: contract, keystore: keystore, functionCallMetaData: functionCallMetaData, ethPrice: cryptoPrice), analyticsCoordinator: analyticsCoordinator)
             coordinator.delegate = self
             addCoordinator(coordinator)
             coordinator.start()

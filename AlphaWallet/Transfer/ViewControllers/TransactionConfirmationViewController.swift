@@ -168,39 +168,60 @@ class TransactionConfirmationViewController: UIViewController {
         }
 
         switch viewModel {
-        case .dappTransaction:
-            break
-        case .tokenScriptTransaction:
-            break
+        case .dappTransaction(let dappTransactionViewModel):
+            dappTransactionViewModel.ethPrice.subscribe { [weak self] cryptoToDollarRate in
+                guard let strongSelf = self else { return }
+                dappTransactionViewModel.cryptoToDollarRate = cryptoToDollarRate
+                strongSelf.generateSubviews()
+            }
+        case .tokenScriptTransaction(let tokenScriptTransactionViewModel):
+            tokenScriptTransactionViewModel.ethPrice.subscribe { [weak self] cryptoToDollarRate in
+                guard let strongSelf = self else { return }
+                tokenScriptTransactionViewModel.cryptoToDollarRate = cryptoToDollarRate
+                strongSelf.generateSubviews()
+            }
         case .sendFungiblesTransaction(let sendFungiblesViewModel):
             sendFungiblesViewModel.recipientResolver.resolve { [weak self] in
                 guard let strongSelf = self else { return }
                 strongSelf.generateSubviews()
             }
 
-            switch sendFungiblesViewModel.transferType {
+            switch sendFungiblesViewModel.transactionType {
             case .nativeCryptocurrency:
                 sendFungiblesViewModel.session.balanceViewModel.subscribe { [weak self] balanceBaseViewModel in
                     guard let strongSelf = self else { return }
                     sendFungiblesViewModel.updateBalance(.nativeCryptocurrency(balanceViewModel: balanceBaseViewModel))
                     strongSelf.generateSubviews()
                 }
-
                 sendFungiblesViewModel.ethPrice.subscribe { [weak self] cryptoToDollarRate in
                     guard let strongSelf = self else { return }
                     sendFungiblesViewModel.cryptoToDollarRate = cryptoToDollarRate
                     strongSelf.generateSubviews()
                 }
-
                 sendFungiblesViewModel.session.refresh(.ethBalance)
             case .ERC20Token(let token, _, _):
                 sendFungiblesViewModel.updateBalance(.erc20(token: token))
-            case .ERC875Token, .ERC875TokenOrder, .ERC721Token, .ERC721ForTicketToken, .dapp, .tokenScript:
-                break
+            case .ERC875Token, .ERC875TokenOrder, .ERC721Token, .ERC721ForTicketToken, .dapp, .tokenScript, .claimPaidErc875MagicLink:
+                sendFungiblesViewModel.ethPrice.subscribe { [weak self] cryptoToDollarRate in
+                    guard let strongSelf = self else { return }
+                    sendFungiblesViewModel.cryptoToDollarRate = cryptoToDollarRate
+                    strongSelf.generateSubviews()
+                }
             }
         case .sendNftTransaction(let sendNftViewModel):
             sendNftViewModel.recipientResolver.resolve { [weak self] in
                 guard let strongSelf = self else { return }
+                strongSelf.generateSubviews()
+            }
+            sendNftViewModel.ethPrice.subscribe { [weak self] cryptoToDollarRate in
+                guard let strongSelf = self else {return}
+                sendNftViewModel.cryptoToDollarRate = cryptoToDollarRate
+                strongSelf.generateSubviews()
+            }
+        case .claimPaidErc875MagicLink(let claimPaidErc875MagicLinkViewModel):
+            claimPaidErc875MagicLinkViewModel.ethPrice.subscribe { [weak self] cryptoToDollarRate in
+                guard let strongSelf = self else { return }
+                claimPaidErc875MagicLinkViewModel.cryptoToDollarRate = cryptoToDollarRate
                 strongSelf.generateSubviews()
             }
         }
@@ -214,7 +235,7 @@ class TransactionConfirmationViewController: UIViewController {
         set(state: .ready)
         configure(for: viewModel)
 
-        //NOTE: to display animation correntry we can take 'view.frame.height' and bottom view will smoothly slide up from button ;)
+        //NOTE: to display animation correctly we can take 'view.frame.height' and bottom view will smoothly slide up from button ;)
         bottomConstraint.constant = view.frame.height
     }
 
@@ -436,6 +457,8 @@ extension TransactionConfirmationViewController {
                 switch section {
                 case .gas:
                     header.setEditButton(section: sectionIndex, self, selector: #selector(editTransactionButtonTapped))
+                case .amount:
+                    break
                 }
                 header.childrenStackView.addArrangedSubviews(children)
                 views.append(header)
@@ -444,12 +467,25 @@ extension TransactionConfirmationViewController {
             for (sectionIndex, section) in viewModel.sections.enumerated() {
                 let header = TransactionConfirmationHeaderView(viewModel: viewModel.headerViewModel(section: sectionIndex))
                 header.delegate = self
+                var children: [UIView] = []
                 switch section {
                 case .gas:
                     header.setEditButton(section: sectionIndex, self, selector: #selector(editTransactionButtonTapped))
-                case .contract:
+                case .function:
+                    let isSubViewsHidden = viewModel.isSubviewsHidden(section: sectionIndex)
+                    let view = TransactionConfirmationRowInfoView(viewModel: .init(title: "\(viewModel.functionCallMetaData.name)()", subtitle: ""))
+                    view.isHidden = isSubViewsHidden
+                    children.append(view)
+
+                    for (type, value) in viewModel.functionCallMetaData.arguments {
+                        let view = TransactionConfirmationRowInfoView(viewModel: .init(title: type.description, subtitle: value.description))
+                        view.isHidden = isSubViewsHidden
+                        children.append(view)
+                    }
+                case .contract, .amount:
                     break
                 }
+                header.childrenStackView.addArrangedSubviews(children)
                 views.append(header)
             }
         case .sendFungiblesTransaction(let viewModel):
@@ -501,6 +537,20 @@ extension TransactionConfirmationViewController {
                 case .gas:
                     header.setEditButton(section: sectionIndex, self, selector: #selector(editTransactionButtonTapped))
                 case .tokenId:
+                    break
+                }
+                header.childrenStackView.addArrangedSubviews(children)
+                views.append(header)
+            }
+        case .claimPaidErc875MagicLink(let viewModel):
+            for (sectionIndex, section) in viewModel.sections.enumerated() {
+                let header = TransactionConfirmationHeaderView(viewModel: viewModel.headerViewModel(section: sectionIndex))
+                header.delegate = self
+                var children: [UIView] = []
+                switch section {
+                case .gas:
+                    header.setEditButton(section: sectionIndex, self, selector: #selector(editTransactionButtonTapped))
+                case .amount, .numberOfTokens:
                     break
                 }
                 header.childrenStackView.addArrangedSubviews(children)

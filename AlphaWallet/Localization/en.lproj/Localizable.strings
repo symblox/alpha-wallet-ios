@@ -459,13 +459,16 @@
 "wallets.showSeedPhrase.subtitle.error" = "Do not share your backup. AlphaWallet team members will not ask for it.";
 "token.transactionConfirmation.gas.title" = "Speed (Gas)";
 "token.transactionConfirmation.contract.title" = "Contract";
+"token.transactionConfirmation.function.title" = "Function";
 "token.transactionConfirmation.default" = "Default";
 "token.transactionTransferConfirmation.title" = "Confirm Transfer?";
+"token.transactionPurchaseConfirmation.title" = "Confirm Purchase?";
 "token.transactionConfirmation.title" = "Confirm Transaction?";
 "a.wallet.token.transaction.inProgress.title" = "Transaction in Progress";
 "a.wallet.token.transaction.inProgress.subtitle" = "The transaction is sent to the Ethereum\nblockchain. It might take few minutes\nto be confirmed by miners.";
 "a.wallet.token.transaction.inProgress.confirm" = "OK, great!";
 "a.wallet.token.erc20ExchangeOnUniswap.button.title" = "Exchange with Uniswap";
+"a.wallet.token.erc20ExchangeOn1inch.button.title" = "Swap";
 "qrCode.myqrCode.title" = "My QR Code";
 "qrCode.sendToAddress.title" = "Send to this Address";
 "qrCode.watchWallet.title" = "Watch Wallet";
@@ -479,6 +482,7 @@
 "activity.ownerApproved" = "Approved to move %@";
 "activity.ownerApproved.pending" = "Approving to move %@";
 "activity.ownerApproved.failed" = "Failed to Approve to move %@";
+"activity.approve.amount.all" = "All %@";
 "activity.send.pending" = "Sending %@";
 "activity.send.failed" = "Failed to Send %@";
 "activity.goToToken" = "Go to Token";
@@ -490,7 +494,12 @@
 "transactionConfiguration.Type.slow" = "Slow";
 "transactionConfiguration.Type.average" = "Average";
 "transactionConfiguration.Type.fast" = "Fast";
-"transactionConfiguration.Type.custom" = "Custom"; 
+"transactionConfiguration.Type.rapid" = "Rapid";
+"transactionConfiguration.Type.custom" = "Custom (set your own)";
+"transactionConfiguration.Type.slow.time" = "> 10 min";
+"transactionConfiguration.Type.average.time" = "< 5 min";
+"transactionConfiguration.Type.fast.time" = "< 2 min";
+"transactionConfiguration.Type.rapid.time" = "ASAP";
 "transactionConfirmation.Row.title.ens" = "ENS";
 "transactionConfirmation.Row.title.wallet" = "Wallet Address";
 "transactionConfirmation.Send.Section.Gas.title" = "Gas";
@@ -498,6 +507,7 @@
 "transactionConfirmation.Send.Section.Balance.new.title" = "(New: %@ %@)";
 "transactionConfirmation.Send.Section.Amount.title" = "Amount";
 "transactionConfirmation.Send.Section.Recipient.title" = "Recipient";
-"transactionConfirmation.Send.Section.TokenId.title" = "Token ID";
+"transactionConfirmation.Send.Section.TokenId.title" = "Token";
 "transactionConfirmation.authorisation.reason" = "Authorize to confirm transaction";
 "transactionConfirmation.keystore.accessKey.sign" = "Accessing to perform transfer";
+"transactionConfirmation.fee.footerText" = "The higher the fee, the better chances and faster your transaction will go through. Fees are based on current Ethereum blockchain network load.";

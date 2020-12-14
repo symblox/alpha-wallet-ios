@@ -11,22 +11,29 @@ import PromiseKit
 import Result
 
 enum TransactionConfirmationConfiguration {
-    case tokenScriptTransaction(confirmType: ConfirmType, contract: AlphaWallet.Address, keystore: Keystore)
-    case dappTransaction(confirmType: ConfirmType, keystore: Keystore)
+    case tokenScriptTransaction(confirmType: ConfirmType, contract: AlphaWallet.Address, keystore: Keystore, functionCallMetaData: FunctionCallMetaData, ethPrice: Subscribable<Double>)
+    case dappTransaction(confirmType: ConfirmType, keystore: Keystore, ethPrice: Subscribable<Double>)
     case sendFungiblesTransaction(confirmType: ConfirmType, keystore: Keystore, assetDefinitionStore: AssetDefinitionStore, amount: String, ethPrice: Subscribable<Double>)
-    case sendNftTransaction(confirmType: ConfirmType, keystore: Keystore)
-
+    case sendNftTransaction(confirmType: ConfirmType, keystore: Keystore, ethPrice: Subscribable<Double>, tokenInstanceName: String?)
+    case claimPaidErc875MagicLink(confirmType: ConfirmType, keystore: Keystore, price: BigUInt, ethPrice: Subscribable<Double>, numberOfTokens: UInt)
     var confirmType: ConfirmType {
         switch self {
-        case .dappTransaction(let confirmType, _), .sendFungiblesTransaction(let confirmType, _, _, _, _), .sendNftTransaction(let confirmType, _), .tokenScriptTransaction(let confirmType, _, _):
+        case .dappTransaction(let confirmType, _, _), .sendFungiblesTransaction(let confirmType, _, _, _, _), .sendNftTransaction(let confirmType, _, _, _), .tokenScriptTransaction(let confirmType, _, _, _, _), .claimPaidErc875MagicLink(let confirmType, _, _, _, _):
             return confirmType
         }
     }
 
     var keystore: Keystore {
         switch self {
-        case .dappTransaction(_, let keystore), .sendFungiblesTransaction(_, let keystore, _, _, _), .sendNftTransaction(_, let keystore), .tokenScriptTransaction(_, _, let keystore):
+        case .dappTransaction(_, let keystore, _), .sendFungiblesTransaction(_, let keystore, _, _, _), .sendNftTransaction(_, let keystore, _, _), .tokenScriptTransaction(_, _, let keystore, _, _), .claimPaidErc875MagicLink(_, let keystore, _, _, _), .claimPaidErc875MagicLink(_, let keystore, _, _, _):
             return keystore
+        }
+    }
+
+    var ethPrice: Subscribable<Double> {
+        switch self {
+        case .dappTransaction(_, _, let ethPrice), .sendFungiblesTransaction(_, _, _, _, let ethPrice), .sendNftTransaction(_, _, let ethPrice, _), .tokenScriptTransaction(_, _, _, _, let ethPrice), .claimPaidErc875MagicLink(_, _, _, let ethPrice, _):
+            return ethPrice
         }
     }
 }
@@ -59,15 +66,15 @@ class TransactionConfirmationCoordinator: Coordinator {
 
     private let configuration: TransactionConfirmationConfiguration
     private let parent: Parent
-
+    private lazy var viewModel: TransactionConfirmationViewModel = .init(configurator: configurator, configuration: configuration)
     private lazy var confirmationViewController: TransactionConfirmationViewController = {
-        let controller = TransactionConfirmationViewController(viewModel: .init(configurator: configurator, configuration: configuration))
+        let controller = TransactionConfirmationViewController(viewModel: viewModel)
         controller.delegate = self
         return controller
     }()
     private weak var configureTransactionViewController: ConfigureTransactionViewController?
     private let configurator: TransactionConfigurator
-
+    private let analyticsCoordinator: AnalyticsCoordinator?
     lazy var navigationController: UINavigationController = {
         let controller = UINavigationController(rootViewController: confirmationViewController)
         controller.modalPresentationStyle = .overFullScreen
@@ -79,9 +86,10 @@ class TransactionConfirmationCoordinator: Coordinator {
     var coordinators: [Coordinator] = []
     weak var delegate: TransactionConfirmationCoordinatorDelegate?
 
-    init(navigationController: UINavigationController, session: WalletSession, transaction: UnconfirmedTransaction, configuration: TransactionConfirmationConfiguration) {
+    init(navigationController: UINavigationController, session: WalletSession, transaction: UnconfirmedTransaction, configuration: TransactionConfirmationConfiguration, analyticsCoordinator: AnalyticsCoordinator?) {
         configurator = TransactionConfigurator(session: session, transaction: transaction)
         self.configuration = configuration
+        self.analyticsCoordinator = analyticsCoordinator
         parent = Parent(navigationController: navigationController)
     }
 
@@ -90,13 +98,15 @@ class TransactionConfirmationCoordinator: Coordinator {
         configurator.delegate = self
         configurator.start()
         confirmationViewController.reloadView()
+
+        analyticsCoordinator?.log(navigation: Analytics.Navigation.actionSheetForTransactionConfirmation)
     }
 
     func close(completion: @escaping () -> Void) {
-        confirmationViewController.dismissViewAnimated(with: { [weak self] in
-            guard let strongSelf = self else { return }
-            strongSelf.navigationController.dismiss(animated: true, completion: completion)
-        })
+        confirmationViewController.dismissViewAnimated {
+            //Needs a strong self reference otherwise `self` might have been removed by its owner by the time animation completes and the `completion` block not called
+            self.navigationController.dismiss(animated: true, completion: completion)
+        }
     }
 
     private func showFeedbackOnSuccess() {
@@ -111,7 +121,9 @@ class TransactionConfirmationCoordinator: Coordinator {
 }
 
 extension TransactionConfirmationCoordinator: TransactionConfirmationViewControllerDelegate {
+
     func didClose(in controller: TransactionConfirmationViewController) {
+        analyticsCoordinator?.log(action: Analytics.Action.cancelsTransactionInActionSheet)
         navigationController.dismiss(animated: false) { [weak self] in
             guard let strongSelf = self, let delegate = strongSelf.delegate else { return }
             delegate.didClose(in: strongSelf)
@@ -134,6 +146,7 @@ extension TransactionConfirmationCoordinator: TransactionConfirmationViewControl
         }.finally {
             sender.isEnabled = true
             self.confirmationViewController.canBeDismissed = true
+            self.analyticsCoordinator?.log(action: Analytics.Action.confirmsTransactionInActionSheet)
         }
     }
 
@@ -161,7 +174,7 @@ extension TransactionConfirmationCoordinator: TransactionConfirmationViewControl
     }
 
     private func showConfigureTransactionViewController(_ configurator: TransactionConfigurator, session: WalletSession) {
-        let controller = ConfigureTransactionViewController(viewModel: .init(server: session.server, configurator: configurator, currencyRate: session.balanceCoordinator.currencyRate))
+        let controller = ConfigureTransactionViewController(viewModel: .init(server: session.server, configurator: configurator, ethPrice: configuration.ethPrice, currencyRate: session.balanceCoordinator.currencyRate))
         controller.delegate = self
         navigationController.pushViewController(controller, animated: true)
         configureTransactionViewController = controller
@@ -169,8 +182,8 @@ extension TransactionConfirmationCoordinator: TransactionConfirmationViewControl
 }
 
 extension TransactionConfirmationCoordinator: ConfigureTransactionViewControllerDelegate {
-    func didSavedToUseDefaultConfiguration(in viewController: ConfigureTransactionViewController) {
-        configurator.chooseDefaultConfiguration()
+    func didSavedToUseDefaultConfigurationType(_ configurationType: TransactionConfigurationType, in viewController: ConfigureTransactionViewController) {
+        configurator.chooseDefaultConfigurationType(configurationType)
         navigationController.popViewController(animated: true)
     }
 
@@ -190,6 +203,6 @@ extension TransactionConfirmationCoordinator: TransactionConfiguratorDelegate {
     }
 
     func gasPriceEstimateUpdated(to estimate: BigInt, in configurator: TransactionConfigurator) {
-        configureTransactionViewController?.configure(withEstimatedGasPrice: estimate)
+        configureTransactionViewController?.configure(withEstimatedGasPrice: estimate, configurator: configurator)
     }
 }
