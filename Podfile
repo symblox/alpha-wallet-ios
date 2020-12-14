@@ -55,29 +55,29 @@ end
 
 target 'Velas' do
   use_frameworks!
-  pod 'BigInt', '~> 3.0'
+  pod 'BigInt', '~> 3.1'
   pod 'R.swift'
   pod 'JSONRPCKit', '~> 2.0.0'
   pod 'APIKit'
-  pod 'Eureka', :git => 'https://github.com/xmartlabs/Eureka.git', :branch => 'master'
+  pod 'Eureka', :git=> 'https://github.com/xmartlabs/Eureka.git', :commit => '5c54e2607632ce586010e50e91d9adcb6bb3909e'
   pod 'MBProgressHUD'
   pod 'StatefulViewController'
 
   pod 'QRCodeReaderViewController', :git=>'https://github.com/AlphaWallet/QRCodeReaderViewController.git', :commit=>'30d1a2a7d167d0d207ae0ae3a4d81bcf473d7a65'
-  pod 'KeychainSwift', :git=>'https://github.com/AlphaWallet/keychain-swift.git', :branch=>'alphawallet'
+  pod 'KeychainSwift', :git=>'https://github.com/AlphaWallet/keychain-swift.git', :commit=> 'b797d40a9d08ec509db4335140cf2259b226e6a2'
   pod 'SwiftLint'
   pod 'SeedStackViewController'
   pod 'RealmSwift', '~> 5.4.0'
   pod 'Moya', '~> 10.0.1'
   pod 'JavaScriptKit'
-  pod 'CryptoSwift'
+  pod 'CryptoSwift', '~> 1.0'
   pod 'SwiftyXMLParser', :git => 'https://github.com/yahoojapan/SwiftyXMLParser.git'
   pod 'Kingfisher'
   pod 'AlphaWalletWeb3Provider', :git=>'https://github.com/AlphaWallet/AlphaWallet-web3-provider', :commit => '1c1aafb566361e7067e69f6e38b0fdc30b801429'
   pod 'TrezorCrypto', :git=>'https://github.com/AlphaWallet/trezor-crypto-ios.git', :commit => '50c16ba5527e269bbc838e80aee5bac0fe304cc7'
-  pod 'TrustKeystore', :git => 'https://github.com/alpha-wallet/trust-keystore.git', :commit => '37f7eaf9531cb4e33d06129543b3a56972f59d2a'
+  pod 'TrustKeystore', :git => 'https://github.com/alpha-wallet/trust-keystore.git', :commit => 'c0bdc4f6ffc117b103e19d17b83109d4f5a0e764'
   pod 'SwiftyJSON'
-  pod 'web3swift', :git => 'https://github.com/alpha-wallet/web3swift.git', :commit => 'd863662b08f112dee48538a04ab704244e9c7bae'
+  pod 'web3swift', :git => 'https://github.com/AlphaWallet/web3swift.git', :commit=> '169e50e29b60df72351c689a002005d2e2bc7559'
   pod 'SAMKeychain'
   pod 'PromiseKit/CorePromise'
   pod 'PromiseKit/Alamofire'
@@ -87,7 +87,9 @@ target 'Velas' do
   pod "Kanna", :git => 'https://github.com/tid-kijyun/Kanna.git', :commit => '06a04bc28783ccbb40efba355dee845a024033e8'
   pod 'TrustWalletCore'
   pod 'AWSSNS'
-  pod 'Mixpanel-swift'  # Pods for testing
+  pod 'Mixpanel-swift'
+  pod 'UnstoppableDomainsResolution', '0.1.6'
+  pod 'BlockiesSwift'
 end
 
 post_install do |installer|

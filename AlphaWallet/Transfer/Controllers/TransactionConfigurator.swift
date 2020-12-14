@@ -143,7 +143,7 @@ class TransactionConfigurator {
             }
         case .xDai:
             return estimateGasPriceForXDai()
-        case .kovan, .ropsten, .rinkeby, .poa, .sokol, .classic, .callisto, .goerli, .artis_sigma1, .artis_tau1, .binance_smart_chain, .binance_smart_chain_testnet, .custom:
+        case .kovan, .ropsten, .rinkeby, .poa, .sokol, .classic, .callisto, .goerli, .artis_sigma1, .artis_tau1, .binance_smart_chain, .binance_smart_chain_testnet, .custom, .velas, .velastestnet, .velaschina:
             return estimateGasPriceForUseRpcNode(server: server)
         }
     }

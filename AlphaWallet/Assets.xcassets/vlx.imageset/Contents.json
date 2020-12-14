@@ -1,15 +1,17 @@
 {
   "images" : [
     {
-      "filename" : "violet_black_logo_velas.png",
+      "filename" : "vlx.png",
       "idiom" : "universal",
       "scale" : "1x"
     },
     {
+      "filename" : "vlx@2x.png",
       "idiom" : "universal",
       "scale" : "2x"
     },
     {
+      "filename" : "vlx@3x.png",
       "idiom" : "universal",
       "scale" : "3x"
     }

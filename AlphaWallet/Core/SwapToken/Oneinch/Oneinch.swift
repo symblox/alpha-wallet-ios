@@ -56,7 +56,7 @@ class Oneinch: SwapTokenActionsService, SwapTokenURLProviderType {
         switch token.server {
         case .main:
             return availableTokens.contains(where: { $0.address == token.contractAddress })
-        case .kovan, .ropsten, .rinkeby, .sokol, .goerli, .artis_sigma1, .artis_tau1, .custom, .poa, .callisto, .xDai, .classic, .binance_smart_chain, .binance_smart_chain_testnet:
+        case .kovan, .ropsten, .rinkeby, .sokol, .goerli, .artis_sigma1, .artis_tau1, .custom, .poa, .callisto, .xDai, .classic, .binance_smart_chain, .binance_smart_chain_testnet, .velas, .velastestnet, .velaschina:
             return false
         }
     }
