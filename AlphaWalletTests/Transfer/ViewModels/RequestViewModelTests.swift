@@ -8,7 +8,7 @@ class RequestViewModelTests: XCTestCase {
     func testMyAddressText() {
         let account: Wallet = .make()
         let server: RPCServer = .main
-        let viewModel = RequestViewModel(account: account)
+        let viewModel = RequestViewModel(account: account, server: server)
 
         XCTAssertEqual(account.address.eip55String, viewModel.myAddressText)
     }

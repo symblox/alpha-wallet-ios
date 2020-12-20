@@ -4,67 +4,61 @@ import Foundation
 import UIKit
 
 struct RequestViewModel {
-	private let account: Wallet
+    private let account: Wallet
+    private let server: RPCServer
 
-	init(account: Wallet) {
-		self.account = account
-	}
+    init(account: Wallet, server: RPCServer) {
+        self.account = account
+        self.server = server
+    }
     
-	var myAddressText: String {
-		return VelasConvertUtil.convertVlxStringIfNeed(server: server, address: account.address.eip55String)
-	}
-
-    var generatingAddressString: String {
+    var myAddressText: String {
         return VelasConvertUtil.convertVlxStringIfNeed(server: server, address: account.address.eip55String)
     }
     
-    var copiedAddressString: String {
-        return VelasConvertUtil.convertVlxStringIfNeed(server: server, address: account.address.eip55String)
+    var myAddress: AlphaWallet.Address {
+        return account.address
     }
-    
-	var myAddress: AlphaWallet.Address {
-		return account.address
-	}
 
-	var copyWalletText: String {
-		return R.string.localizable.requestCopyWalletButtonTitle()
-	}
+    var copyWalletText: String {
+        return R.string.localizable.requestCopyWalletButtonTitle()
+    }
 
-	var addressCopiedText: String {
-		return R.string.localizable.requestAddressCopiedTitle()
-	}
+    var addressCopiedText: String {
+        return R.string.localizable.requestAddressCopiedTitle()
+    }
 
-	var backgroundColor: UIColor {
-		return Colors.appBackground
-	}
+    var backgroundColor: UIColor {
+        return Colors.appBackground
+    }
 
-	var addressLabelColor: UIColor {
-		return .black
-	}
+    var addressLabelColor: UIColor {
+        return .black
+    }
 
-	var copyButtonsFont: UIFont {
-		return Fonts.semibold(size: 17)
-	}
+    var copyButtonsFont: UIFont {
+        return Fonts.semibold(size: 17)
+    }
 
-	var labelColor: UIColor? {
-		return R.color.mine()
-	}
+    var labelColor: UIColor? {
+        return R.color.mine()
+    }
 
-	var addressFont: UIFont {
-		return Fonts.semibold(size: 17)
-	}
+    var addressFont: UIFont {
+        return Fonts.semibold(size: 17)
+    }
 
-	var addressBackgroundColor: UIColor {
-		return UIColor(red: 237, green: 237, blue: 237)
-	}
+    var addressBackgroundColor: UIColor {
+        return UIColor(red: 237, green: 237, blue: 237)
+    }
 
-	var instructionFont: UIFont {
-		return Fonts.regular(size: 17)
-	}
+    var instructionFont: UIFont {
+        return Fonts.regular(size: 17)
+    }
 
-	var instructionText: String {
-		return R.string.localizable.aWalletAddressScanInstructions()
-	}
+    var instructionText: String {
+        return R.string.localizable.aWalletAddressScanInstructions()
+    }
     
     var vlxAddressString: String {
         let string = account.address.eip55String
