@@ -11,7 +11,7 @@ import PromiseKit
 import Result
 
 enum TransactionConfirmationConfiguration {
-    case tokenScriptTransaction(confirmType: ConfirmType, contract: AlphaWallet.Address, keystore: Keystore, functionCallMetaData: FunctionCallMetaData, ethPrice: Subscribable<Double>)
+    case tokenScriptTransaction(confirmType: ConfirmType, contract: AlphaWallet.Address, keystore: Keystore, functionCallMetaData: DecodedFunctionCall, ethPrice: Subscribable<Double>)
     case dappTransaction(confirmType: ConfirmType, keystore: Keystore, ethPrice: Subscribable<Double>)
     case sendFungiblesTransaction(confirmType: ConfirmType, keystore: Keystore, assetDefinitionStore: AssetDefinitionStore, amount: String, ethPrice: Subscribable<Double>)
     case sendNftTransaction(confirmType: ConfirmType, keystore: Keystore, ethPrice: Subscribable<Double>, tokenInstanceName: String?)
@@ -25,7 +25,7 @@ enum TransactionConfirmationConfiguration {
 
     var keystore: Keystore {
         switch self {
-        case .dappTransaction(_, let keystore, _), .sendFungiblesTransaction(_, let keystore, _, _, _), .sendNftTransaction(_, let keystore, _, _), .tokenScriptTransaction(_, _, let keystore, _, _), .claimPaidErc875MagicLink(_, let keystore, _, _, _), .claimPaidErc875MagicLink(_, let keystore, _, _, _):
+        case .dappTransaction(_, let keystore, _), .sendFungiblesTransaction(_, let keystore, _, _, _), .sendNftTransaction(_, let keystore, _, _), .tokenScriptTransaction(_, _, let keystore, _, _), .claimPaidErc875MagicLink(_, let keystore, _, _, _):
             return keystore
         }
     }
@@ -51,6 +51,7 @@ enum ConfirmType {
 enum ConfirmResult {
     case signedTransaction(Data)
     case sentTransaction(SentTransaction)
+    case sentRawTransaction(id: String, original: String)
 }
 
 protocol TransactionConfirmationCoordinatorDelegate: class {
@@ -60,12 +61,8 @@ protocol TransactionConfirmationCoordinatorDelegate: class {
 }
 
 class TransactionConfirmationCoordinator: Coordinator {
-    private struct Parent {
-        let navigationController: UINavigationController
-    }
-
     private let configuration: TransactionConfirmationConfiguration
-    private let parent: Parent
+    let presentationNavigationController: UINavigationController
     private lazy var viewModel: TransactionConfirmationViewModel = .init(configurator: configurator, configuration: configuration)
     private lazy var confirmationViewController: TransactionConfirmationViewController = {
         let controller = TransactionConfirmationViewController(viewModel: viewModel)
@@ -90,11 +87,11 @@ class TransactionConfirmationCoordinator: Coordinator {
         configurator = TransactionConfigurator(session: session, transaction: transaction)
         self.configuration = configuration
         self.analyticsCoordinator = analyticsCoordinator
-        parent = Parent(navigationController: navigationController)
+        presentationNavigationController = navigationController
     }
 
     func start() {
-        parent.navigationController.present(navigationController, animated: false)
+        presentationNavigationController.present(navigationController, animated: false)
         configurator.delegate = self
         configurator.start()
         confirmationViewController.reloadView()
@@ -109,14 +106,16 @@ class TransactionConfirmationCoordinator: Coordinator {
         }
     }
 
-    private func showFeedbackOnSuccess() {
-        let feedbackGenerator = UINotificationFeedbackGenerator()
-        feedbackGenerator.prepare()
-        //Hackish, but delay necessary because of the switch to and from user-presence for signing
-        DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
-            //TODO sound too
-            feedbackGenerator.notificationOccurred(.success)
+    func close() -> Promise<Void> {
+        return Promise { seal in
+            self.close {
+                seal.fulfill(())
+            }
         }
+    }
+
+    private func showFeedbackOnSuccess() {
+        UINotificationFeedbackGenerator.show(feedbackType: .success)
     }
 }
 
@@ -169,12 +168,12 @@ extension TransactionConfirmationCoordinator: TransactionConfirmationViewControl
         }
     }
 
-    func controller(_ controller: TransactionConfirmationViewController, editTransactionButtonTapped sender: UIButton) {
-        showConfigureTransactionViewController(configurator, session: configurator.session)
+    func controllerDidTapEdit(_ controller: TransactionConfirmationViewController) {
+        showConfigureTransactionViewController(configurator)
     }
 
-    private func showConfigureTransactionViewController(_ configurator: TransactionConfigurator, session: WalletSession) {
-        let controller = ConfigureTransactionViewController(viewModel: .init(server: session.server, configurator: configurator, ethPrice: configuration.ethPrice, currencyRate: session.balanceCoordinator.currencyRate))
+    private func showConfigureTransactionViewController(_ configurator: TransactionConfigurator) {
+        let controller = ConfigureTransactionViewController(viewModel: .init(configurator: configurator, ethPrice: configuration.ethPrice))
         controller.delegate = self
         navigationController.pushViewController(controller, animated: true)
         configureTransactionViewController = controller
@@ -204,5 +203,9 @@ extension TransactionConfirmationCoordinator: TransactionConfiguratorDelegate {
 
     func gasPriceEstimateUpdated(to estimate: BigInt, in configurator: TransactionConfigurator) {
         configureTransactionViewController?.configure(withEstimatedGasPrice: estimate, configurator: configurator)
+    }
+
+    func updateNonce(to nonce: Int, in configurator: TransactionConfigurator) {
+        configureTransactionViewController?.configure(nonce: nonce, configurator: configurator)
     }
 }

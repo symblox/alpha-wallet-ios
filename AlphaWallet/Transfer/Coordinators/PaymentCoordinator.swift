@@ -10,7 +10,7 @@ protocol PaymentCoordinatorDelegate: class, CanOpenURL {
 
 class PaymentCoordinator: Coordinator {
     private let session: WalletSession
-    private let flow: PaymentFlow
+    let flow: PaymentFlow
     private let keystore: Keystore
     private let storage: TokensDataStore
     private let ethPrice: Subscribable<Double>
@@ -66,8 +66,7 @@ class PaymentCoordinator: Coordinator {
         case (.request, _):
             let coordinator = RequestCoordinator(
                 navigationController: navigationController,
-                account: session.account,
-                server: session.server
+                account: session.account
             )
             coordinator.delegate = self
             coordinator.start()
@@ -79,7 +78,7 @@ class PaymentCoordinator: Coordinator {
     }
 
     required init?(coder aDecoder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
+        return nil
     }
 
     func cancel() {

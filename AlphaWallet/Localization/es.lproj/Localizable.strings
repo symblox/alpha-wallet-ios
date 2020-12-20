@@ -19,7 +19,6 @@
 "configureTransaction.error.nonceNotPositiveNumber" = "El nonce debe ser un número positivo";
 "configureTransaction.gasLimit.label.description" = "El límite de gas evita que los contratos inteligentes consuman todo tu %@. Intentaremos calcular el límite de gas de forma automática, pero algunos contratos inteligentes requieren un límite de gas personalizado.";
 "configureTransaction.gasLimit.label.title" = "Límite de gas";
-"configureTransaction.gasPrice.label.description" = "Cuanto más alto sea el precio del gas, más cara será la tarifa de tu transacción, pero más rápido se procesará por la red %@.";
 "configureTransaction.totalNetworkFee.label.title" = "Tarifa total de red";
 "transaction.confirmation.label.title" = "Confirmación";
 "transaction.from.label.title" = "De";
@@ -54,7 +53,6 @@
 "Refresh" = "Actualizar";
 "request.addressCopied.title" = "Dirección copiada";
 "request.copyWallet.button.title" = "Copiar la dirección del monedero";
-"request.myAddressIs.label.title" = "Mi dirección de %1$@ es: %2$@";
 "Retry" = "Reintentar";
 "Send" = "Enviar";
 "Receive" = "Recibir";
@@ -500,6 +498,15 @@
 "transactionConfiguration.Type.average.time" = "< 5 min";
 "transactionConfiguration.Type.fast.time" = "< 2 min";
 "transactionConfiguration.Type.rapid.time" = "ASAP";
+"transactionConfiguration.gasPrice.tooHigh.short" = "High Price";
+"transactionConfiguration.gasPrice.tooLow.short" = "Low Price";
+"transactionConfiguration.gasPrice.tooHigh.long" = "High Gas Price Warning!";
+"transactionConfiguration.gasPrice.tooLow.long" = "Gas Price Might Be Too Low";
+
+"transactionConfiguration.gasPrice.tooHigh.description" = "You set a really high gas price. Please make sure this is not a mistake. AlphaWallet uses gasnow.org";
+"transactionConfiguration.gasPrice.tooLow.description" = "Gas price is set below the 'slow' speed. Your transaction may take a long time to be written or may never be written.";
+"transactionConfiguration.gasPrice.congested.description" = "The Ethereum blockchain network is very congested now. Fees might be higher than usual.
+You can check the latest gas price on gasnow.org";
 "transactionConfirmation.Row.title.ens" = "ENS";
 "transactionConfirmation.Row.title.wallet" = "Wallet Address";
 "transactionConfirmation.Send.Section.Gas.title" = "Gas";
@@ -511,3 +518,14 @@
 "transactionConfirmation.authorisation.reason" = "Authorize to confirm transaction";
 "transactionConfirmation.keystore.accessKey.sign" = "Accessing to perform transfer";
 "transactionConfirmation.fee.footerText" = "The higher the fee, the better chances and faster your transaction will go through. Fees are based on current Ethereum blockchain network load.";
+"walletConnect.title" = "WalletConnect";
+"walletConnect.statusPlaceholder" = "Status";
+"walletConnect.status.online" = "Online";
+"walletConnect.status.offline" = "Offline";
+"walletConnect.session.name" = "Name";
+"walletConnect.session.connectedURL" = "Connected to";
+"walletConnect.session.disconnect" = "Disconnect";
+"walletConnect.session.signedTransactions" = "Signed Transactions";
+"start" = "Start";
+"walletConnect.failure.title" = "Wallet connect failure";
+"walletConnect.sendRawTransaction.title" = "Send raw transaction";

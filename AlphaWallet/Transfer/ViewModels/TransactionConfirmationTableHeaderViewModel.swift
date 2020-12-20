@@ -8,11 +8,16 @@
 import UIKit
 
 struct TransactionConfirmationHeaderViewModel {
+    enum Title {
+        case normal(String?)
+        case warning(String)
+    }
 
-    var title: String?
-    var placeholder: String?
-    var details: String?
+    let title: String?
+    let headerName: String?
+    let details: String?
     var configuration: TransactionConfirmationHeaderView.Configuration
+    let isWarning: Bool
     var chevronImage: UIImage? {
         let image = configuration.isOpened ? R.image.expand() : R.image.not_expand()
         return image?.withRenderingMode(.alwaysTemplate)
@@ -35,10 +40,10 @@ struct TransactionConfirmationHeaderViewModel {
         ])
     }
 
-    var placeholderAttributedString: NSAttributedString? {
-        guard let placeholder = placeholder else { return nil }
+    var headerNameAttributedString: NSAttributedString? {
+        guard let name = headerName else { return nil }
 
-        return NSAttributedString(string: placeholder, attributes: [
+        return NSAttributedString(string: name, attributes: [
             .foregroundColor: R.color.dove()!,
             .font: Fonts.regular(size: 13)
         ])
@@ -49,11 +54,25 @@ struct TransactionConfirmationHeaderViewModel {
 
         return NSAttributedString(string: details, attributes: [
             .foregroundColor: R.color.dove()!,
-            .font: Fonts.regular(size: 13)
+            .font: Fonts.regular(size: 15)
         ])
     }
 
     var backgroundColor: UIColor {
         return Colors.appBackground
+    }
+
+    init(title: Title, headerName: String?, details: String? = nil, configuration: TransactionConfirmationHeaderView.Configuration) {
+        switch title {
+        case .normal(let title):
+            self.title = title
+            self.isWarning = false
+        case .warning(let title):
+            self.title = title
+            self.isWarning = true
+        }
+        self.headerName = headerName
+        self.details = details
+        self.configuration = configuration
     }
 }

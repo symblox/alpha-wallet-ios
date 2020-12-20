@@ -8,7 +8,10 @@
 import UIKit
 
 protocol TransactionConfirmationHeaderViewDelegate: class {
+    func headerView(_ header: TransactionConfirmationHeaderView, shouldHideChildren section: Int, index: Int) -> Bool
+    func headerView(_ header: TransactionConfirmationHeaderView, shouldShowChildren section: Int, index: Int) -> Bool
     func headerView(_ header: TransactionConfirmationHeaderView, openStateChanged section: Int)
+    func headerView(_ header: TransactionConfirmationHeaderView, tappedSection section: Int)
 }
 
 class TransactionConfirmationHeaderView: UIView {
@@ -19,7 +22,9 @@ class TransactionConfirmationHeaderView: UIView {
         var shouldHideChevron: Bool = true
     }
 
-    private let placeholderLabel: UILabel = {
+    private var isTapActionEnabled = false
+
+    private let nameLabel: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
         label.numberOfLines = 0
@@ -28,14 +33,17 @@ class TransactionConfirmationHeaderView: UIView {
 
     private let titleLabel: UILabel = {
         let label = UILabel()
-        label.translatesAutoresizingMaskIntoConstraints = false
         label.numberOfLines = 0
         return label
     }()
 
+    private let warningIcon: UIImageView = {
+        let imageView = UIImageView(image: R.image.gasWarning())
+        return imageView
+    }()
+
     private let detailsLabel: UILabel = {
         let label = UILabel()
-        label.translatesAutoresizingMaskIntoConstraints = false
         label.numberOfLines = 0
 
         return label
@@ -43,7 +51,6 @@ class TransactionConfirmationHeaderView: UIView {
 
     private lazy var chevronView: UIView = {
         let view = UIView()
-        view.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(chevronImageView)
 
         return view
@@ -81,21 +88,22 @@ class TransactionConfirmationHeaderView: UIView {
         separatorLine.translatesAutoresizingMaskIntoConstraints = false
         separatorLine.backgroundColor = R.color.mercury()
 
-        let v2 = [titleLabel, detailsLabel].asStackView(axis: .vertical, alignment: .leading)
-        v2.translatesAutoresizingMaskIntoConstraints = false
+        titleLabel.setContentCompressionResistancePriority(.required, for: .horizontal)
+        let titleRow = [warningIcon, titleLabel].asStackView(axis: .horizontal, spacing: 6)
 
-        let v1 = UIView()
-        v1.translatesAutoresizingMaskIntoConstraints = false
-        v1.addSubview(placeholderLabel)
-        v1.addSubview(v2)
+        let col0 = nameLabel
+        let col1 = [
+            titleRow,
+            detailsLabel
+        ].asStackView(axis: .vertical, alignment: .leading)
+        col1.translatesAutoresizingMaskIntoConstraints = false
 
-        let row0 = [
-            .spacerWidth(ScreenChecker().isNarrowScreen ? 8 : 16),
-            v1,
-            trailingStackView,
-            chevronView,
-            .spacerWidth(ScreenChecker().isNarrowScreen ? 8 : 16)
-        ].asStackView(axis: .horizontal, alignment: .top)
+        let contents = UIView()
+        contents.translatesAutoresizingMaskIntoConstraints = false
+        contents.addSubview(col0)
+        contents.addSubview(col1)
+
+        let row0 = [.spacerWidth(ScreenChecker().isNarrowScreen ? 8 : 16), contents, trailingStackView, chevronView, .spacerWidth(ScreenChecker().isNarrowScreen ? 8 : 16)].asStackView(axis: .horizontal, alignment: .top)
 
         let headerViews = [
             separatorLine,
@@ -104,11 +112,9 @@ class TransactionConfirmationHeaderView: UIView {
             .spacer(height: ScreenChecker().isNarrowScreen ? 10 : 20)
         ]
 
-        for view in headerViews {
-            view.isUserInteractionEnabled = true
-            let tap = UITapGestureRecognizer(target: self, action: #selector(didTap))
-            view.addGestureRecognizer(tap)
-        }
+        let tap = UITapGestureRecognizer(target: self, action: #selector(didTap))
+        isUserInteractionEnabled = true
+        addGestureRecognizer(tap)
 
         let stackView = (headerViews + [childrenStackView]).asStackView(axis: .vertical)
 
@@ -118,20 +124,23 @@ class TransactionConfirmationHeaderView: UIView {
 
         NSLayoutConstraint.activate([
             trailingStackView.heightAnchor.constraint(equalTo: row0.heightAnchor),
-            placeholderLabel.topAnchor.constraint(equalTo: v1.topAnchor, constant: 5),
-            placeholderLabel.leadingAnchor.constraint(equalTo: v1.leadingAnchor),
-            placeholderLabel.widthAnchor.constraint(equalToConstant: 80),
+            nameLabel.topAnchor.constraint(equalTo: contents.topAnchor, constant: 5),
+            nameLabel.leadingAnchor.constraint(equalTo: contents.leadingAnchor),
+            nameLabel.widthAnchor.constraint(equalToConstant: 80),
 
-            titleLabel.centerYAnchor.constraint(equalTo: placeholderLabel.centerYAnchor),
+            titleLabel.centerYAnchor.constraint(equalTo: nameLabel.centerYAnchor),
 
-            v2.leadingAnchor.constraint(equalTo: placeholderLabel.trailingAnchor, constant: ScreenChecker().isNarrowScreen ? 8 : 16),
-            v2.trailingAnchor.constraint(equalTo: v1.trailingAnchor),
-            v2.topAnchor.constraint(lessThanOrEqualTo: placeholderLabel.topAnchor),
-            v2.bottomAnchor.constraint(equalTo: v1.bottomAnchor),
+            warningIcon.widthAnchor.constraint(equalToConstant: 24),
+            warningIcon.widthAnchor.constraint(equalTo: warningIcon.heightAnchor),
+
+            col1.leadingAnchor.constraint(equalTo: nameLabel.trailingAnchor, constant: ScreenChecker().isNarrowScreen ? 8 : 16),
+            col1.trailingAnchor.constraint(equalTo: contents.trailingAnchor),
+            col1.topAnchor.constraint(lessThanOrEqualTo: nameLabel.topAnchor),
+            col1.bottomAnchor.constraint(equalTo: contents.bottomAnchor),
 
             separatorLine.heightAnchor.constraint(equalToConstant: 1),
 
-            chevronImageView.centerYAnchor.constraint(equalTo: placeholderLabel.centerYAnchor),
+            chevronImageView.centerYAnchor.constraint(equalTo: nameLabel.centerYAnchor),
             chevronImageView.bottomAnchor.constraint(equalTo: chevronView.bottomAnchor),
             chevronImageView.trailingAnchor.constraint(equalTo: chevronView.trailingAnchor),
             chevronImageView.leadingAnchor.constraint(equalTo: chevronView.leadingAnchor),
@@ -152,57 +161,69 @@ class TransactionConfirmationHeaderView: UIView {
         chevronView.isHidden = viewModel.configuration.shouldHideChevron
 
         chevronImageView.image = viewModel.chevronImage
+
+        warningIcon.isHidden = !viewModel.isWarning
+
         titleLabel.alpha = viewModel.titleAlpha
 
         titleLabel.attributedText = viewModel.titleAttributedString
         titleLabel.isHidden = titleLabel.attributedText == nil
 
-        placeholderLabel.attributedText = viewModel.placeholderAttributedString
-        placeholderLabel.isHidden = placeholderLabel.attributedText == nil
+        nameLabel.attributedText = viewModel.headerNameAttributedString
+        nameLabel.isHidden = nameLabel.attributedText == nil
 
         detailsLabel.attributedText = viewModel.detailsAttributedString
         detailsLabel.isHidden = detailsLabel.attributedText == nil
     }
 
     @objc private func didTap(_ sender: UITapGestureRecognizer) {
-        viewModel.configuration.isOpened.toggle()
+        if isTapActionEnabled {
+            delegate?.headerView(self, tappedSection: viewModel.configuration.section)
+        } else {
+            viewModel.configuration.isOpened.toggle()
 
-        chevronImageView.image = viewModel.chevronImage
-        titleLabel.alpha = viewModel.titleAlpha
+            chevronImageView.image = viewModel.chevronImage
+            titleLabel.alpha = viewModel.titleAlpha
 
-        delegate?.headerView(self, openStateChanged: viewModel.configuration.section)
+            delegate?.headerView(self, openStateChanged: viewModel.configuration.section)
+        }
     }
 
     func expand() {
-        for view in childrenStackView.arrangedSubviews {
-            view.isHidden = false
+        guard let delegate = delegate else { return }
+
+        for (index, view) in childrenStackView.arrangedSubviews.enumerated() {
+            if delegate.headerView(self, shouldShowChildren: viewModel.configuration.section, index: index) {
+                view.isHidden = false
+            }
         }
     }
 
     func collapse() {
-        for view in childrenStackView.arrangedSubviews {
-            view.isHidden = true
+        guard let delegate = delegate else { return }
+
+        for (index, view) in childrenStackView.arrangedSubviews.enumerated() {
+            if delegate.headerView(self, shouldHideChildren: viewModel.configuration.section, index: index) {
+                view.isHidden = true
+            }
         }
     }
 }
 
 extension TransactionConfirmationHeaderView {
+    func enableTapAction(title: String) {
+        isTapActionEnabled = true
 
-    func setEditButton(section: Int, _ target: AnyObject, selector: Selector) {
         let label = UILabel()
         let paragraph = NSMutableParagraphStyle()
         paragraph.alignment = .right
 
-        label.attributedText = NSAttributedString(string: "Edit", attributes: [
-            .font: Fonts.bold(size: 15) as Any,
+        label.attributedText = NSAttributedString(string: title, attributes: [
+            .font: Fonts.bold(size: 17) as Any,
             .foregroundColor: R.color.azure() as Any,
             .paragraphStyle: paragraph
         ])
-        label.isUserInteractionEnabled = true
         label.translatesAutoresizingMaskIntoConstraints = false
-
-        let tap = UITapGestureRecognizer(target: target, action: selector)
-        label.addGestureRecognizer(tap)
 
         let wrapper = UIView()
         wrapper.addSubview(label)
@@ -215,7 +236,6 @@ extension TransactionConfirmationHeaderView {
             label.centerYAnchor.constraint(equalTo: titleLabel.centerYAnchor),
             label.bottomAnchor.constraint(equalTo: wrapper.bottomAnchor),
             label.heightAnchor.constraint(greaterThanOrEqualToConstant: 20),
-            label.widthAnchor.constraint(equalToConstant: 50)
         ])
     }
 }

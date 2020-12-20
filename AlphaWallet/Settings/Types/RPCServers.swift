@@ -337,8 +337,7 @@ enum RPCServer: Hashable, CaseIterable {
             case .binance_smart_chain_testnet: return "https://data-seed-prebsc-1-s1.binance.org:8545"
             case .velas: return "https://explorer.velas.com/rpc"
             case .velaschina: return "https://rpc.symblox.net:8080"
-            case .velastestnet: return "https://tn.yopta.net"
-//            case .velastestnet: return "https://explorer.testnet.veladev.net/rpc"
+            case .velastestnet: return "https://explorer.testnet.veladev.net/rpc"
             case .custom(let custom):
                 return custom.endpoint
             }
@@ -362,9 +361,11 @@ enum RPCServer: Hashable, CaseIterable {
             case .goerli: return "https://api-goerli.etherscan.io"
             case .artis_sigma1: return "https://explorer.sigma1.artis.network/api"
             case .artis_tau1: return "https://explorer.tau1.artis.network/api"
-            case .binance_smart_chain: return "https://explorer.binance.org/smart/tx/"
-            case .binance_smart_chain_testnet: return "https://explorer.binance.org/smart-testnet/tx/"
-            case .velastestnet: return "https://explorer.testnet.veladev.net/"
+            case .binance_smart_chain: return "https://bscscan.com/tx/"
+            case .binance_smart_chain_testnet: return "https://testnet.bscscan.com/tx/"
+            case .velas: return "https://explorer.velas.com/tx/"
+            case .velaschina: return "https://explorer.velas.com/tx/"
+            case .velastestnet: return "https://explorer.testnet.veladev.net/tx/"
             case .custom:
                 return "" // Enable? make optional
             }
@@ -428,6 +429,7 @@ enum RPCServer: Hashable, CaseIterable {
         case .artis_sigma1: return .init(red: 83, green: 162, blue: 113)
         case .artis_tau1: return .init(red: 255, green: 117, blue: 153)
         case .binance_smart_chain, .binance_smart_chain_testnet: return .init(red: 255, green: 211, blue: 0)
+        case .velas, .velastestnet, .velaschina ,.custom: return .init(red: 0, green: 55, blue: 193)
         }
     }
 
@@ -480,6 +482,9 @@ enum RPCServer: Hashable, CaseIterable {
             case RPCServer.artis_tau1.name: return .artis_tau1
             case RPCServer.binance_smart_chain.name: return .binance_smart_chain
             case RPCServer.binance_smart_chain_testnet.name: return .binance_smart_chain_testnet
+            case RPCServer.velas.name: return .velas
+            case RPCServer.velaschina.name: return .velas
+            case RPCServer.velastestnet.name: return .velastestnet
             default: return .main
             }
         }()
@@ -504,6 +509,9 @@ enum RPCServer: Hashable, CaseIterable {
             case RPCServer.artis_tau1.chainID: return .artis_tau1
             case RPCServer.binance_smart_chain.chainID: return .binance_smart_chain
             case RPCServer.binance_smart_chain_testnet.chainID: return .binance_smart_chain_testnet
+            case RPCServer.velas.chainID: return .velas
+            case RPCServer.velaschina.chainID: return .velas
+            case RPCServer.velastestnet.chainID: return .velastestnet
             default: return .main
             }
         }()
@@ -535,6 +543,9 @@ enum RPCServer: Hashable, CaseIterable {
             case RPCServer.artis_tau1.magicLinkHost: return .artis_tau1
             case RPCServer.binance_smart_chain.magicLinkHost: return .binance_smart_chain
             case RPCServer.binance_smart_chain_testnet.magicLinkHost: return .binance_smart_chain_testnet
+            case RPCServer.velas.magicLinkHost: return .velas
+            case RPCServer.velaschina.magicLinkHost: return .velas
+            case RPCServer.velastestnet.magicLinkHost: return .velastestnet
             default: return nil
             }
         }()
@@ -569,7 +580,10 @@ enum RPCServer: Hashable, CaseIterable {
             .artis_sigma1,
             .artis_tau1,
             .binance_smart_chain_testnet,
-            .binance_smart_chain
+            .binance_smart_chain,
+            .velas, 
+            .velastestnet, 
+            .velaschina
         ]
     }
     

@@ -92,7 +92,7 @@ class InCoordinator: NSObject, Coordinator {
     }()
 
     lazy var filterTokensCoordinator: FilterTokensCoordinator = {
-        return .init(assetDefinitionStore: assetDefinitionStore)
+        return .init(assetDefinitionStore: assetDefinitionStore, swapTokenService: swapTokenService)
     }()
 
     let navigationController: UINavigationController
@@ -100,6 +100,7 @@ class InCoordinator: NSObject, Coordinator {
     var keystore: Keystore
     var urlSchemeCoordinator: UrlSchemeCoordinatorType
     weak var delegate: InCoordinatorDelegate?
+
     var tabBarController: UITabBarController? {
         return navigationController.viewControllers.first as? UITabBarController
     }
@@ -117,6 +118,16 @@ class InCoordinator: NSObject, Coordinator {
         //service.register(service: uniswap)
 
         return service
+    }()
+    private var walletConnectConfiguration: WalletConnectServer.Configuration {
+        let server = RPCServer(chainID: config.server.chainID)
+
+        return WalletConnectServer.Configuration(wallet: wallet, rpcServer: server)
+    }
+
+    lazy var walletConnectCoordinator: WalletConnectCoordinator = {
+        let coordinator = WalletConnectCoordinator(keystore: keystore, configuration: walletConnectConfiguration, navigationController: navigationController, analyticsCoordinator: analyticsCoordinator, config: config)
+        return coordinator
     }()
 
     init(
@@ -141,6 +152,9 @@ class InCoordinator: NSObject, Coordinator {
         //self.assetDefinitionStore.enableFetchXMLForContractInPasteboard()
 
         super.init()
+
+        addCoordinator(walletConnectCoordinator)
+        walletConnectCoordinator.start()
     }
 
     func start() {
@@ -349,6 +363,7 @@ class InCoordinator: NSObject, Coordinator {
             )
             walletSessions[each] = session
         }
+        walletConnectCoordinator.sessions = walletSessions
     }
 
     //Setup functions has to be called in the right order as they may rely on eg. wallet sessions being available. Wrong order should be immediately apparent with crash on startup. So don't worry
@@ -372,7 +387,7 @@ class InCoordinator: NSObject, Coordinator {
     }
 
     private func pollEthereumEvents(tokenCollection: TokenCollection) {
-        tokenCollection.subscribe { [weak self] result in
+        tokenCollection.subscribe { [weak self] _ in
             guard let strongSelf = self else { return }
             strongSelf.fetchEthereumEvents()
         }
@@ -381,7 +396,7 @@ class InCoordinator: NSObject, Coordinator {
     func showTabBar(for account: Wallet) {
         keystore.recentlyUsedWallet = account
         wallet = account
-
+        walletConnectCoordinator.set(configuration: walletConnectConfiguration)
         setupResourcesOnMultiChain()
         fetchEthereumEvents()
 
@@ -415,7 +430,8 @@ class InCoordinator: NSObject, Coordinator {
                 promptBackupCoordinator: promptBackupCoordinator,
                 filterTokensCoordinator: filterTokensCoordinator,
                 analyticsCoordinator: analyticsCoordinator,
-                swapTokenActionsService: swapTokenService
+                swapTokenService: swapTokenService,
+                walletConnectCoordinator: walletConnectCoordinator
         )
 
         coordinator.rootViewController.tabBarItem = UITabBarItem(title: R.string.localizable.walletTokensTabbarItemTitle(), image: R.image.tab_wallet(), selectedImage: nil)
@@ -581,7 +597,7 @@ class InCoordinator: NSObject, Coordinator {
         let tokenStorage = tokensStorages[server]
 
         switch (type, session.account.type) {
-        case (.send, .real), (.request, _):
+        case (.send, .real):
             let coordinator = PaymentCoordinator(
                     flow: type,
                     session: session,
@@ -593,12 +609,29 @@ class InCoordinator: NSObject, Coordinator {
             )
             coordinator.delegate = self
             coordinator.navigationController.makePresentationFullScreenForiOS13Migration()
+
             if let topVC = navigationController.presentedViewController {
-                topVC.present(coordinator.navigationController, animated: true, completion: nil)
+                topVC.present(coordinator.navigationController, animated: true)
             } else {
-                navigationController.present(coordinator.navigationController, animated: true, completion: nil)
+                navigationController.present(coordinator.navigationController, animated: true)
             }
+
             coordinator.start()
+            addCoordinator(coordinator)
+        case (.request, _):
+            let coordinator = PaymentCoordinator(
+                    navigationController: navigationController,
+                    flow: type,
+                    session: session,
+                    keystore: keystore,
+                    storage: tokenStorage,
+                    ethPrice: nativeCryptoCurrencyPrices[server],
+                    assetDefinitionStore: assetDefinitionStore,
+                    analyticsCoordinator: analyticsCoordinator
+            )
+            coordinator.delegate = self
+            coordinator.start()
+
             addCoordinator(coordinator)
         case (_, _):
             if let topVC = navigationController.presentedViewController {
@@ -714,7 +747,7 @@ class InCoordinator: NSObject, Coordinator {
 
     private func showConsole() {
         let viewController = createConsoleViewController()
-        viewController.navigationItem.rightBarButtonItem =  .init(barButtonSystemItem: .done, target: viewController, action: #selector(viewController.dismissConsole))
+        viewController.navigationItem.rightBarButtonItem = .init(barButtonSystemItem: .done, target: viewController, action: #selector(viewController.dismissConsole))
         if let topVC = navigationController.presentedViewController {
             viewController.makePresentationFullScreenForiOS13Migration()
             topVC.present(viewController, animated: true)
@@ -777,6 +810,7 @@ extension InCoordinator: SettingsCoordinatorDelegate {
         guard let transactionCoordinator = transactionCoordinator else {
             return
         }
+
         restart(for: account, in: transactionCoordinator)
     }
 
@@ -827,7 +861,7 @@ extension InCoordinator: TokensCoordinatorDelegate {
         switch transactionType {
         case .nativeCryptocurrency(let token, _, _):
             guard let url = service.url(token: token) else { return }
-            
+
             openSwapToken(for: url, coordinator: coordinator)
         case .ERC20Token(let token, _, _):
             guard let url = service.url(token: token) else { return }
@@ -840,7 +874,6 @@ extension InCoordinator: TokensCoordinatorDelegate {
 
     private func openSwapToken(for url: URL, coordinator: TokensCoordinator) {
         guard let dappBrowserCoordinator = dappBrowserCoordinator else { return }
-        coordinator.navigationController.popViewController(animated: false)
 
         showTab(.browser)
 
@@ -879,12 +912,20 @@ extension InCoordinator: PaymentCoordinatorDelegate {
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.8) {
                 self.showTransactionSent(transaction: transaction)
             }
-        case .signedTransaction: break
+        case .sentRawTransaction, .signedTransaction:
+            break
         }
     }
 
     func didCancel(in coordinator: PaymentCoordinator) {
-        coordinator.navigationController.dismiss(animated: true, completion: nil)
+        switch coordinator.flow {
+        case .request:
+            coordinator.navigationController.setNavigationBarHidden(true, animated: false)
+            coordinator.navigationController.popToRootViewController(animated: true)
+        case .send:
+            coordinator.navigationController.dismiss(animated: true, completion: nil)
+        }
+
         removeCoordinator(coordinator)
     }
 }
@@ -937,10 +978,9 @@ extension InCoordinator: ActivitiesCoordinatorDelegate {
     }
 
     func show(tokenObject: TokenObject, fromCoordinator coordinator: ActivitiesCoordinator) {
-        //TODO way better UX if we can just open the token without switching tabs
-        showTab(.wallet)
         guard let tokensCoordinator = tokensCoordinator else { return }
-        tokensCoordinator.didSelect(token: tokenObject, in: tokensCoordinator.rootViewController)
+
+        tokensCoordinator.showSingleChainToken(token: tokenObject, in: coordinator.navigationController)
     }
 
     func show(transactionWithId transactionId: String, server: RPCServer, inViewController viewController: UIViewController, fromCoordinator coordinator: ActivitiesCoordinator) {
@@ -951,6 +991,7 @@ extension InCoordinator: ActivitiesCoordinatorDelegate {
         didPressViewContractWebPage(forContract: contract, server: server, in: viewController)
     }
 }
+
 extension InCoordinator: ClaimOrderCoordinatorDelegate {
     func coordinator(_ coordinator: ClaimPaidOrderCoordinator, didFailTransaction error: AnyError) {
         claimOrderCoordinatorCompletionBlock?(false)

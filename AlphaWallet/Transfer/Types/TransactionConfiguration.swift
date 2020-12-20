@@ -26,8 +26,12 @@ struct TransactionConfiguration {
     }
 
     mutating func setEstimated(gasLimit estimate: BigInt) {
-        guard !hasUserAdjustedGasLimit else {return}
+        guard !hasUserAdjustedGasLimit else { return }
         gasLimit = estimate
+    }
+
+    mutating func set(nonce: Int) {
+        self.nonce = nonce
     }
 
     init(transaction: UnconfirmedTransaction) {
@@ -45,6 +49,11 @@ enum TransactionConfigurationType: Int, CaseIterable {
     case fast
     case rapid
     case custom
+
+    static var sortedThirdPartyFastestFirst: [TransactionConfigurationType] {
+        //We intentionally do not include `.standard`
+        [.rapid, .fast, .slow]
+    }
 
     var title: String {
         switch self {

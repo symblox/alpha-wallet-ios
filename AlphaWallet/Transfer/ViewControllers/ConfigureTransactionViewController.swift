@@ -27,7 +27,7 @@ class ConfigureTransactionViewController: UIViewController {
         let tableView = UITableView()
         tableView.register(GasSpeedTableViewCell.self)
         tableView.registerHeaderFooterView(GasSpeedTableViewHeaderView.self)
-        tableView.tableFooterView = createTableInformationFooter()
+        tableView.tableFooterView = createTableFooter()
         tableView.separatorStyle = .none
         tableView.allowsSelection = true
         return tableView
@@ -73,12 +73,12 @@ class ConfigureTransactionViewController: UIViewController {
         tableView.delegate = self
         tableView.dataSource = self
 
-        recalculateTotalFee()
+        recalculateTotalFeeForCustomGas()
     }
 
     func configure(viewModel: ConfigureTransactionViewModel) {
         self.viewModel = viewModel
-        recalculateTotalFee()
+        recalculateTotalFeeForCustomGas()
         tableView.reloadData()
     }
 
@@ -89,7 +89,7 @@ class ConfigureTransactionViewController: UIViewController {
         configuration.setEstimated(gasLimit: value)
         updatedViewModel.configurationToEdit = EditedTransactionConfiguration(configuration: configuration)
         viewModel = updatedViewModel
-        recalculateTotalFee()
+        recalculateTotalFeeForCustomGas()
         tableView.reloadData()
     }
 
@@ -101,7 +101,21 @@ class ConfigureTransactionViewController: UIViewController {
         updatedViewModel.configurationToEdit = EditedTransactionConfiguration(configuration: configuration)
         updatedViewModel.configurations = configurator.configurations
         viewModel = updatedViewModel
-        recalculateTotalFee()
+        recalculateTotalFeeForCustomGas()
+        showGasPriceWarning()
+        tableView.tableFooterView = createTableFooter()
+        tableView.reloadData()
+    }
+
+    func configure(nonce: Int, configurator: TransactionConfigurator) {
+        var updatedViewModel = viewModel
+        var configuration = makeConfigureSuitableForSaving(from: updatedViewModel.configurationToEdit.configuration)
+        guard configuration.nonce != nonce else { return }
+        configuration.set(nonce: nonce)
+        updatedViewModel.configurationToEdit = EditedTransactionConfiguration(configuration: configuration)
+        updatedViewModel.configurations = configurator.configurations
+        viewModel = updatedViewModel
+        recalculateTotalFeeForCustomGas()
         tableView.reloadData()
     }
 
@@ -141,13 +155,21 @@ class ConfigureTransactionViewController: UIViewController {
         })
     }
 
-    private func createTableInformationFooter() -> UIView {
+    private func createTableFooter() -> UIView {
+        if let gasPriceWarning = viewModel.gasPriceWarning {
+            return createTableFooterForGasPriceWarning(gasPriceWarning)
+        } else {
+            return createTableFooterForGasInformation()
+        }
+    }
+
+    private func createTableFooterForGasInformation() -> UIView {
         let footer = UIView(frame: .init(x: 0, y: 0, width: 0, height: 100))
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
         label.textAlignment = .center
         label.numberOfLines = 0
-        label.font = Fonts.regular(size: 12)
+        label.font = Fonts.regular(size: 15)
         label.textColor = R.color.dove()
         label.text = R.string.localizable.transactionConfirmationFeeFooterText()
         footer.addSubview(label)
@@ -157,8 +179,114 @@ class ConfigureTransactionViewController: UIViewController {
         return footer
     }
 
-    private func recalculateTotalFee() {
+    private func createTableFooterForGasPriceWarning(_ gasPriceWarning: TransactionConfigurator.GasPriceWarning) -> UIView {
+        let footer = UIView(frame: .init(x: 0, y: 0, width: 0, height: 0))
+
+        let background = UIView()
+        background.translatesAutoresizingMaskIntoConstraints = false
+        background.backgroundColor = .init(red: 255, green: 235, blue: 234)
+        background.borderColor = .init(red: 252, green: 187, blue: 183)
+        background.cornerRadius = 8
+        background.borderWidth = 1
+        footer.addSubview(background)
+
+        let warningIcon = UIImageView(image: R.image.gasWarning())
+        warningIcon.translatesAutoresizingMaskIntoConstraints = false
+
+        let titleLabel = UILabel()
+        titleLabel.textAlignment = .center
+        titleLabel.font = Fonts.semibold(size: 20)
+        titleLabel.textColor = R.color.danger()
+        titleLabel.text = gasPriceWarning.longTitle
+
+        let descriptionLabel = UITextView()
+        descriptionLabel.backgroundColor = .clear
+        descriptionLabel.textColor = R.color.dove()
+        descriptionLabel.textAlignment = .center
+        descriptionLabel.isEditable = false
+        descriptionLabel.isSelectable = true
+        descriptionLabel.isUserInteractionEnabled = true
+        descriptionLabel.isScrollEnabled = false
+        descriptionLabel.dataDetectorTypes = .link
+        descriptionLabel.font = Fonts.regular(size: 15)
+        descriptionLabel.text = gasPriceWarning.description
+
+        let row0 = [warningIcon, titleLabel].asStackView(axis: .horizontal, spacing: 6)
+        let row1 = descriptionLabel
+
+        let stackView = [
+            row0,
+            row1,
+        ].asStackView(axis: .vertical, spacing: 6, alignment: .center)
+        stackView.translatesAutoresizingMaskIntoConstraints = false
+        footer.addSubview(stackView)
+
+        NSLayoutConstraint.activate([
+            background.anchorsConstraint(to: footer, margin: 16),
+
+            stackView.anchorsConstraint(to: background, edgeInsets: UIEdgeInsets(top: 16, left: 0, bottom: 16, right: 16)),
+
+            warningIcon.widthAnchor.constraint(equalToConstant: 24),
+            warningIcon.widthAnchor.constraint(equalTo: warningIcon.heightAnchor),
+
+            descriptionLabel.widthAnchor.constraint(equalTo: stackView.widthAnchor, constant: -50),
+
+            descriptionLabel.widthAnchor.constraint(equalToConstant: 250),
+        ])
+
+        var frame = footer.frame
+        frame.size.height = footer.systemLayoutSizeFitting(footer.frame.size).height
+        footer.frame = frame
+
+        return footer
+    }
+
+    private func recalculateTotalFeeForCustomGas() {
         cells.totalFee.value = viewModel.gasViewModel.feeText
+        let configurationTypes = viewModel.configurationTypes
+        if let indexPath = configurationTypes.index(of: .custom).flatMap { IndexPath(row: $0, section: ConfigureTransactionViewModel.Section.configurationTypes.rawValue) }, let cell = tableView.cellForRow(at: indexPath) as? GasSpeedTableViewCell {
+            cell.configure(viewModel: viewModel.gasSpeedViewModel(indexPath: indexPath))
+        }
+        showGasPriceWarning()
+        showGasLimitWarning()
+        showGasFeeWarning()
+        tableView.tableFooterView = createTableFooter()
+    }
+
+    private func showGasPriceWarning() {
+        if viewModel.gasPriceWarning == nil {
+            cells.gasPrice.textField.status = .none
+        } else {
+            cells.gasPrice.textField.status = .error("")
+        }
+    }
+
+    private func showGasLimitWarning() {
+        if let warning = viewModel.gasLimitWarning {
+            cells.gasLimit.textField.status = .error(warning.description)
+        } else {
+            cells.gasLimit.textField.status = .none
+        }
+        refreshCellsWithoutAnimation()
+    }
+
+    private func showGasFeeWarning() {
+        if let warning = viewModel.gasFeeWarning {
+            cells.totalFee.textField.status = .error(warning.description)
+        } else {
+            cells.totalFee.textField.status = .none
+        }
+        refreshCellsWithoutAnimation()
+    }
+
+    private func refreshCellsWithoutAnimation() {
+        //async needed otherwise it crashes when view controller is just created
+        DispatchQueue.main.async {
+            UIView.setAnimationsEnabled(false)
+            self.tableView.beginUpdates()
+            self.tableView.endUpdates()
+            UIView.setAnimationsEnabled(true)
+        }
     }
 
     @objc private func saveButtonSelected(_ sender: UIBarButtonItem) {
@@ -196,6 +324,12 @@ class ConfigureTransactionViewController: UIViewController {
                 cells.nonce.textField.status = .error(ConfigureTransactionError.nonceNotPositiveNumber.localizedDescription)
             }
 
+            if viewModel.gasPriceWarning == nil {
+                cells.gasPrice.textField.status = .none
+            } else {
+                cells.gasPrice.textField.status = .error("")
+            }
+
             guard canSave else {
                 tableView.reloadData()
                 return
@@ -231,7 +365,7 @@ extension ConfigureTransactionViewController: UITableViewDataSource {
     }
 
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return viewModel.numberOfSections(in: section)
+        viewModel.numberOfRowsInSections(in: section)
     }
 
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
@@ -293,7 +427,7 @@ extension ConfigureTransactionViewController: SliderTableViewCellDelegate {
             cells.gasPrice.configureSliderRange(viewModel: viewModel.gasPriceSliderViewModel)
         }
 
-        recalculateTotalFee()
+        recalculateTotalFeeForCustomGas()
     }
 
     func cell(_ cell: SliderTableViewCell, valueDidChange value: Int) {
@@ -303,7 +437,7 @@ extension ConfigureTransactionViewController: SliderTableViewCellDelegate {
             viewModel.configurationToEdit.gasPriceRawValue = value
         }
 
-        recalculateTotalFee()
+        recalculateTotalFeeForCustomGas()
     }
 }
 
@@ -393,11 +527,34 @@ extension ConfigureTransactionViewController: TextFieldDelegate {
 }
 
 extension UIBarButtonItem {
+
     static func saveBarButton(_ target: AnyObject, selector: Selector) -> UIBarButtonItem {
         .init(title: R.string.localizable.save(), style: .plain, target: target, action: selector)
+    } 
+
+    static func backBarButton(selectionClosure: @escaping () -> Void) -> UIBarButtonItem {
+        let barButton = UIBarButtonItem(image: R.image.backWhite(), style: .plain, target: nil, action: nil)
+        barButton.selectionClosure = selectionClosure
+
+        return barButton
     }
 
-    static func backBarButton(_ target: AnyObject, selector: Selector) -> UIBarButtonItem {
-        .init(image: R.image.backWhite(), style: .plain, target: target, action: selector)
+    private struct AssociatedObject {
+        static var key = "action_closure_key"
     }
+
+    var selectionClosure: (() -> Void)? {
+        get {
+            return objc_getAssociatedObject(self, &AssociatedObject.key) as? () -> Void
+        }
+        set {
+            objc_setAssociatedObject(self, &AssociatedObject.key, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
+            target = self
+            action = #selector(didTapButton)
+        }
+    }
+
+    @objc func didTapButton(_ sender: Any) {
+        selectionClosure?()
+    } 
 }

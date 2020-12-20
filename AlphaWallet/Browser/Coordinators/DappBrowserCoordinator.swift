@@ -226,6 +226,8 @@ final class DappBrowserCoordinator: NSObject, Coordinator {
                     callback = DappCallback(id: callbackID, value: .signPersonalMessage(data))
                 case .typedMessage:
                     callback = DappCallback(id: callbackID, value: .signTypedMessage(data))
+                case .eip712:
+                    callback = DappCallback(id: callbackID, value: .signTypedMessage(data))
                 }
                 strongSelf.browserViewController.notifyFinish(callbackID: callbackID, value: .success(callback))
             case .failure:
@@ -350,7 +352,7 @@ final class DappBrowserCoordinator: NSObject, Coordinator {
     private func scanQrCode() {
         guard navigationController.ensureHasDeviceAuthorization() else { return }
 
-        let coordinator = ScanQRCodeCoordinator(navigationController: navigationController, account: session.account, server: session.server)
+        let coordinator = ScanQRCodeCoordinator(navigationController: navigationController, account: session.account)
         coordinator.delegate = self
         addCoordinator(coordinator)
         coordinator.start()
@@ -429,6 +431,8 @@ extension DappBrowserCoordinator: TransactionConfirmationCoordinatorDelegate {
                     strongSelf.browserViewController.notifyFinish(callbackID: callbackID, value: .success(callback))
 
                     delegate.didSentTransaction(transaction: transaction, inCoordinator: strongSelf)
+                case .sentRawTransaction:
+                    break
                 }
             case (.none, .noData), (.none, .confirmationResult), (.data, .noData):
                 break
@@ -460,7 +464,7 @@ extension DappBrowserCoordinator: BrowserViewControllerDelegate {
             signMessage(with: .personalMessage(Data(hex: msg)), account: account, callbackID: callbackID)
         case .signTypedMessage(let typedData):
             signMessage(with: .typedMessage(typedData), account: account, callbackID: callbackID)
-        case .unknown:
+        case .unknown, .sendRawTransaction:
             break
         }
     }

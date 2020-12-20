@@ -644,7 +644,7 @@ extension TokensCardCoordinator: TransferTokensCardViaWalletAddressViewControlle
     func openQRCode(in controller: TransferTokensCardViaWalletAddressViewController) {
         guard navigationController.ensureHasDeviceAuthorization() else { return }
 
-        let coordinator = ScanQRCodeCoordinator(navigationController: navigationController, account: session.account, server: session.server)
+        let coordinator = ScanQRCodeCoordinator(navigationController: navigationController, account: session.account)
         coordinator.delegate = self
         addCoordinator(coordinator)
         coordinator.start()
@@ -697,7 +697,7 @@ extension TokensCardCoordinator: StaticHTMLViewControllerDelegate {
 extension TokensCardCoordinator: TokenInstanceActionViewControllerDelegate {
     func confirmTransactionSelected(in viewController: TokenInstanceActionViewController, tokenObject: TokenObject, contract: AlphaWallet.Address, tokenId: TokenId, values: [AttributeId: AssetInternalValue], localRefs: [AttributeId: AssetInternalValue], server: RPCServer, session: WalletSession, keystore: Keystore, transactionFunction: FunctionOrigin) {
         switch transactionFunction.makeUnConfirmedTransaction(withTokenObject: tokenObject, tokenId: tokenId, attributeAndValues: values, localRefs: localRefs, server: server, session: session) {
-        case .success(let transaction, let functionCallMetaData):
+        case .success((let transaction, let functionCallMetaData)):
             let coordinator = TransactionConfirmationCoordinator(navigationController: navigationController, session: session, transaction: transaction, configuration: .tokenScriptTransaction(confirmType: .signThenSend, contract: contract, keystore: keystore, functionCallMetaData: functionCallMetaData, ethPrice: ethPrice), analyticsCoordinator: analyticsCoordinator)
             coordinator.delegate = self
             addCoordinator(coordinator)

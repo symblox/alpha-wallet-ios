@@ -16,20 +16,17 @@ class Oneinch: SwapTokenActionsService, SwapTokenURLProviderType {
     }
 
     private static let baseURL = "https://1inch.exchange/#"
-    private static let refferal = "/r/0x98f21584006c79871F176F8D474958a69e04595B"
+    private static let referralSlug = "/r/0x98f21584006c79871F176F8D474958a69e04595B"
     //NOTE: for Oneinch exchange service we need to use two addresses, by default it uses Uptrennd token
-    private static let outputAddress = AlphaWallet.Address(string: "0x07597255910a51509ca469568b048f2597e72504")!
     private let predefinedTokens: [Oneinch.ERC20Token] = [
-        .init(symbol: "ETH", name: "ETH", address: Constants.nativeCryptoAddressInDatabase, decimal: 18)
+        .init(symbol: "ETH", name: "ETH", address: Constants.nativeCryptoAddressInDatabase, decimal: RPCServer.main.decimals)
     ]
-
-    private(set) var availableTokens: [Oneinch.ERC20Token] = []
+    //NOTE: we use dictionary to improve search tokens
+    private var availableTokens: [AlphaWallet.Address: Oneinch.ERC20Token] = [:]
 
     func url(token: TokenObject) -> URL? {
-        guard isSupportToken(token: token) else { return nil }
-
         var components = URLComponents()
-        components.path = Oneinch.refferal + "/" + subpath(inputAddress: token.contractAddress)
+        components.path = Oneinch.referralSlug + "/" + subpath(inputAddress: token.contractAddress)
         //NOTE: URLComponents doesn't allow path to contain # symbol
         guard let pathWithQueryItems = components.url?.absoluteString else { return nil }
 
@@ -37,32 +34,28 @@ class Oneinch: SwapTokenActionsService, SwapTokenURLProviderType {
     }
 
     private func subpath(inputAddress: AlphaWallet.Address) -> String {
-        return [token(address: inputAddress), token(address: Oneinch.outputAddress)].compactMap {
+        return [token(address: inputAddress), token(address: defaultOutputAddress(forInput: inputAddress))].compactMap {
             $0?.symbol
         }.joined(separator: "/")
     }
 
     func actions(token: TokenObject) -> [TokenInstanceAction] {
-        if self.isSupport(token: token) {
-            return [
-                .init(type: .swap(service: self))
-            ]
-        } else {
-            return []
-        }
+        return [
+            .init(type: .swap(service: self))
+        ]
     }
 
-    private func isSupport(token: TokenObject) -> Bool {
+    func isSupport(token: TokenObject) -> Bool {
         switch token.server {
         case .main:
-            return availableTokens.contains(where: { $0.address == token.contractAddress })
+            return availableTokens[token.contractAddress] != nil
         case .kovan, .ropsten, .rinkeby, .sokol, .goerli, .artis_sigma1, .artis_tau1, .custom, .poa, .callisto, .xDai, .classic, .binance_smart_chain, .binance_smart_chain_testnet, .velas, .velastestnet, .velaschina:
             return false
         }
     }
 
     private func token(address: AlphaWallet.Address) -> Oneinch.ERC20Token? {
-        return availableTokens.first(where: { $0.address == address })
+        return availableTokens[address]
     }
 
     func fetchSupportedTokens() {
@@ -74,7 +67,18 @@ class Oneinch: SwapTokenActionsService, SwapTokenURLProviderType {
         }.map { data -> [Oneinch.ERC20Token] in
             return data.map { $0.value }
         }.done { response in
-            self.availableTokens = self.predefinedTokens + response
+            for token in self.predefinedTokens + response {
+                self.availableTokens[token.address] = token
+            }
         }.cauterize()
+    }
+
+    private func defaultOutputAddress(forInput input: AlphaWallet.Address) -> AlphaWallet.Address {
+        if input == Constants.nativeCryptoAddressInDatabase {
+            //TODO extract a list of known/popular token contracts we use in the app? Would that be too much dependency?
+            return AlphaWallet.Address(string: "0xdAC17F958D2ee523a2206206994597C13D831ec7")!
+        } else {
+            return Constants.nativeCryptoAddressInDatabase
+        }
     }
 }
