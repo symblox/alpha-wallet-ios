@@ -15,7 +15,7 @@ class MigrationInitializer: Initializer {
     }
 
     func perform() {
-        config.schemaVersion = 7
+        config.schemaVersion = 8
         //NOTE: use [weak self] to avaid memory leak
         config.migrationBlock = { [weak self] migration, oldSchemaVersion in
             guard let strongSelf = self else { return }
