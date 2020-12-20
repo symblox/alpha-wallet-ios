@@ -919,6 +919,9 @@
 		50E3B91D258F7B3A00AE86E7 /* TransactionConfirmationCoordinatorBridgeToPromise.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87BBF9802563DD7500FF4846 /* TransactionConfirmationCoordinatorBridgeToPromise.swift */; };
 		50E3B923258F7BE200AE86E7 /* DecodedFunctionCall.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C7A71851FA227231270BD /* DecodedFunctionCall.swift */; };
 		50E3B929258F7C6300AE86E7 /* GetNextNonce.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C7DAFCCF74F40D144CB0E /* GetNextNonce.swift */; };
+		50E3B934258F83F900AE86E7 /* WallerConnectRawViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87BBF96C2563DD7500FF4846 /* WallerConnectRawViewModel.swift */; };
+		50E3B93A258F850F00AE86E7 /* ClaimPaidOrderCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87B651F6256D4BFE000EF927 /* ClaimPaidOrderCoordinator.swift */; };
+		50E3B940258F878800AE86E7 /* Session+PromiseKit.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C7FDDF4DD09013785E449 /* Session+PromiseKit.swift */; };
 		5E7C700A0B11504AC44718DD /* UIViewController+ensureHasDeviceAuthorization.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C74159ED115D14384A1CB /* UIViewController+ensureHasDeviceAuthorization.swift */; };
 		5E7C701BFF4469B35A074EB9 /* RequestViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C767497AD8DEE83F384D7 /* RequestViewModel.swift */; };
 		5E7C70275E403AADE88BD17F /* RPCServerOrAny.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C7BE086F00DE44B4EDCED /* RPCServerOrAny.swift */; };
@@ -6462,6 +6465,7 @@
 				507BA9EF2587969600CBD823 /* AdvancedSettingsViewModel.swift in Sources */,
 				507BAC942587D1FB00CBD823 /* ServerHeaderView.swift in Sources */,
 				507BA9F02587969600CBD823 /* SignatureHelper.swift in Sources */,
+				50E3B934258F83F900AE86E7 /* WallerConnectRawViewModel.swift in Sources */,
 				507BA9F12587969600CBD823 /* TrustRealmConfiguration.swift in Sources */,
 				507BA9F22587969600CBD823 /* AlphaWalletService.swift in Sources */,
 				507BA9F32587969600CBD823 /* Subscribable.swift in Sources */,
@@ -6752,6 +6756,7 @@
 				507BAB062587969600CBD823 /* DappsAutoCompletionCellViewModel.swift in Sources */,
 				507BAB072587969600CBD823 /* BrowserHistoryViewControllerHeaderView.swift in Sources */,
 				507BAB082587969600CBD823 /* DappsHomeEmptyView.swift in Sources */,
+				50E3B940258F878800AE86E7 /* Session+PromiseKit.swift in Sources */,
 				507BAB092587969600CBD823 /* MyDappCellViewModel.swift in Sources */,
 				507BAB0A2587969600CBD823 /* MyDappsViewControllerHeaderView.swift in Sources */,
 				507BAB0B2587969600CBD823 /* EditMyDappViewController.swift in Sources */,
@@ -6929,6 +6934,7 @@
 				507BABB02587969600CBD823 /* AlphaWalletAddress+UI.swift in Sources */,
 				507BABB12587969600CBD823 /* MixpanelCoordinator.swift in Sources */,
 				507BABB22587969600CBD823 /* AnalyticsEventPropertyValue.swift in Sources */,
+				50E3B93A258F850F00AE86E7 /* ClaimPaidOrderCoordinator.swift in Sources */,
 				507BABB32587969600CBD823 /* AnalyticsTypes.swift in Sources */,
 				507BABB42587969600CBD823 /* AnalyticsCoordinator.swift in Sources */,
 				507BABB52587969600CBD823 /* ActivitiesCoordinator.swift in Sources */,
@@ -7368,7 +7374,7 @@
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 366;
+				CURRENT_PROJECT_VERSION = 2;
 				DEVELOPMENT_TEAM = D84YWD9G3U;
 				ENABLE_BITCODE = YES;
 				HEADER_SEARCH_PATHS = (
@@ -7410,7 +7416,7 @@
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 366;
+				CURRENT_PROJECT_VERSION = 2;
 				DEVELOPMENT_TEAM = D84YWD9G3U;
 				ENABLE_BITCODE = YES;
 				HEADER_SEARCH_PATHS = (
