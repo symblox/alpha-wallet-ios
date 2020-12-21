@@ -425,7 +425,7 @@ enum RPCServer: Hashable, CaseIterable {
         case .artis_sigma1: return .init(red: 83, green: 162, blue: 113)
         case .artis_tau1: return .init(red: 255, green: 117, blue: 153)
         case .binance_smart_chain, .binance_smart_chain_testnet: return .init(red: 255, green: 211, blue: 0)
-        case .velas, .velastestnet, .velaschina, .custom: return .init(red: 0, green: 55, blue: 193)
+        case .velas, .velastestnet, .velaschina: return .init(red: 0, green: 55, blue: 193)
         }
     }
 

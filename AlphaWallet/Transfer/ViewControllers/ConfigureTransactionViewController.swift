@@ -244,7 +244,7 @@ class ConfigureTransactionViewController: UIViewController {
     private func recalculateTotalFeeForCustomGas() {
         cells.totalFee.value = viewModel.gasViewModel.feeText
         let configurationTypes = viewModel.configurationTypes
-        if let indexPath = configurationTypes.index(of: .custom).flatMap { IndexPath(row: $0, section: ConfigureTransactionViewModel.Section.configurationTypes.rawValue) }, let cell = tableView.cellForRow(at: indexPath) as? GasSpeedTableViewCell {
+        if let indexPath = configurationTypes.index(of: .custom).flatMap({ IndexPath(row: $0, section: ConfigureTransactionViewModel.Section.configurationTypes.rawValue) }), let cell = tableView.cellForRow(at: indexPath) as? GasSpeedTableViewCell {
             cell.configure(viewModel: viewModel.gasSpeedViewModel(indexPath: indexPath))
         }
         showGasPriceWarning()
