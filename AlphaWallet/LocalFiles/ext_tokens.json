@@ -1,0 +1,74 @@
+[
+    {
+        "name":"Tether USD on Velas",
+        "server":106,
+        "symbol":"vUSDT",
+        "decimal":6,
+        "contract":"0x4b773e1ae1baa4894e51cc1d1faf485c91b1012f",
+        "visible":false
+    },{
+        "name":"Wrapped Ether on Velas",
+        "server":106,
+        "symbol":"vWETH",
+        "decimal":18,
+        "contract":"0x380f73bad5e7396b260f737291ae5a8100baabcd",
+        "visible":false
+    },{
+        "name":"Symblox v1",
+        "server":106,
+        "symbol":"SYX",
+        "decimal":18,
+        "contract":"V5BiAVREvmgkxhxetGY6JcAtTHS56v9jx1",
+        "visible":false
+    },{
+        "name":"ChainLink on Velas",
+        "server":106,
+        "symbol":"vLink",
+        "decimal":18,
+        "contract":"",
+        "visible":false
+    },{
+        "name":"Wrapped BTC on Velas",
+        "server":106,
+        "symbol":"WBTC",
+        "decimal":8,
+        "contract":"",
+        "visible":false
+    },{
+        "name":"Symblox v2",
+        "server":106,
+        "symbol":"SYX",
+        "decimal":18,
+        "contract":"0x01db6acfa20562ba835ae9f5085859580a0b1386",
+        "visible":false
+    },
+    {
+          "name":"Tether USD",
+          "server":1,
+          "symbol":"USDT",
+          "decimal":6,
+          "contract":"0xdac17f958d2ee523a2206206994597c13d831ec7",
+          "visible":false
+      },{
+          "name":"Wrapped BTC",
+          "server":1,
+          "symbol":"WBTC",
+          "decimal":8,
+          "contract":"0x2260FAC5E5542a773Aa44fBCfeDf7C193bc2C599",
+          "visible":false
+      },{
+          "name":"ChainLink Token",
+          "server":1,
+          "symbol":"LINK",
+          "decimal":18,
+          "contract":"0x514910771af9ca656af840dff83e8264ecf986ca",
+          "visible":false
+      },{
+          "name":"Wrapped Ether",
+          "server":1,
+          "symbol":"WETH",
+          "decimal":18,
+          "contract":"0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2",
+          "visible":false
+      }
+]

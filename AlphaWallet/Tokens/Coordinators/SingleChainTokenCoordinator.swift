@@ -44,7 +44,8 @@ class SingleChainTokenCoordinator: Coordinator {
     let session: WalletSession
     weak var delegate: SingleChainTokenCoordinatorDelegate?
     var coordinators: [Coordinator] = []
-
+    var _localCustomTokens: [ERCToken] = []
+    
     init(
             session: WalletSession,
             keystore: Keystore,
@@ -167,7 +168,7 @@ class SingleChainTokenCoordinator: Coordinator {
             break
         }
     }
-
+    
     private func autoDetectMainnetPartnerTokens() {
         autoDetectTokens(withContracts: Constants.partnerContracts)
     }
@@ -434,7 +435,6 @@ class SingleChainTokenCoordinator: Coordinator {
 
     func updateOrderedTokens(with orderedTokens: [TokenObject]) {
         self.storage.updateOrderedTokens(with: orderedTokens)
-
         delegate?.tokensDidChange(inCoordinator: self)
     }
 
@@ -445,10 +445,28 @@ class SingleChainTokenCoordinator: Coordinator {
     func add(token: ERCToken) -> TokenObject {
         let tokenObject = storage.addCustom(token: token)
         delegate?.tokensDidChange(inCoordinator: self)
-
         return tokenObject
     }
 
+    func loadExternalTokens(tokens: [LocalERCToken]) {
+        var validTokens = [LocalERCToken]()
+        let currentObjects = storage.objects.map{$0.contractAddress}
+        tokens.forEach {
+            guard $0.server != nil && $0.contract != nil else { return }
+            if isServer($0.server!) && !currentObjects.contains($0.contract!) {
+                validTokens.append($0)
+            }
+        }
+        let detectedTokens = validTokens.compactMap { (name: $0.symbol, contract: $0.contract! ) }
+        let address = keystore.currentWallet.address
+        isAutoDetectingTokens = true
+        let operation = AutoAddTokensOperation(forSession: session,
+                                               coordinator: self,
+                                               wallet: address,
+                                               tokens: detectedTokens)
+        autoDetectTokensQueue.addOperation(operation)
+    }
+    
     class AutoDetectTransactedTokensOperation: Operation {
         private let session: WalletSession
         weak private var coordinator: SingleChainTokenCoordinator?
@@ -487,9 +505,9 @@ class SingleChainTokenCoordinator: Coordinator {
 
     class AutoDetectTokensOperation: Operation {
         private let session: WalletSession
-        weak private var coordinator: SingleChainTokenCoordinator?
+        fileprivate var coordinator: SingleChainTokenCoordinator?
         private let wallet: AlphaWallet.Address
-        private let tokens: [(name: String, contract: AlphaWallet.Address)]
+        fileprivate let tokens: [(name: String, contract: AlphaWallet.Address)]
         override var isExecuting: Bool {
             return coordinator?.isAutoDetectingTokens ?? false
         }
@@ -523,7 +541,78 @@ class SingleChainTokenCoordinator: Coordinator {
             }
         }
     }
+    
+    private func addCustomTokensImp(tokens: [(name: String, contract: AlphaWallet.Address)], defaultHide: Bool = true, completion:@escaping () -> Void) {
+        let tokenAddresses = tokens.map { $0.contract }
+        guard !tokenAddresses.isEmpty else {
+            completion()
+            return
+        }
+        
+        for token in tokenAddresses {
+            self.fetchContractData(for: token, completion: { [weak self] data in
+                guard let strongSelf = self else { return }
+                switch data {
+                case .name, .symbol, .balance, .decimals, .delegateTokenComplete, .failed:
+                       break
+                case .nonFungibleTokenComplete(let name, let symbol, let _, let tokenType):
+                    let token = ERCToken(
+                            contract: token,
+                            server: strongSelf.session.server,
+                            name: name,
+                            symbol: symbol,
+                            decimals: Int(0),
+                            type: tokenType,
+                            balance: [])
+                 strongSelf._localCustomTokens.append(token)
+                case .fungibleTokenComplete(let name, let symbol, let decimals):
+                       let token = ERCToken(
+                               contract: token,
+                               server: strongSelf.session.server,
+                               name: name,
+                               symbol: symbol,
+                               decimals: Int(decimals),
+                               type: .erc20,
+                                balance: []
+                       )
+                    strongSelf._localCustomTokens.append(token)
+                }
+                if strongSelf._localCustomTokens.count == tokenAddresses.count {
+                    completion()
+                }
+            })
+        }
+    }
 
+    class AutoAddTokensOperation: AutoDetectTokensOperation {
+        override func main() {
+            DispatchQueue.main.async { [weak self] in
+                guard let strongSelf = self else { return }
+                strongSelf.coordinator?.addCustomTokensImp(tokens: strongSelf.tokens, defaultHide: true) {
+                    guard let strongSelf = self else { return }
+                    strongSelf.willChangeValue(forKey: "isExecuting")
+                    strongSelf.willChangeValue(forKey: "isFinished")
+                    strongSelf.coordinator?.isAutoDetectingTokens = false
+                    strongSelf.didChangeValue(forKey: "isExecuting")
+                    strongSelf.didChangeValue(forKey: "isFinished")
+                }
+            }
+        }
+    }
+    
+    public var customTokens: [ERCToken] {
+        _localCustomTokens
+    }
+    
+    public func addCustomTokens(_ tokens:[ERCToken]) {
+        let servers = _localCustomTokens - tokens
+        _localCustomTokens.removeAll()
+        _localCustomTokens.append(contentsOf: servers)
+        for token in tokens {
+            add(token: token)
+        }
+    }
+    
     private func showTokenInstanceActionView(forAction action: TokenInstanceAction, fungibleTokenObject tokenObject: TokenObject, viewController: UIViewController) {
         //TODO id 1 for fungibles. Might come back to bite us?
         let hardcodedTokenIdForFungibles = BigUInt(1)

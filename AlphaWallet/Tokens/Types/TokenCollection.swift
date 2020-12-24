@@ -91,10 +91,10 @@ extension TokenCollection: TokensDataStoreDelegate {
 extension RPCServer {
     var displayOrderPriority: Int {
           switch self {
-          case .main: return 1
+          case .main: return 3
           case .xDai: return 2
-          case .velas: return 3
-          case .velaschina: return 15
+          case .velas: return 1
+          case .velaschina: return 1
           case .velastestnet: return 14
           case .classic: return 4
           case .poa: return 5

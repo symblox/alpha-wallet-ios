@@ -49,9 +49,13 @@ class TokensCoordinator: Coordinator {
         queue.maxConcurrentOperationCount = 1
         return queue
     }()
+    
+    private let localTokens : [LocalERCToken]? = {
+        return try? objectDataFromFile("ext_tokens", type: [LocalERCToken].self)
+    }()
 
     private lazy var tokensViewController: TokensViewController = {
-        let controller = TokensViewController(
+        let controller = VelasTokensViewController(
                 sessions: sessions,
                 account: sessions.anyValue.account,
                 tokenCollection: tokenCollection,
@@ -111,6 +115,7 @@ class TokensCoordinator: Coordinator {
 
     func start() {
         for each in singleChainTokenCoordinators {
+            each.loadExternalTokens(tokens: localTokens ?? [LocalERCToken]())
             each.start()
         }
         addUefaTokenIfAny()
@@ -404,5 +409,27 @@ extension TokensCoordinator: PromptBackupCoordinatorProminentPromptDelegate {
 extension TokensCoordinator: AddHideTokensCoordinatorDelegate {
     func didClose(coordinator: AddHideTokensCoordinator) {
         removeCoordinator(coordinator)
+    }
+}
+
+// Velas Sections
+extension TokensCoordinator: VelasTokensViewControllerDelegate {
+   
+    func didAddPopularTokenTapped(network: RPCServer) {
+
+        if let singleChainCoordinator = singleChainTokenCoordinator(forServer: network) {
+            let coordinator: AddPopularTokenCoordinator = .init(
+                server: network,
+                assetDefinitionStore: assetDefinitionStore,
+                filterTokensCoordinator: filterTokensCoordinator,
+                tickers: [RPCServer: [AlphaWallet.Address: CoinTicker]](),
+                sessions: sessions,
+                navigationController: navigationController,
+                config: config,
+                singleChainTokenCoordinator: singleChainCoordinator
+            )
+            addCoordinator(coordinator)
+            coordinator.start()
+        }
     }
 }

@@ -8,7 +8,7 @@ class TokensViewModel {
     //Must be computed because localization can be overridden by user dynamically
     static var segmentedControlTitles: [String] { WalletFilter.orderedTabs.map { $0.title } }
 
-    private let filterTokensCoordinator: FilterTokensCoordinator
+    let filterTokensCoordinator: FilterTokensCoordinator
     var tokens: [TokenObject]
     let tickers: [RPCServer: [AlphaWallet.Address: CoinTicker]]
 
@@ -68,7 +68,15 @@ class TokensViewModel {
     func ticker(for token: TokenObject) -> CoinTicker? {
         return tickers[token.server]?[token.contractAddress]
     }
-
+    
+    func numberOfGroup() -> Int {
+        return 1
+    }
+    
+    func numberItemsOfGroup(_ group: Int) -> Int {
+        return numberOfItems()
+    }
+    
     func canDelete(for row: Int, section: Int) -> Bool {
         let token = item(for: row, section: section)
         guard !token.isInvalidated else { return false }

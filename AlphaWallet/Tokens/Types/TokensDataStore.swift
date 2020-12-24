@@ -741,6 +741,7 @@ class TokensDataStore {
         case name(String)
         case type(TokenType)
         case isHidden(Bool)
+        case tokenInfo(String,String,Int,Bool)
     }
 
     func updateOrderedTokens(with orderedTokens: [TokenObject]) {
@@ -803,6 +804,13 @@ class TokensDataStore {
         case .type(let type):
             try! realm.write {
                 token.type = type
+            }
+        case .tokenInfo(let name, let symbol, let decimal, let disable):
+            try! realm.write {
+                token.name = name
+                token.symbol = symbol
+                token.decimals = decimal
+                token.shouldDisplay = disable
             }
         }
     }

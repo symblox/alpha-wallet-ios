@@ -17,28 +17,28 @@ class TokensViewController: UIViewController {
     private static let filterViewHeight = DataEntry.Metric.Tokens.Filter.height
     private static let addHideTokensViewHeight = DataEntry.Metric.AddHideToken.Header.height
 
-    private enum Section: CaseIterable {
+    public enum Section: CaseIterable {
         case filters
         case addHideToken
         case tokens
     }
 
     private let tokenCollection: TokenCollection
-    private let assetDefinitionStore: AssetDefinitionStore
+    public let assetDefinitionStore: AssetDefinitionStore
     private let eventsDataStore: EventsDataStoreProtocol
-    private let sections: [Section] = Section.allCases
+    public let sections: [Section] = Section.allCases
 
-    private var viewModel: TokensViewModel {
+    public var viewModel: TokensViewModel {
         didSet {
             viewModel.filter = oldValue.filter
             refreshView(viewModel: viewModel)
         }
     }
-    private let sessions: ServerDictionary<WalletSession>
+    public let sessions: ServerDictionary<WalletSession>
     private let account: Wallet
     lazy private var tableViewFilterView = SegmentedControl(titles: TokensViewModel.segmentedControlTitles)
     lazy private var collectiblesCollectionViewFilterView = SegmentedControl(titles: TokensViewModel.segmentedControlTitles)
-    private lazy var tableView: UITableView = {
+    public lazy var tableView: UITableView = {
         let tableView = UITableView(frame: .zero, style: .plain)
         tableView.register(FungibleTokenViewCell.self)
         tableView.register(EthTokenViewCell.self)
@@ -479,7 +479,7 @@ extension TokensViewController: UITableViewDataSource {
         }
     }
 
-    private func trailingSwipeActionsConfiguration(forRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
+    func trailingSwipeActionsConfiguration(forRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
         let title = R.string.localizable.walletsHideTokenTitle()
         let hideAction = UIContextualAction(style: .destructive, title: title) { [weak self] (_, _, completionHandler) in
             guard let strongSelf = self else { return }
