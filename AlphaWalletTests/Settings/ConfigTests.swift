@@ -3,6 +3,14 @@
 import XCTest
 @testable import AlphaWallet
 
+extension WalletConnectCoordinator {
+
+    static func fake() -> WalletConnectCoordinator {
+        let keystore = FakeEtherKeystore()
+        return .init(keystore: keystore, configuration: .init(wallet: .make(), rpcServer: .main), navigationController: .init(), analyticsCoordinator: nil, config: .make())
+    }
+}
+
 class ConfigTests: XCTestCase {
 
     //This is still used by Dapp browser
@@ -18,27 +26,32 @@ class ConfigTests: XCTestCase {
         var sessions = ServerDictionary<WalletSession>()
         sessions[.main] = WalletSession.make()
         Config.setLocale(AppLocale.english)
+        let swapTokenService = FakeSwapTokenService()
+
         let vc1 = TokensViewController(
                 sessions: sessions,
                 account: .make(),
-                tokenCollection: .init(filterTokensCoordinator: FilterTokensCoordinator(assetDefinitionStore: assetDefinitionStore), tokenDataStores: [FakeTokensDataStore()]),
+                tokenCollection: .init(filterTokensCoordinator: FilterTokensCoordinator(assetDefinitionStore: assetDefinitionStore, swapTokenService: swapTokenService), tokenDataStores: [FakeTokensDataStore()]),
                 assetDefinitionStore: assetDefinitionStore,
                 eventsDataStore: FakeEventsDataStore(),
-                filterTokensCoordinator: FilterTokensCoordinator(assetDefinitionStore: assetDefinitionStore),
-                config: .make()
+                filterTokensCoordinator: FilterTokensCoordinator(assetDefinitionStore: assetDefinitionStore, swapTokenService: swapTokenService),
+                config: .make(),
+                walletConnectCoordinator: .fake()
         )
         vc1.viewWillAppear(false)
         XCTAssertEqual(vc1.title, "Wallet")
 
         Config.setLocale(AppLocale.simplifiedChinese)
+        
         let vc2 = TokensViewController(
                 sessions: sessions,
                 account: .make(),
-                tokenCollection: .init(filterTokensCoordinator: FilterTokensCoordinator(assetDefinitionStore: assetDefinitionStore), tokenDataStores: [FakeTokensDataStore()]),
+                tokenCollection: .init(filterTokensCoordinator: FilterTokensCoordinator(assetDefinitionStore: assetDefinitionStore, swapTokenService: swapTokenService), tokenDataStores: [FakeTokensDataStore()]),
                 assetDefinitionStore: assetDefinitionStore,
                 eventsDataStore: FakeEventsDataStore(),
-                filterTokensCoordinator: FilterTokensCoordinator(assetDefinitionStore: assetDefinitionStore),
-                config: .make()
+                filterTokensCoordinator: FilterTokensCoordinator(assetDefinitionStore: assetDefinitionStore, swapTokenService: swapTokenService),
+                config: .make(),
+                walletConnectCoordinator: .fake()
         )
         vc2.viewWillAppear(false)
         XCTAssertEqual(vc2.title, "我的钱包")

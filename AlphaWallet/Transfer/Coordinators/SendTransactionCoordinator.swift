@@ -30,19 +30,26 @@ class SendTransactionCoordinator {
         if transaction.nonce >= 0 {
             signAndSend(transaction: transaction, completion: completion)
         } else {
-            let request = EtherServiceRequest(server: session.server, batch: BatchFactory().create(GetTransactionCountRequest(
-                address: session.account.address,
-                state: "pending"
-            )))
-            //TODO Verify we need a strong reference to self
+            firstly {
+                GetNextNonce(server: session.server, wallet: session.account.address).promise()
+            }.done {
+                let transaction = self.appendNonce(to: transaction, currentNonce: $0)
+                self.signAndSend(transaction: transaction, completion: completion)
+            }.catch {
+                completion(.failure(AnyError($0)))
+            }
+        }
+    }
+
+    func send(rawTransaction: String) -> Promise<ConfirmResult> {
+        return Promise { seal in
+            let request = EtherServiceRequest(server: session.server, batch: BatchFactory().create(SendRawTransactionRequest(signedTransaction: rawTransaction.add0x)))
             Session.send(request) { result in
-                //guard let `self` = self else { return }
                 switch result {
-                case .success(let count):
-                    let transaction = self.appendNonce(to: transaction, currentNonce: count)
-                    self.signAndSend(transaction: transaction, completion: completion)
+                case .success(let transactionID):
+                    seal.fulfill(.sentRawTransaction(id: transactionID, original: rawTransaction))
                 case .failure(let error):
-                    completion(.failure(AnyError(error)))
+                    seal.reject(AnyError(error))
                 }
             }
         }
@@ -86,13 +93,12 @@ class SendTransactionCoordinator {
                 completion(.success(.signedTransaction(data)))
             case .signThenSend:
                 let request = EtherServiceRequest(server: session.server, batch: BatchFactory().create(SendRawTransactionRequest(signedTransaction: data.hexEncoded)))
-                Session.send(request) { result in
-                    switch result {
-                    case .success(let transactionID):
-                        completion(.success(.sentTransaction(SentTransaction(id: transactionID, original: transaction))))
-                    case .failure(let error):
-                        completion(.failure(AnyError(error)))
-                    }
+                firstly {
+                    Session.send(request)
+                }.done { transactionID in
+                    completion(.success(.sentTransaction(SentTransaction(id: transactionID, original: transaction))))
+                }.catch { error in
+                    completion(.failure(AnyError(error)))
                 }
             }
         case .failure(let error):

@@ -85,7 +85,7 @@ class TokensViewModel {
         }
         return true
     }
-
+    
     init(filterTokensCoordinator: FilterTokensCoordinator, tokens: [TokenObject], tickers: [RPCServer: [AlphaWallet.Address: CoinTicker]]) {
         self.filterTokensCoordinator = filterTokensCoordinator
         self.tokens = tokens

@@ -7,7 +7,7 @@ import Result
 
 protocol TransactionConfirmationViewControllerDelegate: class {
     func controller(_ controller: TransactionConfirmationViewController, continueButtonTapped sender: UIButton)
-    func controller(_ controller: TransactionConfirmationViewController, editTransactionButtonTapped sender: UIButton)
+    func controllerDidTapEdit(_ controller: TransactionConfirmationViewController)
     func didClose(in controller: TransactionConfirmationViewController)
 }
 
@@ -72,7 +72,7 @@ class TransactionConfirmationViewController: UIViewController {
         return view
     }()
 
-    private lazy var сontainerView: UIView = {
+    private lazy var containerView: UIView = {
         let view = UIView()
         view.translatesAutoresizingMaskIntoConstraints = false
         view.backgroundColor = .white
@@ -86,11 +86,11 @@ class TransactionConfirmationViewController: UIViewController {
     }()
 
     private lazy var heightConstraint: NSLayoutConstraint = {
-        return сontainerView.heightAnchor.constraint(equalToConstant: preferredContentSize.height)
+        return containerView.heightAnchor.constraint(equalToConstant: preferredContentSize.height)
     }()
 
     private lazy var bottomConstraint: NSLayoutConstraint = {
-        сontainerView.safeAreaLayoutGuide.bottomAnchor.constraint(equalTo: view.bottomAnchor)
+        containerView.safeAreaLayoutGuide.bottomAnchor.constraint(equalTo: view.bottomAnchor)
     }()
 
     private var allowPresentationAnimation: Bool = true
@@ -98,36 +98,36 @@ class TransactionConfirmationViewController: UIViewController {
 
     var canBeDismissed = true
     weak var delegate: TransactionConfirmationViewControllerDelegate?
-
+    // swiftlint:disable function_body_length
     init(viewModel: TransactionConfirmationViewModel) {
         self.viewModel = viewModel
         super.init(nibName: nil, bundle: nil)
 
         view.addSubview(backgroundView)
-        view.addSubview(сontainerView)
+        view.addSubview(containerView)
 
         NSLayoutConstraint.activate([
-            backgroundView.bottomAnchor.constraint(equalTo: сontainerView.topAnchor),
+            backgroundView.bottomAnchor.constraint(equalTo: containerView.topAnchor),
             backgroundView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             backgroundView.topAnchor.constraint(equalTo: view.topAnchor),
             backgroundView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
 
             heightConstraint,
             bottomConstraint,
-            сontainerView.safeAreaLayoutGuide.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-            сontainerView.safeAreaLayoutGuide.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            containerView.safeAreaLayoutGuide.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            containerView.safeAreaLayoutGuide.trailingAnchor.constraint(equalTo: view.trailingAnchor),
 
-            headerView.leadingAnchor.constraint(equalTo: сontainerView.leadingAnchor),
-            headerView.trailingAnchor.constraint(equalTo: сontainerView.trailingAnchor),
-            headerView.topAnchor.constraint(equalTo: сontainerView.topAnchor),
+            headerView.leadingAnchor.constraint(equalTo: containerView.leadingAnchor),
+            headerView.trailingAnchor.constraint(equalTo: containerView.trailingAnchor),
+            headerView.topAnchor.constraint(equalTo: containerView.topAnchor),
 
-            scrollView.leadingAnchor.constraint(equalTo: сontainerView.leadingAnchor),
-            scrollView.trailingAnchor.constraint(equalTo: сontainerView.trailingAnchor),
+            scrollView.leadingAnchor.constraint(equalTo: containerView.leadingAnchor),
+            scrollView.trailingAnchor.constraint(equalTo: containerView.trailingAnchor),
             scrollView.topAnchor.constraint(equalTo: headerView.bottomAnchor),
             scrollView.bottomAnchor.constraint(equalTo: footerBar.topAnchor),
 
-            stackView.leadingAnchor.constraint(equalTo: сontainerView.leadingAnchor),
-            stackView.trailingAnchor.constraint(equalTo: сontainerView.trailingAnchor),
+            stackView.leadingAnchor.constraint(equalTo: containerView.leadingAnchor),
+            stackView.trailingAnchor.constraint(equalTo: containerView.trailingAnchor),
             stackView.topAnchor.constraint(equalTo: scrollView.topAnchor),
             stackView.bottomAnchor.constraint(equalTo: scrollView.bottomAnchor),
 
@@ -136,10 +136,10 @@ class TransactionConfirmationViewController: UIViewController {
             separatorLine.leadingAnchor.constraint(equalTo: footerBar.leadingAnchor),
             separatorLine.trailingAnchor.constraint(equalTo: footerBar.trailingAnchor),
 
-            footerBar.leadingAnchor.constraint(equalTo: сontainerView.leadingAnchor),
-            footerBar.trailingAnchor.constraint(equalTo: сontainerView.trailingAnchor),
+            footerBar.leadingAnchor.constraint(equalTo: containerView.leadingAnchor),
+            footerBar.trailingAnchor.constraint(equalTo: containerView.trailingAnchor),
             footerBar.heightAnchor.constraint(equalToConstant: DataEntry.Metric.TransactionConfirmation.footerHeight),
-            footerBar.bottomAnchor.constraint(equalTo: сontainerView.safeAreaLayoutGuide.bottomAnchor),
+            footerBar.bottomAnchor.constraint(equalTo: containerView.safeAreaLayoutGuide.bottomAnchor),
 
             buttonsBar.topAnchor.constraint(equalTo: footerBar.topAnchor, constant: 20),
             buttonsBar.leadingAnchor.constraint(equalTo: footerBar.leadingAnchor),
@@ -151,7 +151,7 @@ class TransactionConfirmationViewController: UIViewController {
         ])
         headerView.closeButton.addTarget(self, action: #selector(dismissViewController), for: .touchUpInside)
 
-        contentSizeObservation = scrollView.observe(\.contentSize, options: [.new, .initial]) { [weak self] scrollView, change in
+        contentSizeObservation = scrollView.observe(\.contentSize, options: [.new, .initial]) { [weak self] scrollView, _ in
             guard let strongSelf = self, strongSelf.allowDismissialAnimation else { return }
 
             let statusBarHeight = UIApplication.shared.statusBarFrame.height
@@ -161,7 +161,7 @@ class TransactionConfirmationViewController: UIViewController {
             let fillScreenPercentage = strongSelf.heightConstraint.constant / strongSelf.view.bounds.height
 
             if fillScreenPercentage >= 0.9 {
-                strongSelf.heightConstraint.constant = strongSelf.сontainerView.bounds.height
+                strongSelf.heightConstraint.constant = strongSelf.containerView.bounds.height
             } else {
                 strongSelf.heightConstraint.constant = newHeight
             }
@@ -214,7 +214,7 @@ class TransactionConfirmationViewController: UIViewController {
                 strongSelf.generateSubviews()
             }
             sendNftViewModel.ethPrice.subscribe { [weak self] cryptoToDollarRate in
-                guard let strongSelf = self else {return}
+                guard let strongSelf = self else { return }
                 sendNftViewModel.cryptoToDollarRate = cryptoToDollarRate
                 strongSelf.generateSubviews()
             }
@@ -228,7 +228,7 @@ class TransactionConfirmationViewController: UIViewController {
 
         generateSubviews()
     }
-
+    // swiftlint:enable function_body_length
     override func viewDidLoad() {
         super.viewDidLoad()
 
@@ -445,20 +445,34 @@ fileprivate class HeaderView: UIView {
 }
 
 extension TransactionConfirmationViewController {
+    // swiftlint:disable function_body_length
     private func generateSubviews() {
         stackView.removeAllArrangedSubviews()
         var views: [UIView] = []
         switch viewModel {
         case .dappTransaction(let viewModel):
             for (sectionIndex, section) in viewModel.sections.enumerated() {
+                var children: [UIView] = []
+
                 let header = TransactionConfirmationHeaderView(viewModel: viewModel.headerViewModel(section: sectionIndex))
                 header.delegate = self
-                var children: [UIView] = []
+
                 switch section {
                 case .gas:
-                    header.setEditButton(section: sectionIndex, self, selector: #selector(editTransactionButtonTapped))
+                    header.enableTapAction(title: R.string.localizable.editButtonTitle())
                 case .amount:
                     break
+                case .function(let functionCallMetaData):
+                    let isSubViewsHidden = viewModel.isSubviewsHidden(section: sectionIndex)
+                    let view = TransactionConfirmationRowInfoView(viewModel: .init(title: "\(functionCallMetaData.name)()", subtitle: ""))
+                    view.isHidden = isSubViewsHidden
+                    children.append(view)
+
+                    for (type, value) in functionCallMetaData.arguments {
+                        let view = TransactionConfirmationRowInfoView(viewModel: .init(title: type.description, subtitle: value.description))
+                        view.isHidden = isSubViewsHidden
+                        children.append(view)
+                    }
                 }
                 header.childrenStackView.addArrangedSubviews(children)
                 views.append(header)
@@ -470,7 +484,7 @@ extension TransactionConfirmationViewController {
                 var children: [UIView] = []
                 switch section {
                 case .gas:
-                    header.setEditButton(section: sectionIndex, self, selector: #selector(editTransactionButtonTapped))
+                    header.enableTapAction(title: R.string.localizable.editButtonTitle())
                 case .function:
                     let isSubViewsHidden = viewModel.isSubviewsHidden(section: sectionIndex)
                     let view = TransactionConfirmationRowInfoView(viewModel: .init(title: "\(viewModel.functionCallMetaData.name)()", subtitle: ""))
@@ -508,7 +522,7 @@ extension TransactionConfirmationViewController {
                         }
                     }
                 case .gas:
-                    header.setEditButton(section: sectionIndex, self, selector: #selector(editTransactionButtonTapped))
+                    header.enableTapAction(title: R.string.localizable.editButtonTitle())
                 case .amount, .balance:
                     break
                 }
@@ -535,7 +549,7 @@ extension TransactionConfirmationViewController {
                         }
                     }
                 case .gas:
-                    header.setEditButton(section: sectionIndex, self, selector: #selector(editTransactionButtonTapped))
+                    header.enableTapAction(title: R.string.localizable.editButtonTitle())
                 case .tokenId:
                     break
                 }
@@ -546,26 +560,48 @@ extension TransactionConfirmationViewController {
             for (sectionIndex, section) in viewModel.sections.enumerated() {
                 let header = TransactionConfirmationHeaderView(viewModel: viewModel.headerViewModel(section: sectionIndex))
                 header.delegate = self
-                var children: [UIView] = []
                 switch section {
                 case .gas:
-                    header.setEditButton(section: sectionIndex, self, selector: #selector(editTransactionButtonTapped))
+                    header.enableTapAction(title: R.string.localizable.editButtonTitle())
                 case .amount, .numberOfTokens:
                     break
                 }
-                header.childrenStackView.addArrangedSubviews(children)
                 views.append(header)
             }
         }
         stackView.addArrangedSubviews(views)
     }
-
-    @objc private func editTransactionButtonTapped(_ sender: UIButton) {
-        delegate?.controller(self, editTransactionButtonTapped: sender)
-    }
+    // swiftlint:enable function_body_length
 }
 
 extension TransactionConfirmationViewController: TransactionConfirmationHeaderViewDelegate {
+
+    func headerView(_ header: TransactionConfirmationHeaderView, shouldHideChildren section: Int, index: Int) -> Bool {
+        return true
+    }
+
+    func headerView(_ header: TransactionConfirmationHeaderView, shouldShowChildren section: Int, index: Int) -> Bool {
+        switch viewModel {
+        case .dappTransaction, .claimPaidErc875MagicLink, .tokenScriptTransaction:
+            return true
+        case .sendFungiblesTransaction(let viewModel):
+            switch viewModel.sections[section] {
+            case .recipient:
+                return !viewModel.isSubviewsHidden(section: section, row: index)
+            case .gas, .amount, .balance:
+                return true
+            }
+        case .sendNftTransaction(let viewModel):
+            switch viewModel.sections[section] {
+            case .recipient:
+                //NOTE: Here we need to make sure that this view is available to display
+                return !viewModel.isSubviewsHidden(section: section, row: index)
+            case .gas, .tokenId:
+                return true
+            }
+        }
+    }
+
     func headerView(_ header: TransactionConfirmationHeaderView, openStateChanged section: Int) {
         switch viewModel.showHideSection(section) {
         case .show:
@@ -577,6 +613,10 @@ extension TransactionConfirmationViewController: TransactionConfirmationHeaderVi
         UIView.animate(withDuration: 0.35) {
             self.view.layoutIfNeeded()
         }
+    }
+
+    func headerView(_ header: TransactionConfirmationHeaderView, tappedSection section: Int) {
+        delegate?.controllerDidTapEdit(self)
     }
 }
 

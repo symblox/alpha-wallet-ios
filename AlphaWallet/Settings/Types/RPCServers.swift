@@ -337,8 +337,7 @@ enum RPCServer: Hashable, CaseIterable {
             case .binance_smart_chain_testnet: return "https://data-seed-prebsc-1-s1.binance.org:8545"
             case .velas: return "https://explorer.velas.com/rpc"
             case .velaschina: return "https://rpc.symblox.net:8080"
-            case .velastestnet: return "https://tn.yopta.net"
-//            case .velastestnet: return "https://explorer.testnet.veladev.net/rpc"
+            case .velastestnet: return "https://explorer.testnet.veladev.net/rpc"
             case .custom(let custom):
                 return custom.endpoint
             }
@@ -350,7 +349,7 @@ enum RPCServer: Hashable, CaseIterable {
         let urlString: String = {
             switch self {
             case .main: return "https://api-cn.etherscan.com"
-            case .velas, .velaschina: return "https://explorer.velas.com"
+            case .velas, .velaschina: return "https://explorer.velas.com/api"
             case .classic: return "https://blockscout.com/etc/mainnet/api"
             case .callisto: return "https://callisto.trustwalletapp.com"
             case .kovan: return "https://api-kovan.etherscan.io"
@@ -362,9 +361,9 @@ enum RPCServer: Hashable, CaseIterable {
             case .goerli: return "https://api-goerli.etherscan.io"
             case .artis_sigma1: return "https://explorer.sigma1.artis.network/api"
             case .artis_tau1: return "https://explorer.tau1.artis.network/api"
-            case .binance_smart_chain: return "https://explorer.binance.org/smart/tx/"
-            case .binance_smart_chain_testnet: return "https://explorer.binance.org/smart-testnet/tx/"
-            case .velastestnet: return "https://explorer.testnet.veladev.net/"
+            case .binance_smart_chain: return "https://bscscan.com/tx/"
+            case .binance_smart_chain_testnet: return "https://testnet.bscscan.com/tx/"
+            case .velastestnet: return "https://explorer.testnet.veladev.net/tx/"
             case .custom:
                 return "" // Enable? make optional
             }
@@ -378,17 +377,16 @@ enum RPCServer: Hashable, CaseIterable {
         case .ropsten: return Constants.ENSRegistrarRopsten
         case .rinkeby: return Constants.ENSRegistrarRinkeby
         case .goerli: return Constants.ENSRegistrarGoerli
-        case .xDai, .kovan, .poa, .sokol, .classic, .callisto, .artis_sigma1, .artis_tau1, .binance_smart_chain, .binance_smart_chain_testnet, .custom:
+        case .xDai, .kovan, .poa, .sokol, .classic, .callisto, .artis_sigma1, .artis_tau1, .binance_smart_chain, .binance_smart_chain_testnet, .custom, .velas, .velaschina, .velastestnet:
             return Constants.ENSRegistrarAddress
-        case .velas,.velaschina ,.velastestnet: return Constants.ENSRegistrarGoerli // recheck
         }
     }
 
     var networkRequestsQueuePriority: Operation.QueuePriority {
         switch self {
-        case .main, .xDai, .velas, .velaschina , .velastestnet:
+        case .main, .xDai, .velas, .velaschina:
             return .normal
-        case .kovan, .ropsten, .rinkeby, .poa, .sokol, .classic, .callisto, .goerli, .artis_sigma1, .artis_tau1, .binance_smart_chain, .binance_smart_chain_testnet, .custom:
+        case .kovan, .ropsten, .rinkeby, .poa, .sokol, .classic, .callisto, .goerli, .artis_sigma1, .artis_tau1, .binance_smart_chain, .binance_smart_chain_testnet, .velastestnet, .custom:
             return .low
         }
     }
@@ -407,7 +405,7 @@ enum RPCServer: Hashable, CaseIterable {
             return R.string.localizable.blockchainBinanceTest()
         case .main, .rinkeby, .ropsten, .callisto, .classic, .kovan, .sokol, .poa, .goerli:
             return R.string.localizable.blockchainEthereum()
-        case .velas, .velastestnet, .velaschina ,.custom:
+        case .velas, .velastestnet, .velaschina, .custom:
             return "VELAS Blockchain"
         }
     }
@@ -415,7 +413,6 @@ enum RPCServer: Hashable, CaseIterable {
     var blockChainNameColor: UIColor {
         switch self {
         case .main: return .init(red: 41, green: 134, blue: 175)
-        case .velas, .velastestnet, .velaschina: return .init(red: 41, green: 134, blue: 175)//recheck
         case .classic: return .init(red: 55, green: 137, blue: 55)
         case .callisto: return .init(red: 88, green: 56, blue: 163)
         case .kovan: return .init(red: 112, green: 87, blue: 141)
@@ -428,6 +425,7 @@ enum RPCServer: Hashable, CaseIterable {
         case .artis_sigma1: return .init(red: 83, green: 162, blue: 113)
         case .artis_tau1: return .init(red: 255, green: 117, blue: 153)
         case .binance_smart_chain, .binance_smart_chain_testnet: return .init(red: 255, green: 211, blue: 0)
+        case .velas, .velastestnet, .velaschina: return .init(red: 0, green: 55, blue: 193)
         }
     }
 
@@ -459,7 +457,7 @@ enum RPCServer: Hashable, CaseIterable {
         }
     }
 
-    var isAlwayVisible : Bool {
+    var isAlwayVisible: Bool {
         return self == .velas
     }
     
@@ -480,6 +478,9 @@ enum RPCServer: Hashable, CaseIterable {
             case RPCServer.artis_tau1.name: return .artis_tau1
             case RPCServer.binance_smart_chain.name: return .binance_smart_chain
             case RPCServer.binance_smart_chain_testnet.name: return .binance_smart_chain_testnet
+            case RPCServer.velas.name: return .velas
+            case RPCServer.velaschina.name: return .velas
+            case RPCServer.velastestnet.name: return .velastestnet
             default: return .main
             }
         }()
@@ -504,6 +505,9 @@ enum RPCServer: Hashable, CaseIterable {
             case RPCServer.artis_tau1.chainID: return .artis_tau1
             case RPCServer.binance_smart_chain.chainID: return .binance_smart_chain
             case RPCServer.binance_smart_chain_testnet.chainID: return .binance_smart_chain_testnet
+            case RPCServer.velas.chainID: return .velas
+            case RPCServer.velaschina.chainID: return .velas
+            case RPCServer.velastestnet.chainID: return .velastestnet
             default: return .main
             }
         }()
@@ -535,6 +539,9 @@ enum RPCServer: Hashable, CaseIterable {
             case RPCServer.artis_tau1.magicLinkHost: return .artis_tau1
             case RPCServer.binance_smart_chain.magicLinkHost: return .binance_smart_chain
             case RPCServer.binance_smart_chain_testnet.magicLinkHost: return .binance_smart_chain_testnet
+            case RPCServer.velas.magicLinkHost: return .velas
+            case RPCServer.velaschina.magicLinkHost: return .velas
+            case RPCServer.velastestnet.magicLinkHost: return .velastestnet
             default: return nil
             }
         }()
@@ -568,7 +575,10 @@ enum RPCServer: Hashable, CaseIterable {
             .artis_sigma1,
             .artis_tau1,
             .binance_smart_chain_testnet,
-            .binance_smart_chain
+            .binance_smart_chain,
+            .velas, 
+            .velastestnet, 
+            .velaschina
         ]
     }
     

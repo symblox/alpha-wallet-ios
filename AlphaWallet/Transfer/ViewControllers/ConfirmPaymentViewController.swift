@@ -14,6 +14,7 @@ enum ConfirmType {
 enum ConfirmResult {
     case signedTransaction(Data)
     case sentTransaction(SentTransaction)
+    case sentRawTransaction(id: String, original: String)
 }
 
 class ConfirmPaymentViewController: UIViewController {

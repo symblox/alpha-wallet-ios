@@ -192,7 +192,7 @@ class RequestViewController: UIViewController {
 	}
 
 	func changeQRCode(value: Int) {
-        let inputString = viewModel.generatingAddressString
+        let inputString = viewModel.myAddressText
 		// EIP67 format not being used much yet, use hex value for now
 		// let string = "ethereum:\(account.address.address)?value=\(value)"
 
@@ -207,7 +207,7 @@ class RequestViewController: UIViewController {
 
 	@objc func copyAddress() {
 
-        let coppiedString = viewModel.copiedAddressString
+        let coppiedString = viewModel.myAddressText
         UIPasteboard.general.string = coppiedString
                 
 		let hud = MBProgressHUD.showAdded(to: view, animated: true)

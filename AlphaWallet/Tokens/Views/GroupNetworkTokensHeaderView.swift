@@ -80,6 +80,7 @@ class GroupNetworkTokensHeaderView: UITableViewHeaderFooterView {
             titleLabel.text = name
             tokenIconImageView.image = image
             addOptionButton.isHidden = server == nil
+            contentView.backgroundColor = sectionColor()
         case .Hide(let color):
             contentView.backgroundColor = color
             network = nil
@@ -88,6 +89,19 @@ class GroupNetworkTokensHeaderView: UITableViewHeaderFooterView {
 
     @objc private func handleButtonClicked(_ button: UIButton) {
         delegate?.didTapAddToken(self, network: self.network)
+    }
+    
+    private func sectionColor() -> UIColor {
+        guard let legalNetwork = network else {
+            return #colorLiteral(red: 0.8039215803, green: 0.8039215803, blue: 0.8039215803, alpha: 1)
+        }
+        if legalNetwork.isVelasFamily {
+            return #colorLiteral(red: 0.2666666667, green: 0.4235294118, blue: 0.7843137255, alpha: 1)
+        } else if legalNetwork == .main {
+            return #colorLiteral(red: 1, green: 0.5843137255, blue: 0, alpha: 1)
+        } else {
+            return #colorLiteral(red: 0.5568627451, green: 0.5568627451, blue: 0.5764705882, alpha: 1)
+        }
     }
 }
 enum HeaderServer {

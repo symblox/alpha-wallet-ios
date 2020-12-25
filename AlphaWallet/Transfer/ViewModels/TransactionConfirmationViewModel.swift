@@ -211,7 +211,7 @@ extension TransactionConfirmationViewModel {
                     case .address:
                         return false
                     case .ens:
-                        return recipientResolver.ensName == nil
+                        return !recipientResolver.hasResolvedESNName
                     }
                 } else {
                     return true
@@ -225,26 +225,31 @@ extension TransactionConfirmationViewModel {
                 section: section,
                 shouldHideChevron: sections[section] != .recipient
             )
-            let placeholder = sections[section].title
+            let headerName = sections[section].title
             switch sections[section] {
             case .balance:
                 let title = R.string.localizable.tokenTransactionConfirmationDefault()
-                return .init(title: balance ?? title, placeholder: placeholder, details: newBalance, configuration: configuration)
+                return .init(title: .normal(balance ?? title), headerName: headerName, details: newBalance, configuration: configuration)
             case .gas:
                 let gasFee = gasFeeString(withConfigurator: configurator, cryptoToDollarRate: cryptoToDollarRate)
-                return .init(title: configurationTitle, placeholder: placeholder, details: gasFee, configuration: configuration)
+                if let warning = configurator.gasPriceWarning {
+                    return .init(title: .warning(warning.shortTitle), headerName: headerName, details: gasFee, configuration: configuration)
+                } else {
+                    return .init(title: .normal(configurationTitle), headerName: headerName, details: gasFee, configuration: configuration)
+                }
             case .amount:
-                return .init(title: formattedAmountValue, placeholder: placeholder, configuration: configuration)
+                return .init(title: .normal(formattedAmountValue), headerName: headerName, configuration: configuration)
             case .recipient:
-                return .init(title: recipientResolver.value, placeholder: placeholder, configuration: configuration)
+                return .init(title: .normal(recipientResolver.value), headerName: headerName, configuration: configuration)
             }
         }
     }
 
     class DappTransactionViewModel: SectionProtocol {
-        enum Section: Int, CaseIterable {
+        enum Section {
             case gas
             case amount
+            case function(DecodedFunctionCall)
 
             var title: String {
                 switch self {
@@ -252,6 +257,19 @@ extension TransactionConfirmationViewModel {
                     return R.string.localizable.tokenTransactionConfirmationGasTitle()
                 case .amount:
                     return R.string.localizable.transactionConfirmationSendSectionAmountTitle()
+                case .function:
+                    return R.string.localizable.tokenTransactionConfirmationFunctionTitle()
+                }
+            }
+
+            var isExpandable: Bool {
+                switch self {
+                case .gas:
+                    return false
+                case .amount:
+                    return false
+                case .function:
+                    return true
                 }
             }
         }
@@ -273,33 +291,44 @@ extension TransactionConfirmationViewModel {
         }
 
         let ethPrice: Subscribable<Double>
+        let functionCallMetaData: DecodedFunctionCall?
         var cryptoToDollarRate: Double?
         var openedSections = Set<Int>()
 
         var sections: [Section] {
-            return Section.allCases
+            if let functionCallMetaData = functionCallMetaData {
+                return [.gas, .amount, .function(functionCallMetaData)]
+            } else {
+                return [.gas, .amount]
+            }
         }
 
         init(configurator: TransactionConfigurator, ethPrice: Subscribable<Double>) {
             self.configurator = configurator
             self.ethPrice = ethPrice
+            self.functionCallMetaData = configurator.transaction.data.flatMap { DecodedFunctionCall(data: $0) }
         }
 
         func headerViewModel(section: Int) -> TransactionConfirmationHeaderViewModel {
-            let configuration: TransactionConfirmationHeaderView.Configuration = .init(
-                isOpened: openedSections.contains(section),
-                section: section,
-                shouldHideChevron: true
-            )
-
-            let placeholder = sections[section].title
+            let configuration: TransactionConfirmationHeaderView.Configuration = .init(isOpened: openedSections.contains(section), section: section, shouldHideChevron: !sections[section].isExpandable)
+            let headerName = sections[section].title
             switch sections[section] {
             case .gas:
                 let gasFee = gasFeeString(withConfigurator: configurator, cryptoToDollarRate: cryptoToDollarRate)
-                return .init(title: configurationTitle, placeholder: placeholder, details: gasFee, configuration: configuration)
+                if let warning = configurator.gasPriceWarning {
+                    return .init(title: .warning(warning.shortTitle), headerName: headerName, details: gasFee, configuration: configuration)
+                } else {
+                    return .init(title: .normal(configurationTitle), headerName: headerName, details: gasFee, configuration: configuration)
+                }
             case .amount:
-                return .init(title: formattedAmountValue, placeholder: placeholder, configuration: configuration)
+                return .init(title: .normal(formattedAmountValue), headerName: headerName, configuration: configuration)
+            case .function(let functionCallMetaData):
+                return .init(title: .normal(functionCallMetaData.name), headerName: headerName, configuration: configuration)
             }
+        }
+
+        func isSubviewsHidden(section: Int) -> Bool {
+            !openedSections.contains(section)
         }
     }
 
@@ -343,14 +372,14 @@ extension TransactionConfirmationViewModel {
         }
 
         var cryptoToDollarRate: Double?
-        let functionCallMetaData: FunctionCallMetaData
+        let functionCallMetaData: DecodedFunctionCall
         let ethPrice: Subscribable<Double>
         var openedSections = Set<Int>()
         var sections: [Section] {
             return Section.allCases
         }
 
-        init(address: AlphaWallet.Address, configurator: TransactionConfigurator, functionCallMetaData: FunctionCallMetaData, ethPrice: Subscribable<Double>) {
+        init(address: AlphaWallet.Address, configurator: TransactionConfigurator, functionCallMetaData: DecodedFunctionCall, ethPrice: Subscribable<Double>) {
             self.address = address
             self.configurator = configurator
             self.functionCallMetaData = functionCallMetaData
@@ -359,17 +388,21 @@ extension TransactionConfirmationViewModel {
 
         func headerViewModel(section: Int) -> TransactionConfirmationHeaderViewModel {
             let configuration = TransactionConfirmationHeaderView.Configuration(isOpened: openedSections.contains(section), section: section, shouldHideChevron: sections[section] != .function)
-            let placeholder = sections[section].title
+            let headerName = sections[section].title
             switch sections[section] {
             case .gas:
                 let gasFee = gasFeeString(withConfigurator: configurator, cryptoToDollarRate: cryptoToDollarRate)
-                return .init(title: configurationTitle, placeholder: placeholder, details: gasFee, configuration: configuration)
+                if let warning = configurator.gasPriceWarning {
+                    return .init(title: .warning(warning.shortTitle), headerName: headerName, details: gasFee, configuration: configuration)
+                } else {
+                    return .init(title: .normal(configurationTitle), headerName: headerName, details: gasFee, configuration: configuration)
+                }
             case .contract:
-                return .init(title: address.truncateMiddle, placeholder: placeholder, configuration: configuration)
+                return .init(title: .normal(address.truncateMiddle), headerName: headerName, configuration: configuration)
             case .function:
-                return .init(title: functionCallMetaData.name, placeholder: placeholder, configuration: configuration)
+                return .init(title: .normal(functionCallMetaData.name), headerName: headerName, configuration: configuration)
             case .amount:
-                return .init(title: formattedAmountValue, placeholder: placeholder, configuration: configuration)
+                return .init(title: .normal(formattedAmountValue), headerName: headerName, configuration: configuration)
             }
         }
 
@@ -435,7 +468,7 @@ extension TransactionConfirmationViewModel {
                     case .address:
                         return false
                     case .ens:
-                        return recipientResolver.ensName == nil
+                        return !recipientResolver.hasResolvedESNName
                     }
                 } else {
                     return true
@@ -450,11 +483,15 @@ extension TransactionConfirmationViewModel {
                     shouldHideChevron: sections[section] != .recipient
             )
 
-            let placeholder = sections[section].title
+            let headerName = sections[section].title
             switch sections[section] {
             case .gas:
                 let gasFee = gasFeeString(withConfigurator: configurator, cryptoToDollarRate: cryptoToDollarRate)
-                return .init(title: configurationTitle, placeholder: placeholder, details: gasFee, configuration: configuration)
+                if let warning = configurator.gasPriceWarning {
+                    return .init(title: .warning(warning.shortTitle), headerName: headerName, details: gasFee, configuration: configuration)
+                } else {
+                    return .init(title: .normal(configurationTitle), headerName: headerName, details: gasFee, configuration: configuration)
+                }
             case .tokenId:
                 let tokenId = configurator.transaction.tokenId.flatMap({ String($0) })
                 let title: String
@@ -467,9 +504,9 @@ extension TransactionConfirmationViewModel {
                 } else {
                     title = tokenId ?? ""
                 }
-                return .init(title: title, placeholder: placeholder, configuration: configuration)
+                return .init(title: .normal(title), headerName: headerName, configuration: configuration)
             case .recipient:
-                return .init(title: recipientResolver.value, placeholder: placeholder, configuration: configuration)
+                return .init(title: .normal(recipientResolver.value), headerName: headerName, configuration: configuration)
             }
         }
     }
@@ -524,10 +561,14 @@ extension TransactionConfirmationViewModel {
                     shouldHideChevron: true
             )
 
-            let placeholder = sections[section].title
+            let headerName = sections[section].title
             switch sections[section] {
             case .gas:
-                return .init(title: configurationTitle, placeholder: placeholder, configuration: configuration)
+                if let warning = configurator.gasPriceWarning {
+                    return .init(title: .warning(warning.shortTitle), headerName: headerName, configuration: configuration)
+                } else {
+                    return .init(title: .normal(configurationTitle), headerName: headerName, configuration: configuration)
+                }
             case .amount:
                 let cryptoToDollarSymbol = Constants.Currency.usd
                 let nativeCryptoSymbol = configurator.session.server.symbol
@@ -539,9 +580,9 @@ extension TransactionConfirmationViewModel {
                 } else {
                     formattedAmountValue = "\(nativeCryptoPrice) \(nativeCryptoSymbol)"
                 }
-                return .init(title: formattedAmountValue, placeholder: placeholder, configuration: configuration)
+                return .init(title: .normal(formattedAmountValue), headerName: headerName, configuration: configuration)
             case .numberOfTokens:
-                return .init(title: String(numberOfTokens), placeholder: placeholder, configuration: configuration)
+                return .init(title: .normal(String(numberOfTokens)), headerName: headerName, configuration: configuration)
             }
         }
     }

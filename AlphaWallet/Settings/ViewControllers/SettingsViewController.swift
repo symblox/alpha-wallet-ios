@@ -119,9 +119,6 @@ class SettingsViewController: UIViewController {
             icon: row.icon)
         )
 
-        let serverToResolveEns = RPCServer.velas
-        let address = account.address
-
         firstly {
             GetWalletNameCoordinator(config: config).getName(forAddress: account.address)
         }.done { [weak self] name in
@@ -137,7 +134,7 @@ class SettingsViewController: UIViewController {
     }
 
     required init?(coder aDecoder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
+        return nil
     }
 }
 

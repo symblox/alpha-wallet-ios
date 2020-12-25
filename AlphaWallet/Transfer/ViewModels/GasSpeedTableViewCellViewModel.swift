@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import BigInt
 
 struct GasSpeedTableViewCellViewModel {
     let configuration: TransactionConfiguration
@@ -19,13 +20,17 @@ struct GasSpeedTableViewCellViewModel {
         let fee = configuration.gasPrice * configuration.gasLimit
         let feeString = EtherNumberFormatter.short.string(from: fee)
         let cryptoToDollarSymbol = Constants.Currency.usd
-        let costs: String
         if let cryptoToDollarRate = cryptoToDollarRate {
             let cryptoToDollarValue = StringFormatter().currency(with: Double(fee) * cryptoToDollarRate / Double(EthereumUnit.ether.rawValue), and: cryptoToDollarSymbol)
             return  "< ~\(feeString) \(symbol) (\(cryptoToDollarValue) \(cryptoToDollarSymbol))"
         } else {
             return "< ~\(feeString) \(symbol)"
         }
+    }
+
+    private var gasPriceString: String {
+        let price = configuration.gasPrice / BigInt(EthereumUnit.gwei.rawValue)
+        return "\(R.string.localizable.configureTransactionHeaderGasPrice()): \(price) \(EthereumUnit.gwei.name)"
     }
 
     private var estimatedTime: String? {
@@ -67,7 +72,14 @@ struct GasSpeedTableViewCellViewModel {
     var detailsAttributedString: NSAttributedString? {
         return NSAttributedString(string: gasFeeString, attributes: [
             .foregroundColor: R.color.dove()!,
-            .font: Fonts.regular(size: 12)
+            .font: Fonts.regular(size: 15)
+        ])
+    }
+
+    var gasPriceAttributedString: NSAttributedString? {
+        NSAttributedString(string: gasPriceString, attributes: [
+            .foregroundColor: R.color.dove()!,
+            .font: Fonts.regular(size: 13)
         ])
     }
 

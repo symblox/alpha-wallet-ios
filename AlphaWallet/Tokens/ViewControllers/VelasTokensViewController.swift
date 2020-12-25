@@ -24,12 +24,15 @@ class VelasTokensViewController: TokensViewController {
         }
     }
     
-    override init(sessions: ServerDictionary<WalletSession>, account: Wallet, tokenCollection: TokenCollection, assetDefinitionStore: AssetDefinitionStore, eventsDataStore: EventsDataStoreProtocol, filterTokensCoordinator: FilterTokensCoordinator, config: Config) {
+    override init(sessions: ServerDictionary<WalletSession>, account: Wallet, tokenCollection: TokenCollection, assetDefinitionStore: AssetDefinitionStore, eventsDataStore: EventsDataStoreProtocol, filterTokensCoordinator: FilterTokensCoordinator, config: Config, walletConnectCoordinator: WalletConnectCoordinator) {
         self.config = config
-        super.init(sessions: sessions, account: account, tokenCollection: tokenCollection, assetDefinitionStore: assetDefinitionStore, eventsDataStore: eventsDataStore, filterTokensCoordinator: filterTokensCoordinator, config: config)
+
+        super.init(sessions: sessions, account: account, tokenCollection: tokenCollection, assetDefinitionStore: assetDefinitionStore, eventsDataStore: eventsDataStore, filterTokensCoordinator: filterTokensCoordinator, config: config, walletConnectCoordinator: walletConnectCoordinator)
+
         tableView.registerHeaderFooterView(GroupNetworkTokensHeaderView.self)
         self.viewModel = VelasTokensViewModel(filterTokensCoordinator: filterTokensCoordinator, tokens: [], tickers: .init())
         (self.viewModel as? VelasTokensViewModel)?.config = config
+
     }
     
     required init?(coder aDecoder: NSCoder) {

@@ -71,7 +71,7 @@ class ActivitiesCoordinator: Coordinator {
     }
 
     private func makeActivitiesViewController() -> ActivitiesViewController {
-        let viewModel = ActivitiesViewModel()
+        let viewModel = ActivitiesViewModel(tokensStorages: tokensStorages)
         let controller = ActivitiesViewController(viewModel: viewModel, wallet: wallet.address, sessions: sessions, tokensStorages: tokensStorages)
         controller.delegate = self
         return controller
@@ -117,7 +117,7 @@ class ActivitiesCoordinator: Coordinator {
             return (contract: eachContract, server: eachServer, xmlHandler: xmlHandler)
         }
 
-        let contractsAndCardsOptional: [[(tokenContract: AlphaWallet.Address, server: RPCServer, card: TokenScriptCard, interpolatedFilter: String)]] = contractServerXmlHandlers.compactMap { eachContract, eachServer, xmlHandler in
+        let contractsAndCardsOptional: [[(tokenContract: AlphaWallet.Address, server: RPCServer, card: TokenScriptCard, interpolatedFilter: String)]] = contractServerXmlHandlers.compactMap { eachContract, _, xmlHandler in
             var contractAndCard: [(tokenContract: AlphaWallet.Address, server: RPCServer, card: TokenScriptCard, interpolatedFilter: String)] = .init()
             for card in xmlHandler.activityCards {
                 let (filterName, filterValue) = card.eventOrigin.eventFilter
@@ -219,7 +219,7 @@ class ActivitiesCoordinator: Coordinator {
 
         //TODO fix for activities: special fix to filter out the event we don't want - need to doc this and have to handle with TokenScript design
         let filteredActivitiesForThisCard = activitiesForThisCard.filter {
-            if $0.activity.name == "aETHMinted" && $0.activity.tokenObject.contractAddress.sameContract(as: Constants.nativeCryptoAddressInDatabase) && $0.activity.values.card["amount"]?.uintValue == .init() {
+            if $0.activity.name == "aETHMinted" && $0.activity.tokenObject.contractAddress.sameContract(as: Constants.nativeCryptoAddressInDatabase) && $0.activity.values.card["amount"]?.uintValue == 0 {
                 return false
             } else {
                 return true
@@ -263,13 +263,13 @@ class ActivitiesCoordinator: Coordinator {
             transactions = self.transactions
         }
         let items: [ActivityOrTransaction] = activities.map { .activity($0) } + transactions.filter { txn in !transactionAlreadyRepresentedAsActivities.contains(txn.id) }.map { .transaction($0) }
-        rootViewController.configure(viewModel: .init(activities: items))
+        rootViewController.configure(viewModel: .init(tokensStorages: tokensStorages, activities: items))
     }
 
     //Important to pass in the `TokenHolder` instance and not re-create so that we don't override the subscribable values for the token with ones that are not resolved yet
     private func refreshActivity(tokenObject: TokenObject, tokenHolder: TokenHolder, activity: Activity, isFirstUpdate: Bool = true) {
         let attributeValues = AssetAttributeValues(attributeValues: tokenHolder.values)
-        let resolvedAttributeNameValues = attributeValues.resolve { [weak self] values in
+        let resolvedAttributeNameValues = attributeValues.resolve { [weak self] _ in
             guard let strongSelf = self else { return }
             guard isFirstUpdate else { return }
             strongSelf.refreshActivity(tokenObject: tokenObject, tokenHolder: tokenHolder, activity: activity, isFirstUpdate: false)

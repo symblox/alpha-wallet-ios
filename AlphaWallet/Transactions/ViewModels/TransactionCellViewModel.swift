@@ -64,7 +64,7 @@ struct TransactionCellViewModel {
     }
 
     var subTitle: String {
-        var result = transactionViewModel.direction == .incoming ? transaction.from : transaction.to
+        let result = transactionViewModel.direction == .incoming ? transaction.from : transaction.to
         return VelasConvertUtil.convertVlxStringIfNeed(server: server, address: result)
 //        switch transactionViewModel.direction {
 //        case .incoming: return "\(VelasConvertUtil.ethToVlx(hexAddress: transaction.from))"

@@ -44,12 +44,12 @@ class SettingsCoordinator: Coordinator {
     }()
 
 	init(
-			navigationController: UINavigationController = UINavigationController(),
-			keystore: Keystore,
-			config: Config,
-			sessions: ServerDictionary<WalletSession>,
-			promptBackupCoordinator: PromptBackupCoordinator,
-			analyticsCoordinator: AnalyticsCoordinator?
+        navigationController: UINavigationController = UINavigationController(),
+        keystore: Keystore,
+        config: Config,
+        sessions: ServerDictionary<WalletSession>,
+        promptBackupCoordinator: PromptBackupCoordinator,
+        analyticsCoordinator: AnalyticsCoordinator?
 	) {
 		self.navigationController = navigationController
 		self.navigationController.modalPresentationStyle = .formSheet
@@ -58,6 +58,7 @@ class SettingsCoordinator: Coordinator {
 		self.sessions = sessions
         self.promptBackupCoordinator = promptBackupCoordinator
 		self.analyticsCoordinator = analyticsCoordinator
+
 		promptBackupCoordinator.subtlePromptDelegate = self
 	}
 

@@ -19,7 +19,6 @@
 "configureTransaction.error.nonceNotPositiveNumber" = "Nonce 必须是一个正值";
 "configureTransaction.gasLimit.label.description" = "燃料限制可防止智能合约消耗掉您的所有%@。我们会尝试为您自动计算燃料限制，但部分智能合约可能需要自定义燃料限制。";
 "configureTransaction.gasLimit.label.title" = "燃料限制";
-"configureTransaction.gasPrice.label.description" = "燃料价格越高，您的交易费用就越昂贵，但%@网络对交易的处理速度则越快。";
 "configureTransaction.totalNetworkFee.label.title" = "总计网络费用";
 "transaction.confirmation.label.title" = "确认";
 "transaction.from.label.title" = "来源地址";
@@ -54,7 +53,6 @@
 "Refresh" = "刷新";
 "request.addressCopied.title" = "地址已复制";
 "request.copyWallet.button.title" = "复制钱包地址";
-"request.myAddressIs.label.title" = "我的%1$@地址是： %2$@";
 "Retry" = "重试";
 "Send" = "发送";
 "Receive" = "接收";
@@ -500,6 +498,15 @@
 "transactionConfiguration.Type.average.time" = "< 5 min";
 "transactionConfiguration.Type.fast.time" = "< 2 min";
 "transactionConfiguration.Type.rapid.time" = "ASAP";
+"transactionConfiguration.gasPrice.tooHigh.short" = "High Price";
+"transactionConfiguration.gasPrice.tooLow.short" = "Low Price";
+"transactionConfiguration.gasPrice.tooHigh.long" = "High Gas Price Warning!";
+"transactionConfiguration.gasPrice.tooLow.long" = "Gas Price Might Be Too Low";
+
+"transactionConfiguration.gasPrice.tooHigh.description" = "You set a really high gas price. Please make sure this is not a mistake. AlphaWallet uses gasnow.org";
+"transactionConfiguration.gasPrice.tooLow.description" = "Gas price is set below the 'slow' speed. Your transaction may take a long time to be written or may never be written.";
+"transactionConfiguration.gasPrice.congested.description" = "The Ethereum blockchain network is very congested now. Fees might be higher than usual.
+You can check the latest gas price on gasnow.org";
 "transactionConfirmation.Row.title.ens" = "ENS";
 "transactionConfirmation.Row.title.wallet" = "Wallet Address";
 "transactionConfirmation.Send.Section.Gas.title" = "Gas";
@@ -511,3 +518,14 @@
 "transactionConfirmation.authorisation.reason" = "Authorize to confirm transaction";
 "transactionConfirmation.keystore.accessKey.sign" = "Accessing to perform transfer";
 "transactionConfirmation.fee.footerText" = "The higher the fee, the better chances and faster your transaction will go through. Fees are based on current Ethereum blockchain network load.";
+"walletConnect.title" = "WalletConnect";
+"walletConnect.statusPlaceholder" = "Status";
+"walletConnect.status.online" = "Online";
+"walletConnect.status.offline" = "Offline";
+"walletConnect.session.name" = "Name";
+"walletConnect.session.connectedURL" = "Connected to";
+"walletConnect.session.disconnect" = "Disconnect";
+"walletConnect.session.signedTransactions" = "Signed Transactions"; 
+"start" = "Start"; 
+"walletConnect.failure.title" = "Wallet connect failure";
+"walletConnect.sendRawTransaction.title" = "Send raw transaction";

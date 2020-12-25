@@ -19,7 +19,6 @@
 "configureTransaction.error.nonceNotPositiveNumber" = "Nonce must be a positive number";
 "configureTransaction.gasLimit.label.description" = "가스 한도는 스마트 계약이 %@을(를) 전부 소비하지 않도록 합니다. 가스 한도는 자동으로 계산되지만, 일부 스마트 계약은 사용자 정의 가스 한도가 필요할 수 있습니다.";
 "configureTransaction.gasLimit.label.title" = "가스 한도";
-"configureTransaction.gasPrice.label.description" = "가스 요금이 높을수록 거래 수수료는 더 비싸지지만, %@ 네트워크에서 거래는 더 빨리 처리됩니다.";
 "configureTransaction.totalNetworkFee.label.title" = "총 네트워크 수수료";
 "transaction.confirmation.label.title" = "확인";
 "transaction.from.label.title" = "발신인";
@@ -54,7 +53,6 @@
 "Refresh" = "새로 고침";
 "request.addressCopied.title" = "주소가 복사되었습니다";
 "request.copyWallet.button.title" = "지갑 주소 복사";
-"request.myAddressIs.label.title" = "내 %1$@ 주소: %2$@";
 "Retry" = "다시 시도";
 "Send" = "보내기";
 "Receive" = "Receive";
@@ -500,6 +498,15 @@
 "transactionConfiguration.Type.average.time" = "< 5 min";
 "transactionConfiguration.Type.fast.time" = "< 2 min";
 "transactionConfiguration.Type.rapid.time" = "ASAP";
+"transactionConfiguration.gasPrice.tooHigh.short" = "High Price";
+"transactionConfiguration.gasPrice.tooLow.short" = "Low Price";
+"transactionConfiguration.gasPrice.tooHigh.long" = "High Gas Price Warning!";
+"transactionConfiguration.gasPrice.tooLow.long" = "Gas Price Might Be Too Low";
+
+"transactionConfiguration.gasPrice.tooHigh.description" = "You set a really high gas price. Please make sure this is not a mistake. AlphaWallet uses gasnow.org";
+"transactionConfiguration.gasPrice.tooLow.description" = "Gas price is set below the 'slow' speed. Your transaction may take a long time to be written or may never be written.";
+"transactionConfiguration.gasPrice.congested.description" = "The Ethereum blockchain network is very congested now. Fees might be higher than usual.
+You can check the latest gas price on gasnow.org";
 "transactionConfirmation.Row.title.ens" = "ENS";
 "transactionConfirmation.Row.title.wallet" = "Wallet Address";
 "transactionConfirmation.Send.Section.Gas.title" = "Gas";
@@ -511,3 +518,14 @@
 "transactionConfirmation.authorisation.reason" = "Authorize to confirm transaction";
 "transactionConfirmation.keystore.accessKey.sign" = "Accessing to perform transfer";
 "transactionConfirmation.fee.footerText" = "The higher the fee, the better chances and faster your transaction will go through. Fees are based on current Ethereum blockchain network load.";
+"walletConnect.title" = "WalletConnect";
+"walletConnect.statusPlaceholder" = "Status";
+"walletConnect.status.online" = "Online";
+"walletConnect.status.offline" = "Offline";
+"walletConnect.session.name" = "Name";
+"walletConnect.session.connectedURL" = "Connected to";
+"walletConnect.session.disconnect" = "Disconnect";
+"walletConnect.session.signedTransactions" = "Signed Transactions";
+"start" = "Start";
+"walletConnect.failure.title" = "Wallet connect failure";
+"walletConnect.sendRawTransaction.title" = "Send raw transaction";
