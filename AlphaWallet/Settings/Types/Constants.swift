@@ -197,7 +197,7 @@ public struct Constants {
         (name: "HKS", contract: AlphaWallet.Address(string: "0x75cB2Cc380d1387a79eE64b1b7C9Fa051139a319")!),
     ]
 
-    static let defaultEnabledServers: [RPCServer] = [.velas]
+    static let defaultEnabledServers: [RPCServer] = [.velas, .main]
 
     static let tokenScriptUrlSchemeForResources = "tokenscript-resource:///"
 
