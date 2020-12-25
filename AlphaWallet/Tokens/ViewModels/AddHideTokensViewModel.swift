@@ -181,6 +181,7 @@ class AddHideTokensViewModel {
 
         let filteredTokens = filterTokensCoordinator.filterTokens(tokens: tokens, filter: .keyword(searchText ?? ""))
         for token in filteredTokens {
+            
             if token.shouldDisplay {
                 displayedTokens.append(token)
             } else {

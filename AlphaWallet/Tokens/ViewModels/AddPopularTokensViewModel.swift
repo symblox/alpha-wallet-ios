@@ -8,12 +8,14 @@ public class AddPopularTokensViewModel {
 
     private let filterTokensCoordinator: FilterTokensCoordinator
     private var tokens: [ERCToken]
+    private var displayedTokens = [ERCToken]()
     private var tickers: [RPCServer: [AlphaWallet.Address: CoinTicker]]
     private var network: RPCServer
     var selectedTokens = [ERCToken]()
 
     var searchText: String? {
         didSet {
+            filterTokens(tokens)
         }
     }
 
@@ -22,6 +24,7 @@ public class AddPopularTokensViewModel {
         self.filterTokensCoordinator = filterTokensCoordinator
         self.tickers = tickers
         self.network = network
+        filterTokens(tokens)
     }
 
     var title: String {
@@ -35,11 +38,11 @@ public class AddPopularTokensViewModel {
     var numberOfSections: Int { 1 }
 
     func numberOfItems(_ section: Int) -> Int {
-        tokens.count
+        displayedTokens.count
     }
 
     func item(atIndexPath indexPath: IndexPath) -> ERCToken? {
-        return tokens.isEmpty ? nil : tokens[indexPath.row]
+        return displayedTokens.isEmpty ? nil : displayedTokens[indexPath.row]
     }
 
     func ticker(for token: ERCToken) -> CoinTicker? {
@@ -61,6 +64,19 @@ public class AddPopularTokensViewModel {
         return selectedTokens.contains(token)
     }
 
+    private func filterTokens(_ tokens:[ERCToken]) {
+        displayedTokens.removeAll()
+        if !(searchText ?? "").isEmpty {
+            let searchLowCases = searchText!.lowercased()
+            for token in tokens {
+                if token.name.lowercased().contains(searchLowCases) {
+                    displayedTokens.append(token)
+                }
+            }
+        } else {
+            displayedTokens.append(contentsOf: tokens)
+        }
+    }
 }
 
 extension ERCToken: Equatable {
