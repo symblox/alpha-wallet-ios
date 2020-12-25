@@ -32,7 +32,7 @@ class ServersCoordinator: Coordinator {
     private let config: Config
 
     private var serverChoices: [RPCServerOrAuto] {
-        let enabledServers = ServersCoordinator.serversOrdered.filter { config.enabledServers.contains($0) }
+        let enabledServers = ServersCoordinator.serversOrdered.filter { config.singleEnabledServer.contains($0) }
         let servers: [RPCServerOrAuto] = enabledServers.map { .server($0) }
         if includeAny {
             return [.auto] + servers

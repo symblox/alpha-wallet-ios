@@ -6,6 +6,7 @@ class RadioServerViewCell: ServerViewCell {
         var circle = Radio(color: #colorLiteral(red: 0.2156862745, green: 0.568627451, blue: 0.9647058824, alpha: 1))
         circle.translatesAutoresizingMaskIntoConstraints = false
         circle.backgroundColor = #colorLiteral(red: 0, green: 0, blue: 0, alpha: 0)
+        circle.isChecked = true
         return circle
     }()
     
@@ -19,6 +20,11 @@ class RadioServerViewCell: ServerViewCell {
                 circleView.centerYAnchor.constraint(equalToSystemSpacingBelow: stackView.centerYAnchor, multiplier: 0)
             ])
         }
+    }
+    
+    override func prepareForReuse() {
+        circleView.isChecked = true
+        circleView.isHidden = true
     }
     
     required init?(coder aDecoder: NSCoder) {

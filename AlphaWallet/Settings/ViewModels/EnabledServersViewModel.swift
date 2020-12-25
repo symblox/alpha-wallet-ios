@@ -18,7 +18,7 @@ struct EnabledServersViewModel {
     }
     
     var title: String {
-        return R.string.localizable.settingsEnabledNetworksButtonTitle()
+        R.string.localizable.settingsEnabledNetworksButtonTitle()
     }
 
     func server(for indexPath: IndexPath) -> RPCServer {
@@ -58,7 +58,6 @@ struct EnabledServersViewModel {
     private func groupServer() -> [Int: [RPCServer]]? {
         let sorteds = servers.sorted{sortServer($0, $1)}
         var groupServers : [Int: [RPCServer]] = [-1 :[RPCServer]()]
-
         sorteds.forEach({server in
             let items = sorteds.filter{$0.chainID == server.chainID}
             if items.count > 1 && !groupServers.keys.contains(server.chainID) {

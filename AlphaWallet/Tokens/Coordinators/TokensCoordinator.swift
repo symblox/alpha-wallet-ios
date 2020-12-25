@@ -115,7 +115,6 @@ class TokensCoordinator: Coordinator {
 
     func start() {
         for each in singleChainTokenCoordinators {
-            each.loadExternalTokens(tokens: localTokens ?? [LocalERCToken]())
             each.start()
         }
         addUefaTokenIfAny()
@@ -123,12 +122,14 @@ class TokensCoordinator: Coordinator {
     }
 
     private func setupSingleChainTokenCoordinators() {
+        let localExtenalTokens = localTokens ?? [LocalERCToken]()
         for each in tokenCollection.tokenDataStores {
             let server = each.server
             let session = sessions[server]
             let price = nativeCryptoCurrencyPrices[server]
             let coordinator = SingleChainTokenCoordinator(session: session, keystore: keystore, tokensStorage: each, ethPrice: price, assetDefinitionStore: assetDefinitionStore, eventsDataStore: eventsDataStore, analyticsCoordinator: analyticsCoordinator, navigationController: navigationController, withAutoDetectTransactedTokensQueue: autoDetectTransactedTokensQueue, withAutoDetectTokensQueue: autoDetectTokensQueue, swapTokenActionsService: swapTokenActionsService)
             coordinator.delegate = self
+            coordinator.loadExternalTokens(tokens: localExtenalTokens)
             addCoordinator(coordinator)
         }
     }
@@ -416,7 +417,6 @@ extension TokensCoordinator: AddHideTokensCoordinatorDelegate {
 extension TokensCoordinator: VelasTokensViewControllerDelegate {
    
     func didAddPopularTokenTapped(network: RPCServer) {
-
         if let singleChainCoordinator = singleChainTokenCoordinator(forServer: network) {
             let coordinator: AddPopularTokenCoordinator = .init(
                 server: network,

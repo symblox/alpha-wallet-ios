@@ -95,6 +95,11 @@ final class DappBrowserCoordinator: NSObject, Coordinator {
             nativeCryptoCurrencyBalanceView.session = session
         }
     }
+    
+    private var validServer: RPCServer {
+        let selfServer = self.server
+        return config.singleEnabledServer.filter{ $0.chainID == selfServer.chainID }.first ?? selfServer
+    }
 
     private var enableToolbar: Bool = true {
         didSet {
@@ -263,7 +268,7 @@ final class DappBrowserCoordinator: NSObject, Coordinator {
         }
         addBookmarkAction.isEnabled = hasWebPageLoaded
 
-        let switchNetworkAction = UIAlertAction(title: R.string.localizable.dappBrowserSwitchServer(server.name), style: .default) { [weak self] _ in
+        let switchNetworkAction = UIAlertAction(title: R.string.localizable.dappBrowserSwitchServer(validServer.name), style: .default) { [weak self] _ in
             self?.showServers()
         }
 
@@ -358,7 +363,7 @@ final class DappBrowserCoordinator: NSObject, Coordinator {
 
     private func showServers() {
         nativeCryptoCurrencyBalanceView.hide()
-        let coordinator = ServersCoordinator(defaultServer: server, config: config)
+        let coordinator = ServersCoordinator(defaultServer: validServer, config: config)
         coordinator.delegate = self
         coordinator.start()
         addCoordinator(coordinator)

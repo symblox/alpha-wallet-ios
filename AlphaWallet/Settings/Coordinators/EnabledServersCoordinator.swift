@@ -13,10 +13,12 @@ class EnabledServersCoordinator: Coordinator {
     private let serverChoices = EnabledServersCoordinator.serversOrdered
     private let navigationController: UINavigationController
     private let selectedServers: [RPCServer]
+    var selectedSubServers = [RPCServer]()
 
     private lazy var enabledServersViewController: EnabledServersViewController = {
         let controller = EnabledServersViewController()
-        controller.configure(viewModel: EnabledServersViewModel(servers: serverChoices, selectedServers: selectedServers))
+        let validSelecteds = selectServers(selectedServers)
+        controller.configure(viewModel: EnabledServersViewModel(servers: serverChoices, selectedServers: validSelecteds))
         controller.delegate = self
         controller.hidesBottomBarWhenPushed = true
         return controller
@@ -37,6 +39,24 @@ class EnabledServersCoordinator: Coordinator {
 
     func stop() {
         navigationController.popViewController(animated: true)
+    }
+    
+    private func selectServers(_ inputServers:[RPCServer]) -> [RPCServer] {
+        guard !selectedSubServers.isEmpty else {
+            return inputServers
+        }
+        var results = [RPCServer]()
+        
+        var subServerMap = [Int: RPCServer]()
+        selectedSubServers.forEach{ subServerMap[$0.chainID] = $0 }
+        for server in inputServers {
+            if let subServer = subServerMap[server.chainID] {
+                results.append(subServer)
+            } else {
+                results.append(server)
+            }
+        }
+        return results
     }
 }
 

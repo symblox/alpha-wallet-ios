@@ -73,16 +73,13 @@ class GroupNetworkTokensHeaderView: UITableViewHeaderFooterView {
         ])
     }
     
-    public func setServer(_ server: RPCServer) {
-        titleLabel.text = server.displayName
-        tokenIconImageView.image = server.iconImage
-    }
-    
     public func configHeader(_ header: HeaderServer) {
         switch header {
-        case .Server(let server):
-            setServer(server)
+        case .Server(let server, let image,  let name):
             network = server
+            titleLabel.text = name
+            tokenIconImageView.image = image
+            addOptionButton.isHidden = server == nil
         case .Hide(let color):
             contentView.backgroundColor = color
             network = nil
@@ -94,6 +91,6 @@ class GroupNetworkTokensHeaderView: UITableViewHeaderFooterView {
     }
 }
 enum HeaderServer {
-     case Server(server: RPCServer)
-     case Hide(color: UIColor)
+    case Server(server: RPCServer? , icon: UIImage? ,name: String)
+    case Hide(color: UIColor)
  }

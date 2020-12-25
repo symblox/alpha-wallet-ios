@@ -122,6 +122,7 @@ struct Config {
         static let lastFetchedAutoDetectedTransactedTokenErc20BlockNumber = "lastFetchedAutoDetectedTransactedTokenErc20BlockNumber"
         static let lastFetchedAutoDetectedTransactedTokenNonErc20BlockNumber = "lastFetchedAutoDetectedTransactedTokenNonErc20BlockNumber"
         static let walletNames = "walletNames"
+        static let addChainId = "addChainIds"
     }
 
     let defaults: UserDefaults
@@ -129,17 +130,56 @@ struct Config {
     var enabledServers: [RPCServer] {
         get {
             if let chainIds = defaults.array(forKey: Keys.enabledServers) as? [Int] {
-                return chainIds.map { .init(addChainID: $0) }
+                return chainIds.map { .init(chainID: $0) }
             } else {
                 return Constants.defaultEnabledServers
             }
         }
         set {
-            let chainIds = newValue.map { $0.addChainID }
+            enabledSubServer = newValue
+            let chainIds = newValue.map { $0.chainID }
             defaults.set(chainIds, forKey: Keys.enabledServers)
         }
     }
-
+    
+    var singleEnabledServer: [RPCServer] {
+        get {
+            let currentServers = enabledServers
+            let currentSubServer = enabledSubServer
+            var results = [RPCServer]()
+            var subServerMap = [Int: RPCServer]()
+            currentSubServer.forEach{ subServerMap[$0.chainID] = $0 }
+            for server in currentServers {
+                if let subServer = subServerMap[server.chainID] {
+                    results.append(subServer)
+                } else {
+                    results.append(server)
+                }
+            }
+            return results
+        }
+    }
+    
+    var enabledSubServer: [RPCServer] {
+        get {
+            if let addChainIds = defaults.array(forKey: Keys.addChainId) {
+                let result = addChainIds.map { RPCServer(addChainID: $0 as! Int) }
+                return result
+            } else {
+                return [RPCServer]()
+            }
+        }
+        set {
+            var addChainIds = [Int]()
+            for server in newValue {
+                if server.addChainID != server.chainID {
+                    addChainIds.append(server.addChainID)
+                }
+            }
+            defaults.set(addChainIds, forKey: Keys.addChainId)
+        }
+    }
+    
     var server: RPCServer {
         let chainId = Config.getChainId()
         if let server = enabledServers.first(where: { $0.chainID == chainId }) {

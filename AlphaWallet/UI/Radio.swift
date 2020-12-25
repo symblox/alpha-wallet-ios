@@ -11,14 +11,14 @@ class Radio: UIView {
     
     var color: UIColor = #colorLiteral(red: 0.9372549057, green: 0.3490196168, blue: 0.1921568662, alpha: 1)
     var padding: CGFloat = 5
-    override var isHidden: Bool {
-        didSet {
-            setNeedsLayout()
+    var isChecked: Bool = false {
+        didSet{
+            setNeedsDisplay()
         }
     }
     
     override func draw(_ rect: CGRect) {
-        guard !isHidden else {
+        guard isChecked else {
             return
         }
         let maxSize = rect.size

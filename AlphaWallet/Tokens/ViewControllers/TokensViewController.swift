@@ -296,7 +296,7 @@ class TokensViewController: UIViewController {
         configureSearchBarOnce()
     }
 
-    private func reloadTableData() {
+    public func reloadTableData() {
         tableView.reloadData()
     }
 

@@ -12,6 +12,7 @@ protocol VelasTokensViewControllerDelegate: TokensViewControllerDelegate {
 class VelasTokensViewController: TokensViewController {
     
     let isSectionMode = true
+    let config: Config
     
     override var viewModel: TokensViewModel {
         get {
@@ -19,13 +20,16 @@ class VelasTokensViewController: TokensViewController {
         }
         set {
             super.viewModel = VelasTokensViewModel(filterTokensCoordinator: newValue.filterTokensCoordinator, tokens: newValue.tokens, tickers: newValue.tickers)
+            (self.viewModel as? VelasTokensViewModel)?.config = config
         }
     }
     
     override init(sessions: ServerDictionary<WalletSession>, account: Wallet, tokenCollection: TokenCollection, assetDefinitionStore: AssetDefinitionStore, eventsDataStore: EventsDataStoreProtocol, filterTokensCoordinator: FilterTokensCoordinator, config: Config) {
+        self.config = config
         super.init(sessions: sessions, account: account, tokenCollection: tokenCollection, assetDefinitionStore: assetDefinitionStore, eventsDataStore: eventsDataStore, filterTokensCoordinator: filterTokensCoordinator, config: config)
         tableView.registerHeaderFooterView(GroupNetworkTokensHeaderView.self)
         self.viewModel = VelasTokensViewModel(filterTokensCoordinator: filterTokensCoordinator, tokens: [], tickers: .init())
+        (self.viewModel as? VelasTokensViewModel)?.config = config
     }
     
     required init?(coder aDecoder: NSCoder) {
@@ -105,8 +109,9 @@ extension VelasTokensViewController {
         }
         let header: GroupNetworkTokensHeaderView = tableView.dequeueReusableHeaderFooterView()
         let tokenSection = section - sections.count
-        let item = viewModel.item(for: 0, section: tokenSection)
-        let configuration: HeaderServer = isSectionMode ? .Server(server: item.server) : .Hide(color: #colorLiteral(red: 1, green: 1, blue: 1, alpha: 1))
+        let server = (viewModel as? VelasTokensViewModel)?.serverForSection(tokenSection)
+        let serverHeaderConfig : HeaderServer = .Server(server: server, icon: server?.iconImage , name: server?.name ?? "Other")
+        let configuration: HeaderServer = isSectionMode ? serverHeaderConfig : .Hide(color: #colorLiteral(red: 1, green: 1, blue: 1, alpha: 1))
         header.configHeader(configuration)
         header.delegate = self
         return header
@@ -117,7 +122,33 @@ extension VelasTokensViewController {
         if section < sections.count {
             return super.tableView(tableView, trailingSwipeActionsConfigurationForRowAt: indexPath)
         }
-        return trailingSwipeActionsConfiguration(forRowAt: IndexPath(row: indexPath.row, section: section - sections.count))
+        return velasTrailingSwipeActionsConfiguration(forRowAt: indexPath)
+    }
+    
+    func velasTrailingSwipeActionsConfiguration(forRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
+        let title = R.string.localizable.walletsHideTokenTitle()
+        let hideAction = UIContextualAction(style: .destructive, title: title) { [weak self] (_, _, completionHandler) in
+            guard let strongSelf = self else { return }
+            let tokenSection = indexPath.section >= strongSelf.sections.count ? indexPath.section - strongSelf.sections.count : indexPath.section
+            let token = strongSelf.viewModel.item(for: indexPath.row, section: tokenSection)
+            strongSelf.delegate?.didHide(token: token, in: strongSelf)
+
+            let didHideToken = strongSelf.viewModel.markTokenHidden(token: token)
+            if didHideToken {
+                strongSelf.tableView.deleteRows(at: [indexPath], with: .automatic)
+            } else {
+                strongSelf.reloadTableData()
+            }
+
+            completionHandler(didHideToken)
+        }
+
+        hideAction.backgroundColor = R.color.danger()
+        hideAction.image = R.image.hideToken()
+        let configuration = UISwipeActionsConfiguration(actions: [hideAction])
+        configuration.performsFirstActionWithFullSwipe = true
+
+        return configuration
     }
 }
 
@@ -125,7 +156,8 @@ extension VelasTokensViewController : GroupNetworkHeaderViewDelegate {
    
     func didTapAddToken(_ headerView: GroupNetworkTokensHeaderView, network: RPCServer?) {
         if let selectedNetwork = network {
-            (delegate as? VelasTokensViewControllerDelegate)?.didAddPopularTokenTapped(network: selectedNetwork)
+            let validNetwork = selectedNetwork.isVelasFamily ? RPCServer.velas : selectedNetwork
+            (delegate as? VelasTokensViewControllerDelegate)?.didAddPopularTokenTapped(network: validNetwork)
         }
     }
 

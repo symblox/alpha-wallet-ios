@@ -121,6 +121,7 @@ extension SettingsCoordinator: SettingsViewControllerDelegate {
 
     func settingsViewControllerActiveNetworksSelected(in controller: SettingsViewController) {
         let coordinator = EnabledServersCoordinator(navigationController: navigationController, selectedServers: config.enabledServers)
+        coordinator.selectedSubServers = config.enabledSubServer
         coordinator.delegate = self
         coordinator.start()
         addCoordinator(coordinator)
@@ -186,12 +187,17 @@ extension SettingsCoordinator: EnabledServersCoordinatorDelegate {
 		//Defensive. Shouldn't allow no server to be selected
 		guard !servers.isEmpty else { return }
 
-		let unchanged = config.enabledServers.sorted(by: { $0.addChainID < $1.addChainID }) == servers.sorted(by: { $0.addChainID < $1.addChainID })
+        let configEnableds = config.enabledServers.sorted(by: { $0.chainID < $1.chainID })
+        let selecteds = servers.sorted(by: { $0.chainID < $1.chainID })
+        let selectedSubs = servers.compactMap{ $0.chainID != $0.addChainID ? $0 : nil }.sorted{ $0.chainID < $1.chainID}
+        let configSubEnableds = config.enabledSubServer.sorted(by: { $0.chainID < $1.chainID })
+        let unchanged = configEnableds == selecteds && selectedSubs == configSubEnableds
+       
         if unchanged {
 			coordinator.stop()
 			removeCoordinator(coordinator)
 		} else {
-			config.enabledServers = servers
+            config.enabledServers = servers
 			restart(for: account)
 		}
 	}

@@ -555,7 +555,6 @@ enum RPCServer: Hashable, CaseIterable {
     static var allCases: [RPCServer] {
         return [
             .velas,
-            .velaschina,
             .velastestnet,
             .main,
             .kovan,

@@ -24,7 +24,11 @@ struct ServerViewModel {
             return LocaleViewCell.selectionAccessoryType.unselected
         }
     }
-
+    
+    var markedSelected: Bool {
+        isSelected
+    }
+    
     var backgroundColor: UIColor {
         return Colors.appBackground
     }

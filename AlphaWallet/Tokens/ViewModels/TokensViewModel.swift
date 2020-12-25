@@ -103,7 +103,7 @@ class TokensViewModel {
         return false
     }
 
-    private func filteredAndSortedTokens() -> [TokenObject] {
+    public func filteredAndSortedTokens() -> [TokenObject] {
         let displayedTokens = filterTokensCoordinator.filterTokens(tokens: tokens, filter: filter)
         return filterTokensCoordinator.sortDisplayedTokens(tokens: displayedTokens)
     }

@@ -450,11 +450,12 @@ class SingleChainTokenCoordinator: Coordinator {
 
     func loadExternalTokens(tokens: [LocalERCToken]) {
         var validTokens = [LocalERCToken]()
-        let currentObjects = storage.objects.map{$0.contractAddress}
-        tokens.forEach {
-            guard $0.server != nil && $0.contract != nil else { return }
-            if isServer($0.server!) && !currentObjects.contains($0.contract!) {
-                validTokens.append($0)
+        let currentObjects = storage.objects.map { $0.contractAddress }
+        tokens.forEach { inputToken in
+            guard inputToken.server != nil && session.server.chainID == inputToken.server!.chainID && inputToken.contract != nil else { return }
+            let addedToken = currentObjects.first { $0.sameContract(as: inputToken.contract!.eip55String) }
+            if addedToken == nil {
+                validTokens.append(inputToken)
             }
         }
         let detectedTokens = validTokens.compactMap { (name: $0.symbol, contract: $0.contract! ) }

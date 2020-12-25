@@ -95,7 +95,6 @@ class TokensDataStore {
         return Array(
                 realm.objects(TokenObject.self)
                         .filter("chainId = \(self.chainId)")
-                        .filter("addChainServerID = \(self.addChainId)")
                         .filter("contract != ''")
         )
     }
@@ -104,10 +103,9 @@ class TokensDataStore {
     var enabledObject: [TokenObject] {
         return Array(realm.objects(TokenObject.self)
                 .filter("chainId = \(self.chainId)")
-                .filter("addChainServerID = \(self.addChainId)")
                 .filter("isDisabled = false"))
     }
-
+    
     var deletedContracts: [DeletedContract] {
         return Array(realm.objects(DeletedContract.self)
                 .filter("chainId = \(self.chainId)"))
@@ -179,10 +177,12 @@ class TokensDataStore {
             add(tokens: [etherToken])
             return
         }
-        if existedToken.name != etherToken.name {
+        let enableSubServers = config.enabledSubServer
+        if let associatedSubServer = enableSubServers.first(where: { $0.chainID == server.chainID }) {
+            update(token: existedToken, action: .name(associatedSubServer.name))
+        } else if (existedToken.name != server.name) {
             update(token: existedToken, action: .name(etherToken.name))
         }
-
     }
 
     static func update(in realm: Realm, tokens: [TokenUpdate]) {
@@ -450,8 +450,7 @@ class TokensDataStore {
     func token(forContract contract: AlphaWallet.Address) -> TokenObject? {
         realm.objects(TokenObject.self)
                 .filter("contract = '\(contract.eip55String)'")
-                .filter("chainId = \(chainId)")
-                .filter("addChainServerID = \(self.addChainId)").first
+            .filter("chainId = \(chainId)").first
     }
 
     func refreshBalance() {
