@@ -173,10 +173,17 @@ class TokensDataStore {
     private func addEthToken() {
         //Check if we have previous values.
         let etherToken = TokensDataStore.etherToken(forServer: server)
+        if server == .velaschina {
+            if let token = objects.first { $0.addChainServerID == server.addChainID } {
+                update(token: token, action: .isDisabled(true))
+            }
+            return
+        }
         guard let existedToken = objects.first(where: { $0 == etherToken }) else {
             add(tokens: [etherToken])
             return
         }
+        
         let enableSubServers = config.enabledSubServer
         if let associatedSubServer = enableSubServers.first(where: { $0.chainID == server.chainID }) {
             update(token: existedToken, action: .name(associatedSubServer.name))

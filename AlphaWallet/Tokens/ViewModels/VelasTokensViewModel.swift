@@ -44,6 +44,7 @@ class VelasTokensViewModel: TokensViewModel {
         let didRemoveSuper = super.markTokenHidden(token: token)
         if didRemoveSuper {
             groupToken.removeAll()
+            servers.removeAll()
             groupToken = groupFilteredTokens()
         }
         return didRemoveSuper
@@ -68,7 +69,6 @@ class VelasTokensViewModel: TokensViewModel {
     }
 
     private func groupFilteredTokens() -> [ServerGroup: [TokenObject]] {
-        servers.removeAll()
         var result = [ServerGroup: [TokenObject]]()
         for token in filteredTokens {
             let networkId = groupIdForNetwork(token.server)

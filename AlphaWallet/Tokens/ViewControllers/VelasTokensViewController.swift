@@ -137,12 +137,7 @@ extension VelasTokensViewController {
             strongSelf.delegate?.didHide(token: token, in: strongSelf)
 
             let didHideToken = strongSelf.viewModel.markTokenHidden(token: token)
-            if didHideToken {
-                strongSelf.tableView.deleteRows(at: [indexPath], with: .automatic)
-            } else {
-                strongSelf.reloadTableData()
-            }
-
+            strongSelf.reloadTableData()
             completionHandler(didHideToken)
         }
 
