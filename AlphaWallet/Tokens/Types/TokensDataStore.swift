@@ -78,9 +78,6 @@ class TokensDataStore {
     private var chainId: Int {
         return server.chainID
     }
-    private var addChainId: Int {
-        return server.addChainID
-    }
     private var isFetchingPrices = false
     private let config: Config
     private let openSea: OpenSea
@@ -186,9 +183,9 @@ class TokensDataStore {
         
         let enableSubServers = config.enabledSubServer
         if let associatedSubServer = enableSubServers.first(where: { $0.chainID == server.chainID }) {
-            update(token: existedToken, action: .name(associatedSubServer.name))
-        } else if (existedToken.name != server.name) {
-            update(token: existedToken, action: .name(etherToken.name))
+            update(token: existedToken, action: .name(associatedSubServer.displayedTokenName))
+        } else if (existedToken.name != server.displayedTokenName) {
+            update(token: existedToken, action: .name(server.displayedTokenName))
         }
     }
 

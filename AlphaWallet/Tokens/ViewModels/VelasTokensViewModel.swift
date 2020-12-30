@@ -55,7 +55,7 @@ class VelasTokensViewModel: TokensViewModel {
         switch groupServer {
         case .Main:
             return .main
-        case .Velas(let server):
+        case .Velas:
             return .velas
         default:
             return nil

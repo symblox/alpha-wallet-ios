@@ -79,6 +79,14 @@ enum RPCServer: Hashable, CaseIterable {
             return custom.name
         }
     }
+    
+    var displayedTokenName: String {
+        switch self {
+        case .velaschina: return "Velas"
+        default:
+            return name
+        }
+    }
 
     var isTestnet: Bool {
         switch self {

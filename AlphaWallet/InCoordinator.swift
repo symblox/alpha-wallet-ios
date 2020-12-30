@@ -415,7 +415,7 @@ class InCoordinator: NSObject, Coordinator {
     }
 
     private func createTokensCoordinator(promptBackupCoordinator: PromptBackupCoordinator, realm: Realm) -> TokensCoordinator {
-        let tokensStoragesForEnabledServers = config.enabledServers.map { tokensStorages[$0] }
+        let tokensStoragesForEnabledServers = config.singleEnabledServer.map { tokensStorages[$0] }
         let tokenCollection = TokenCollection(filterTokensCoordinator: filterTokensCoordinator, tokenDataStores: tokensStoragesForEnabledServers)
         promptBackupCoordinator.listenToNativeCryptoCurrencyBalance(withTokenCollection: tokenCollection)
         pollEthereumEvents(tokenCollection: tokenCollection)

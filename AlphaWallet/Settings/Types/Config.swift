@@ -149,13 +149,10 @@ struct Config {
             let currentSubServer = enabledSubServer
             var results = [RPCServer]()
             var subServerMap = [Int: RPCServer]()
-            currentSubServer.forEach{ subServerMap[$0.chainID] = $0 }
+            currentSubServer.forEach { subServerMap[$0.chainID] = $0 }
             for server in currentServers {
-                if let subServer = subServerMap[server.chainID] {
-                    results.append(subServer)
-                } else {
-                    results.append(server)
-                }
+                let validServer = subServerMap[server.chainID] ?? server
+                results.append(validServer)
             }
             return results
         }
