@@ -28,7 +28,7 @@ public class AddPopularTokensViewModel {
     }
 
     var title: String {
-        network.displayName
+        network.name
     }
 
     var backgroundColor: UIColor {

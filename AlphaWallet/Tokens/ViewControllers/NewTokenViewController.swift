@@ -20,7 +20,7 @@ enum RPCServerOrAuto: Hashable {
         case .auto:
             return R.string.localizable.detectingServerAutomatically()
         case .server(let server):
-            return server.displayName
+            return server == .velaschina ? server.uniqueName : server.displayName
         }
     }
 

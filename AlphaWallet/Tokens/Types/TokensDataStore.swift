@@ -171,8 +171,8 @@ class TokensDataStore {
         //Check if we have previous values.
         let etherToken = TokensDataStore.etherToken(forServer: server)
         if server == .velaschina {
-            if let token = objects.first { $0.addChainServerID == server.addChainID } {
-                update(token: token, action: .isDisabled(true))
+            if let token = objects.first{$0.addChainServerID == server.addChainID } {
+                update(token: token, action: .isDisabled(token.rawType == TokenType.nativeCryptocurrency.rawValue))
             }
             return
         }
@@ -183,9 +183,9 @@ class TokensDataStore {
         
         let enableSubServers = config.enabledSubServer
         if let associatedSubServer = enableSubServers.first(where: { $0.chainID == server.chainID }) {
-            update(token: existedToken, action: .name(associatedSubServer.displayedTokenName))
-        } else if (existedToken.name != server.displayedTokenName) {
-            update(token: existedToken, action: .name(server.displayedTokenName))
+            update(token: existedToken, action: .name(associatedSubServer.name))
+        } else if (existedToken.name != server.name) {
+            update(token: existedToken, action: .name(server.name))
         }
     }
 

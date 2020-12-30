@@ -142,7 +142,6 @@ extension VelasTokensViewController {
             let tokenSection = indexPath.section >= strongSelf.sections.count ? indexPath.section - strongSelf.sections.count : indexPath.section
             let token = strongSelf.viewModel.item(for: indexPath.row, section: tokenSection)
             strongSelf.delegate?.didHide(token: token, in: strongSelf)
-
             let didHideToken = strongSelf.viewModel.markTokenHidden(token: token)
             strongSelf.reloadTableData()
             completionHandler(didHideToken)
@@ -161,8 +160,7 @@ extension VelasTokensViewController : GroupNetworkHeaderViewDelegate {
    
     func didTapAddToken(_ headerView: GroupNetworkTokensHeaderView, network: RPCServer?) {
         if let selectedNetwork = network {
-            let validNetwork = selectedNetwork.isVelasFamily ? RPCServer.velas : selectedNetwork
-            (delegate as? VelasTokensViewControllerDelegate)?.didAddPopularTokenTapped(network: validNetwork)
+            (delegate as? VelasTokensViewControllerDelegate)?.didAddPopularTokenTapped(network: selectedNetwork)
         }
     }
     

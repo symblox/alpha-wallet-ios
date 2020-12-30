@@ -73,16 +73,16 @@ enum RPCServer: Hashable, CaseIterable {
         case .binance_smart_chain: return "Binance"
         case .binance_smart_chain_testnet: return "Binance"
         case .velas: return "Velas"
-        case .velaschina: return "Velas Aux"
+        case .velaschina: return "Velas"
         case .velastestnet: return "Velas Testnet"
         case .custom(let custom):
             return custom.name
         }
     }
     
-    var displayedTokenName: String {
+    var uniqueName: String {
         switch self {
-        case .velaschina: return "Velas"
+        case .velaschina: return "Velas Aux"
         default:
             return name
         }
@@ -593,5 +593,10 @@ enum RPCServer: Hashable, CaseIterable {
     public var isVelasFamily: Bool {
         return [RPCServer.velas, .velaschina, .velastestnet].contains(self)
     }
+    
+    public var isVelasCases: Bool {
+        return [RPCServer.velas, .velaschina].contains(self)
+    }
+    
 }
 // swiftlint:enable type_body_length
