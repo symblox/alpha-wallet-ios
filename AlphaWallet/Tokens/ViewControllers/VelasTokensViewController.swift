@@ -4,6 +4,7 @@
 //
 
 import UIKit
+import MBProgressHUD
 
 protocol VelasTokensViewControllerDelegate: TokensViewControllerDelegate {
     func didAddPopularTokenTapped(network: RPCServer)
@@ -32,7 +33,8 @@ class VelasTokensViewController: TokensViewController {
         tableView.registerHeaderFooterView(GroupNetworkTokensHeaderView.self)
         self.viewModel = VelasTokensViewModel(filterTokensCoordinator: filterTokensCoordinator, tokens: [], tickers: .init())
         (self.viewModel as? VelasTokensViewModel)?.config = config
-
+        sections = [.addHideToken, .tokens]
+        navigationItem.searchController = nil
     }
     
     required init?(coder aDecoder: NSCoder) {
@@ -103,7 +105,7 @@ extension VelasTokensViewController {
         if section < sections.count {
             return super.tableView(tableView, heightForHeaderInSection: section)
         }
-        return isSectionMode ? 70 : 0
+        return isSectionMode ? GroupNetworkTokensHeaderView.entireHeaderHeight : 0
     }
     
     override func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
@@ -113,7 +115,12 @@ extension VelasTokensViewController {
         let header: GroupNetworkTokensHeaderView = tableView.dequeueReusableHeaderFooterView()
         let tokenSection = section - sections.count
         let server = (viewModel as? VelasTokensViewModel)?.serverForSection(tokenSection)
-        let serverHeaderConfig : HeaderServer = .Server(server: server, icon: server?.iconImage , name: server?.name ?? "Other")
+        var address = server != nil ? currentAccount.address.eip55String : ""
+        if server != nil {
+            address = VelasConvertUtil.convertVlxStringIfNeed(server: server!, address: address)
+        }
+        let serverInfo = HeaderInfo(server: server, image: nil, name: server?.name ?? "Other", subTitle: address.truncatedMiddle)
+        let serverHeaderConfig : HeaderServer = .Server(serverInfo)
         let configuration: HeaderServer = isSectionMode ? serverHeaderConfig : .Hide(color: #colorLiteral(red: 1, green: 1, blue: 1, alpha: 1))
         header.configHeader(configuration)
         header.delegate = self
@@ -157,6 +164,19 @@ extension VelasTokensViewController : GroupNetworkHeaderViewDelegate {
             let validNetwork = selectedNetwork.isVelasFamily ? RPCServer.velas : selectedNetwork
             (delegate as? VelasTokensViewControllerDelegate)?.didAddPopularTokenTapped(network: validNetwork)
         }
+    }
+    
+    func didTapHeaderName(_ headerView: GroupNetworkTokensHeaderView, network: RPCServer?) {
+        
+        guard let server = network else {
+            return
+        }
+        let copiedAddress = VelasConvertUtil.convertVlxStringIfNeed(server: server, address: currentAccount.address.eip55String)
+        UIPasteboard.general.string = copiedAddress
+        let hud = MBProgressHUD.showAdded(to: view, animated: true)
+        hud.mode = .text
+        hud.label.text = "Copied \(copiedAddress)"
+        hud.hide(animated: true, afterDelay: 1.5)
     }
 
 }

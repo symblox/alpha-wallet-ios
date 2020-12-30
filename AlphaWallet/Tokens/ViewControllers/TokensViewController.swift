@@ -385,6 +385,10 @@ class TokensViewController: UIViewController {
         tableViewHeader.bounds.size.height = size.height
         tableView.tableHeaderView = tableViewHeader
     }
+    
+    public var currentAccount: Wallet {
+        self.account
+    }
 }
 
 extension TokensViewController: StatefulViewController {

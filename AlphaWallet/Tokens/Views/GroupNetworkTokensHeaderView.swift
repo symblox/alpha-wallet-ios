@@ -7,12 +7,24 @@ import UIKit
 
 protocol GroupNetworkHeaderViewDelegate: class {
     func didTapAddToken(_ headerView:GroupNetworkTokensHeaderView, network: RPCServer?)
+    func didTapHeaderName(_ headerView:GroupNetworkTokensHeaderView, network: RPCServer?)
 }
 
 class GroupNetworkTokensHeaderView: UITableViewHeaderFooterView {
+   
+    private let addTokenTitleLeftInset: CGFloat = 7
+    private let titleParentViewSideInset: CGFloat = 12
+    private static let headerNameStackHeight: CGFloat = 80
+    private static let addTokenStackHeight: CGFloat = 30
+    
+    public static var entireHeaderHeight: CGFloat {
+        headerNameStackHeight + addTokenStackHeight
+    }
     
     weak var delegate: GroupNetworkHeaderViewDelegate?
     private var network: RPCServer?
+    private var addTokenButtonStack: UIStackView?
+    private var entireViewContainer: UIView?
     
     override init(reuseIdentifier: String?) {
         super.init(reuseIdentifier: reuseIdentifier)
@@ -23,11 +35,13 @@ class GroupNetworkTokensHeaderView: UITableViewHeaderFooterView {
         super.init(coder: coder)
     }
     
-    private lazy var tokenIconImageView: UIImageView = {
-        let imageView = UIImageView()
-        imageView.translatesAutoresizingMaskIntoConstraints = false
-        imageView.contentMode = .scaleAspectFill
-        return imageView
+    private lazy var subtTitle: UIButton = {
+        let label = UIButton()
+        label.translatesAutoresizingMaskIntoConstraints = false
+        label.titleLabel?.font = Fonts.semibold(size: 14)
+        label.setTitleColor(Colors.appWhite, for: .normal)
+        label.addTarget(self, action: #selector(handleButtonClicked), for: .touchUpInside)
+        return label
     }()
     
     private lazy var titleLabel: UILabel = {
@@ -35,18 +49,20 @@ class GroupNetworkTokensHeaderView: UITableViewHeaderFooterView {
         label.translatesAutoresizingMaskIntoConstraints = false
         label.font = Fonts.bold(size: 24)
         label.textColor = .white
-        label.text = "Section"
         return label
     }()
     
-    private lazy var addOptionButton: UIButton = {
+    private lazy var addTokenButton: UIButton = {
         let button = UIButton()
         button.translatesAutoresizingMaskIntoConstraints = false
-        button.titleLabel?.font = Fonts.semibold(size: 18)
-        button.setTitleColor(UIColor.white, for: .normal)
-        button.setTitle("ADD +", for: .normal)
-        button.titleLabel?.textAlignment = .left
-        button.addTarget(self, action: #selector(handleButtonClicked(_:)), for: .touchUpInside)
+        button.semanticContentAttribute = .forceRightToLeft
+        button.imageView?.contentMode = .scaleAspectFit
+        button.titleEdgeInsets = UIEdgeInsets(top: 0, left: 0, bottom: 0, right: addTokenTitleLeftInset)
+               button.clipsToBounds = true
+        button.setImage(R.image.icon_add_white(), for: .normal)
+        button.contentVerticalAlignment = .center
+        button.contentHorizontalAlignment = .center
+        button.addTarget(self, action: #selector(handleButtonClicked), for: .touchUpInside)
         return button
     }()
     
@@ -57,39 +73,58 @@ class GroupNetworkTokensHeaderView: UITableViewHeaderFooterView {
     
     private func setupViews() {
         backgroundColor = .white
-        contentView.backgroundColor = #colorLiteral(red: 0.9607843161, green: 0.7058823705, blue: 0.200000003, alpha: 1)
-        let stack = [tokenIconImageView, titleLabel, UIView.spacerWidth(flexible: true)].asStackView(spacing: 10, alignment: .firstBaseline)
-        stack.translatesAutoresizingMaskIntoConstraints = false
-        let addStackView = [UIView.spacerWidth(flexible: true), addOptionButton].asStackView(alignment: .trailing)
-        addStackView.translatesAutoresizingMaskIntoConstraints = false
-        let verticalStack = [stack, addStackView].asStackView(axis: .vertical, spacing: 10)
-        verticalStack.translatesAutoresizingMaskIntoConstraints = false
+        contentView.backgroundColor = .white
 
-        contentView.addSubview(verticalStack)
+        let headerContainer: UIView = .init()
+        headerContainer.translatesAutoresizingMaskIntoConstraints = false
+        headerContainer.clipsToBounds = true
+        headerContainer.layer.cornerRadius = 8
+        entireViewContainer = headerContainer
+        
+        let stack = [titleLabel, subtTitle].asStackView(axis: .vertical, alignment: .leading)
+        stack.translatesAutoresizingMaskIntoConstraints = false
+        
+        let btnStack = [addTokenButton].asStackView(axis: .vertical,distribution: .fillProportionally, alignment: .trailing)
+        btnStack.translatesAutoresizingMaskIntoConstraints = false
+        addTokenButtonStack = btnStack
+        let verticalStack = [stack, btnStack].asStackView(axis: .vertical, distribution: .fill, alignment: .fill)
+        verticalStack.translatesAutoresizingMaskIntoConstraints = false
+        
+        headerContainer.addSubview(verticalStack)
+        contentView.addSubview(headerContainer)
+
         NSLayoutConstraint.activate([
-            tokenIconImageView.widthAnchor.constraint(equalToConstant: 30),
-            tokenIconImageView.heightAnchor.constraint(equalToConstant: 30),
-            verticalStack.anchorsConstraint(to: contentView, edgeInsets: .init(top: 10, left: 20, bottom: 10, right: 16)),
+            headerContainer.anchorsConstraint(to: contentView, edgeInsets: UIEdgeInsets(top: 0, left: 5, bottom: 0, right: 5)),
+            verticalStack.anchorsConstraint(to: headerContainer, edgeInsets: UIEdgeInsets(top: 10, left: titleParentViewSideInset, bottom: 8, right: titleParentViewSideInset)),
+            stack.heightAnchor.constraint(equalToConstant: GroupNetworkTokensHeaderView.headerNameStackHeight),
+            btnStack.heightAnchor.constraint(equalToConstant: GroupNetworkTokensHeaderView.addTokenStackHeight),
+            addTokenButton.heightAnchor.constraint(equalToConstant: 30),
+            addTokenButton.widthAnchor.constraint(equalToConstant: 30)
         ])
     }
     
     public func configHeader(_ header: HeaderServer) {
         switch header {
-        case .Server(let server, let image,  let name):
-            network = server
-            titleLabel.text = name
-            tokenIconImageView.image = image
-            addOptionButton.isHidden = server == nil
-            contentView.backgroundColor = sectionColor()
+        case .Server(let info):
+            network = info?.server
+            titleLabel.text = info?.name
+            addTokenButton.isHidden = network == nil
+            subtTitle.setTitle(info?.subTitle ?? "", for: .normal)
+            entireViewContainer?.backgroundColor = sectionColor()
         case .Hide(let color):
-            contentView.backgroundColor = color
+            entireViewContainer?.backgroundColor = color
             network = nil
         }
     }
 
     @objc private func handleButtonClicked(_ button: UIButton) {
-        delegate?.didTapAddToken(self, network: self.network)
+        if button == addTokenButton {
+            delegate?.didTapAddToken(self, network: self.network)
+        } else if button == subtTitle {
+            delegate?.didTapHeaderName(self, network: self.network)
+        }
     }
+    
     
     private func sectionColor() -> UIColor {
         guard let legalNetwork = network else {
@@ -105,6 +140,13 @@ class GroupNetworkTokensHeaderView: UITableViewHeaderFooterView {
     }
 }
 enum HeaderServer {
-    case Server(server: RPCServer? , icon: UIImage? ,name: String)
+    case Server(_ info: HeaderInfo?)
     case Hide(color: UIColor)
  }
+
+struct HeaderInfo {
+    let server: RPCServer?
+    let image: UIImage?
+    let name: String?
+    let subTitle: String?
+}

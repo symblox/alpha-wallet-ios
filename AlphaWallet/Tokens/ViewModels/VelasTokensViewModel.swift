@@ -53,10 +53,10 @@ class VelasTokensViewModel: TokensViewModel {
     func serverForSection(_ section: Int) -> RPCServer? {
         let groupServer = servers[section]
         switch groupServer {
-        case .Main( _):
+        case .Main:
             return .main
         case .Velas(let server):
-            return config?.singleEnabledServer.first{ $0.chainID == server.chainID } ?? server
+            return .velas
         default:
             return nil
         }
@@ -89,7 +89,7 @@ class VelasTokensViewModel: TokensViewModel {
         case .velastestnet:
             return .Velas(.velas)
         case .main:
-            return .Main(.main)
+            return .Main
         default:
             return .Other
         }
@@ -97,7 +97,7 @@ class VelasTokensViewModel: TokensViewModel {
     
     enum ServerGroup: Hashable {
         case Velas(RPCServer)
-        case Main(RPCServer)
+        case Main
         case Other
         
         var order: Int {
