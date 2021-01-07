@@ -25,7 +25,8 @@ class GetContractInteractions {
                         }
                     } else {
                         filteredResult = json["result"].filter {
-                            $0.1["to"].stringValue.hasPrefix("0x")
+                            let to = $0.1["to"].stringValue
+                            return VelasConvertUtil.isVlxAddress(to) || to.hasPrefix("0x")
                         }
                     }
                     let transactions: [Transaction] = filteredResult.map { result in
@@ -90,6 +91,8 @@ class GetContractInteractions {
             case .success(let value):
                 //Performance: process in background so UI don't have a chance of blocking if there's a long list of contracts
                 DispatchQueue.global().async {
+                    let requestUrl = etherscanURL.absoluteURL
+                    let inputServer = server
                     let json = JSON(value)
                     let contracts: [(String, Int?)] = json["result"].map { _, transactionJson in
                         let blockNumber = transactionJson["blockNumber"].string.flatMap { Int($0) }

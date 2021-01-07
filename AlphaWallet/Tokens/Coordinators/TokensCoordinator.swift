@@ -50,7 +50,7 @@ class TokensCoordinator: Coordinator {
         return queue
     }()
     
-    private let localTokens : [LocalERCToken]? = {
+    private let localTokens: [LocalERCToken]? = {
         return try? objectDataFromFile("ext_tokens", type: [LocalERCToken].self)
     }()
 

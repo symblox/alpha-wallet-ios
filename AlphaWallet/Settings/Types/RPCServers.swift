@@ -584,8 +584,6 @@ enum RPCServer: Hashable, CaseIterable {
             .artis_tau1,
             .binance_smart_chain_testnet,
             .binance_smart_chain,
-            .velas, 
-            .velastestnet, 
             .velaschina
         ]
     }

@@ -1519,6 +1519,9 @@
 		D10AE12B258F3C5E00971541 /* GroupNetworkTokensHeaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D10AE129258F3C5E00971541 /* GroupNetworkTokensHeaderView.swift */; };
 		D11332C3258F9B83005481F2 /* VelasTokensViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = D11332C2258F9B83005481F2 /* VelasTokensViewModel.swift */; };
 		D11332C9258F9C2E005481F2 /* VelasTokensViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = D11332C2258F9B83005481F2 /* VelasTokensViewModel.swift */; };
+		D116F3DC25A0D81200F65AEF /* VelasConvertUtil.swift in Sources */ = {isa = PBXBuildFile; fileRef = 507BAC8A2587CF9600CBD823 /* VelasConvertUtil.swift */; };
+		D116F3E225A0D81200F65AEF /* VelasConvertUtil.swift in Sources */ = {isa = PBXBuildFile; fileRef = 507BAC8A2587CF9600CBD823 /* VelasConvertUtil.swift */; };
+		D116F3E825A0D81400F65AEF /* VelasConvertUtil.swift in Sources */ = {isa = PBXBuildFile; fileRef = 507BAC8A2587CF9600CBD823 /* VelasConvertUtil.swift */; };
 		D19CEF4825940C760093A23E /* AddPopularTokensViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = D19CEF4725940C760093A23E /* AddPopularTokensViewController.swift */; };
 		D19CEF4925940C760093A23E /* AddPopularTokensViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = D19CEF4725940C760093A23E /* AddPopularTokensViewController.swift */; };
 		D19CEF502594106A0093A23E /* AddPopularTokensViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = D19CEF4F2594106A0093A23E /* AddPopularTokensViewModel.swift */; };
@@ -5769,6 +5772,7 @@
 				2959960E1FAB05C200DB66A8 /* TransactionsEmptyView.swift in Sources */,
 				29BB94931F6FC380009B09CC /* BalanceViewModel.swift in Sources */,
 				D19CEF4825940C760093A23E /* AddPopularTokensViewController.swift in Sources */,
+				D116F3E825A0D81400F65AEF /* VelasConvertUtil.swift in Sources */,
 				29D03F1D1F712183006E548C /* Button.swift in Sources */,
 				CCCD74FD1FD2D38D004A087D /* CheckDeviceCoordinator.swift in Sources */,
 				87D163A4242CD811002662D2 /* AddHideTokensCoordinator.swift in Sources */,
@@ -6330,6 +6334,7 @@
 				5E7C7FC3D8846843465B0F90 /* ServersCoordinatorTests.swift in Sources */,
 				5E7C74A655E5D34953FFEBF2 /* AlphaWalletAddressTests.swift in Sources */,
 				76F1D09ED5C81F9B420FACD4 /* TokenScriptSignatureVerifierTest.swift in Sources */,
+				D116F3DC25A0D81200F65AEF /* VelasConvertUtil.swift in Sources */,
 				5E7C7D7A68C7780C293301F7 /* HDWalletTest.swift in Sources */,
 				8499D13528C1FABDC27EA7B1 /* SmartContractHelperTests.swift in Sources */,
 				5E7C7B89694C62A14CBE8105 /* FakeEventsDataStore.swift in Sources */,
@@ -6344,6 +6349,7 @@
 				2912CD1B1F6A830700C6CBE3 /* TrustUITests.swift in Sources */,
 				29358D9F1F78D5B700925D61 /* Screenshots.swift in Sources */,
 				29358D991F78D1E400925D61 /* SnapshotHelper.swift in Sources */,
+				D116F3E225A0D81200F65AEF /* VelasConvertUtil.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

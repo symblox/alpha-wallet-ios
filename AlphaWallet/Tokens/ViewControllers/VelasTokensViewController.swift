@@ -119,8 +119,8 @@ extension VelasTokensViewController {
         if server != nil {
             address = VelasConvertUtil.convertVlxStringIfNeed(server: server!, address: address)
         }
-        let serverInfo = HeaderInfo(server: server, image: nil, name: server?.name ?? "Other", subTitle: address.truncatedMiddle)
-        let serverHeaderConfig : HeaderServer = .Server(serverInfo)
+        let serverInfo = HeaderInfo(server: server, image: nil, name: server?.name ?? "Other", subTitle: address)
+        let serverHeaderConfig: HeaderServer = .Server(serverInfo)
         let configuration: HeaderServer = isSectionMode ? serverHeaderConfig : .Hide(color: #colorLiteral(red: 1, green: 1, blue: 1, alpha: 1))
         header.configHeader(configuration)
         header.delegate = self

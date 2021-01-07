@@ -48,6 +48,12 @@ extension AlphaWallet {
 
         //TODO not sure if we should keep this
         init?(uncheckedAgainstNullAddress string: String) {
+            if VelasConvertUtil.isVlxAddress(string) {
+                self = .ethereumAddress(eip55String: VelasConvertUtil.vlxToEth(vlxAddress: string))
+                   Self.cache[string] = self
+                   return
+            }
+            
             let string = string.add0x
             guard string.count == 42 else { return nil }
             guard let address = TrustKeystore.Address(uncheckedAgainstNullAddress: string) else { return nil }
