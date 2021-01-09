@@ -222,7 +222,7 @@ class SendViewController: UIViewController {
         switch transactionType {
         case .nativeCryptocurrency(_, let recipient, let amount):
             if let recipient = recipient {
-                targetAddressTextField.value = VelasConvertUtil.ethToVlx(hexAddress: recipient.stringValue)
+                targetAddressTextField.value = VelasConvertUtil.convertVlxStringIfNeed(server: session.server, address: recipient.stringValue)
             }
             if let amount = amount {
                 amountTextField.ethCost = EtherNumberFormatter.full.string(from: amount, units: .ether)
@@ -237,7 +237,7 @@ class SendViewController: UIViewController {
             amountTextField.cryptoToDollarRate = nil
 
             if let recipient = recipient {
-                targetAddressTextField.value = VelasConvertUtil.ethToVlx(hexAddress: recipient.stringValue)
+                targetAddressTextField.value = VelasConvertUtil.convertVlxStringIfNeed(server: session.server, address: recipient.stringValue)
             }
             if let amount = amount {
                 amountTextField.ethCost = amount
