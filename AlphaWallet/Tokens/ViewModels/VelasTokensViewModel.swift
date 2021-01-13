@@ -56,7 +56,7 @@ class VelasTokensViewModel: TokensViewModel {
         case .Main:
             return .main
         case .Velas:
-            return config?.singleEnabledServer.first { $0.isVelasFamily }
+            return config?.singleEnabledServer.first { $0.isVelasCases }
         default:
             return nil
         }
