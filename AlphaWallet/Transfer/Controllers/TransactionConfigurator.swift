@@ -103,14 +103,7 @@ class TransactionConfigurator {
         //TODO why not all `transaction.value`? Shouldn't the other types of transactions make sure their `transaction.value` is 0?
         switch transaction.transactionType {
         case .nativeCryptocurrency, .dapp: return transaction.value
-        case .ERC20Token:
-            // Support send vlx erc20 tokens for now
-            switch transaction.transactionType.server {
-            case .velas, .velaschina, .velastestnet:
-                return transaction.value
-            default:
-                return 0
-            }
+        case .ERC20Token: return 0
         case .ERC875Token: return 0
         case .ERC875TokenOrder: return transaction.value
         case .ERC721Token: return 0
@@ -415,18 +408,10 @@ class TransactionConfigurator {
     }
 
     func formUnsignedTransaction() -> UnsignedTransaction {
-        var to = toAddress
-        switch transaction.transactionType {
-        case .ERC20Token(let token, destination: _, amount: _):
-            to = token.contractAddress
-        default:
-            break
-        }
-        
         return UnsignedTransaction(
             value: value,
             account: account,
-            to: to,
+            to: toAddress,
             nonce: currentConfiguration.nonce ?? -1,
             data: currentConfiguration.data,
             gasPrice: currentConfiguration.gasPrice,
