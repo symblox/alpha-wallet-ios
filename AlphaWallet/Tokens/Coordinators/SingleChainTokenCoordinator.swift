@@ -19,6 +19,12 @@ enum ContractData {
     case failed(networkReachable: Bool?)
 }
 
+struct NoTokenError: LocalizedError {
+    var errorDescription: String? {
+        return R.string.localizable.aWalletNoTokens()
+    }
+}
+
 protocol SingleChainTokenCoordinatorDelegate: class, CanOpenURL {
     func tokensDidChange(inCoordinator coordinator: SingleChainTokenCoordinator)
     func didTapSwap(forTransactionType transactionType: TransactionType, service: SwapTokenURLProviderType, in coordinator: SingleChainTokenCoordinator)
@@ -164,7 +170,7 @@ class SingleChainTokenCoordinator: Coordinator {
             autoDetectXDaiPartnerTokens()
         case .rinkeby:
             autoDetectRinkebyPartnerTokens()
-        case .kovan, .ropsten, .poa, .sokol, .classic, .callisto, .goerli, .artis_sigma1, .binance_smart_chain, .binance_smart_chain_testnet, .artis_tau1, .custom, .velas, .velastestnet, .velaschina:
+        case .kovan, .ropsten, .poa, .sokol, .classic, .callisto, .goerli, .artis_sigma1, .binance_smart_chain, .binance_smart_chain_testnet, .artis_tau1, .custom, .velas, .velastestnet, .velaschina, .heco_testnet, .heco:
             break
         }
     }

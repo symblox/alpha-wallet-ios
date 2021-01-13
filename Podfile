@@ -14,7 +14,7 @@ target 'AlphaWallet' do
 
   pod 'QRCodeReaderViewController', :git=>'https://github.com/AlphaWallet/QRCodeReaderViewController.git', :commit=>'30d1a2a7d167d0d207ae0ae3a4d81bcf473d7a65'
   pod 'KeychainSwift', :git=>'https://github.com/AlphaWallet/keychain-swift.git', :commit=> 'b797d40a9d08ec509db4335140cf2259b226e6a2'
-  pod 'SwiftLint'
+  pod 'SwiftLint', '0.40.3'
   pod 'SeedStackViewController'
   pod 'RealmSwift', '~> 5.4.0'
   pod 'Moya', '~> 10.0.1'
@@ -22,7 +22,7 @@ target 'AlphaWallet' do
   pod 'CryptoSwift', '~> 1.0'
   pod 'SwiftyXMLParser', :git => 'https://github.com/yahoojapan/SwiftyXMLParser.git'
   pod 'Kingfisher'
-  pod 'AlphaWalletWeb3Provider', :git=>'https://github.com/AlphaWallet/AlphaWallet-web3-provider', :commit => '1c1aafb566361e7067e69f6e38b0fdc30b801429'
+  pod 'AlphaWalletWeb3Provider', :git=>'https://github.com/AlphaWallet/AlphaWallet-web3-provider', :commit => '3f58718d06f5c516e50d621552244fd23c958068'
   pod 'TrezorCrypto', :git=>'https://github.com/AlphaWallet/trezor-crypto-ios.git', :commit => '50c16ba5527e269bbc838e80aee5bac0fe304cc7'
   pod 'TrustKeystore', :git => 'https://github.com/alpha-wallet/trust-keystore.git', :commit => 'c0bdc4f6ffc117b103e19d17b83109d4f5a0e764'
   pod 'SwiftyJSON'
@@ -39,7 +39,7 @@ target 'AlphaWallet' do
   pod 'Mixpanel-swift'
   pod 'UnstoppableDomainsResolution', '0.1.6'
   pod 'BlockiesSwift'
-  pod 'WalletConnectSwift' 
+  pod 'WalletConnectSwift', :git => 'https://github.com/WalletConnect/WalletConnectSwift.git', :commit => 'c86938785303b99ff09d90e32e553ce38eee0aa6'
 
   # pod 'AWSCognito'
   target 'AlphaWalletTests' do
@@ -56,7 +56,7 @@ target 'AlphaWallet' do
 end
 
 target 'Velas' do
-  use_frameworks!
+   use_frameworks!
   pod 'BigInt', '~> 3.1'
   pod 'R.swift'
   pod 'JSONRPCKit', '~> 2.0.0'
@@ -67,7 +67,7 @@ target 'Velas' do
 
   pod 'QRCodeReaderViewController', :git=>'https://github.com/AlphaWallet/QRCodeReaderViewController.git', :commit=>'30d1a2a7d167d0d207ae0ae3a4d81bcf473d7a65'
   pod 'KeychainSwift', :git=>'https://github.com/AlphaWallet/keychain-swift.git', :commit=> 'b797d40a9d08ec509db4335140cf2259b226e6a2'
-  pod 'SwiftLint'
+  pod 'SwiftLint', '0.40.3'
   pod 'SeedStackViewController'
   pod 'RealmSwift', '~> 5.4.0'
   pod 'Moya', '~> 10.0.1'
@@ -75,7 +75,7 @@ target 'Velas' do
   pod 'CryptoSwift', '~> 1.0'
   pod 'SwiftyXMLParser', :git => 'https://github.com/yahoojapan/SwiftyXMLParser.git'
   pod 'Kingfisher'
-  pod 'AlphaWalletWeb3Provider', :git=>'https://github.com/AlphaWallet/AlphaWallet-web3-provider', :commit => '1c1aafb566361e7067e69f6e38b0fdc30b801429'
+  pod 'AlphaWalletWeb3Provider', :git=>'https://github.com/AlphaWallet/AlphaWallet-web3-provider', :commit => '3f58718d06f5c516e50d621552244fd23c958068'
   pod 'TrezorCrypto', :git=>'https://github.com/AlphaWallet/trezor-crypto-ios.git', :commit => '50c16ba5527e269bbc838e80aee5bac0fe304cc7'
   pod 'TrustKeystore', :git => 'https://github.com/alpha-wallet/trust-keystore.git', :commit => 'c0bdc4f6ffc117b103e19d17b83109d4f5a0e764'
   pod 'SwiftyJSON'
@@ -92,7 +92,7 @@ target 'Velas' do
   pod 'Mixpanel-swift'
   pod 'UnstoppableDomainsResolution', '0.1.6'
   pod 'BlockiesSwift'
-  pod 'WalletConnectSwift' 
+  pod 'WalletConnectSwift', :git => 'https://github.com/WalletConnect/WalletConnectSwift.git', :commit => 'c86938785303b99ff09d90e32e553ce38eee0aa6'
 end
 
 post_install do |installer|

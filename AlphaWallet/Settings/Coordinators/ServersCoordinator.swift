@@ -23,6 +23,8 @@ class ServersCoordinator: Coordinator {
         .sokol,
         .binance_smart_chain,
         .binance_smart_chain_testnet,
+        .heco,
+        .heco_testnet,
         .artis_sigma1,
         .artis_tau1,
     ]

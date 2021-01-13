@@ -44,18 +44,6 @@ final class DappBrowserCoordinator: NSObject, Coordinator {
     private let browserOnly: Bool
     private let nativeCryptoCurrencyPrices: ServerDictionary<Subscribable<Double>>
 
-    private var nativeCryptoCurrencyBalanceView: NativeCryptoCurrencyBalanceView {
-        //Not the best implementation. Hopefully this will be unnecessary
-        let safeAreaInsetsTop: CGFloat
-        safeAreaInsetsTop = navigationController.view.safeAreaInsets.top
-        _nativeCryptoCurrencyBalanceView.topMargin = 56 + safeAreaInsetsTop
-        return _nativeCryptoCurrencyBalanceView
-    }
-
-    private lazy var _nativeCryptoCurrencyBalanceView: NativeCryptoCurrencyBalanceView = {
-        return NativeCryptoCurrencyBalanceView(session: session, rightMargin: 16, topMargin: 0)
-    }()
-
     private lazy var bookmarksStore: BookmarksStore = {
         return BookmarksStore(realm: sharedRealm)
     }()
@@ -92,7 +80,6 @@ final class DappBrowserCoordinator: NSObject, Coordinator {
         }
         set {
             Config.setChainId(newValue.chainID)
-            nativeCryptoCurrencyBalanceView.session = session
         }
     }
     
@@ -206,14 +193,13 @@ final class DappBrowserCoordinator: NSObject, Coordinator {
         }
 
         browserViewController.goTo(url: url)
-        //FIXME: for some reasons webView doesnt reload itself when load(URLRequest) method is called. we need to force reload it
+        //FIXME: for some reasons webView doesn't reload itself when load(URLRequest) method is called. we need to force reload it
         if forceReload {
             browserViewController.reload()
         }
     }
 
     func signMessage(with type: SignMessageType, account: AlphaWallet.Address, callbackID: Int) {
-        nativeCryptoCurrencyBalanceView.hide()
         let coordinator = SignMessageCoordinator(
             navigationController: navigationController,
             keystore: keystore,
@@ -231,8 +217,8 @@ final class DappBrowserCoordinator: NSObject, Coordinator {
                     callback = DappCallback(id: callbackID, value: .signPersonalMessage(data))
                 case .typedMessage:
                     callback = DappCallback(id: callbackID, value: .signTypedMessage(data))
-                case .eip712:
-                    callback = DappCallback(id: callbackID, value: .signTypedMessage(data))
+                case .eip712v3:
+                    callback = DappCallback(id: callbackID, value: .signTypedMessageV3(data))
                 }
                 strongSelf.browserViewController.notifyFinish(callbackID: callbackID, value: .success(callback))
             case .failure:
@@ -364,8 +350,7 @@ final class DappBrowserCoordinator: NSObject, Coordinator {
     }
 
     private func showServers() {
-        nativeCryptoCurrencyBalanceView.hide()
-        let coordinator = ServersCoordinator(defaultServer: validServer, config: config)
+        let coordinator = ServersCoordinator(defaultServer: server, config: config)
         coordinator.delegate = self
         coordinator.start()
         addCoordinator(coordinator)
@@ -376,10 +361,6 @@ final class DappBrowserCoordinator: NSObject, Coordinator {
 
     private func withCurrentUrl(handler: (URL?) -> Void) {
         handler(browserNavBar?.url)
-    }
-
-    func willHide() {
-        nativeCryptoCurrencyBalanceView.hide()
     }
 
     func isMagicLink(_ url: URL) -> Bool {
@@ -469,6 +450,8 @@ extension DappBrowserCoordinator: BrowserViewControllerDelegate {
             signMessage(with: .personalMessage(Data(hex: msg)), account: account, callbackID: callbackID)
         case .signTypedMessage(let typedData):
             signMessage(with: .typedMessage(typedData), account: account, callbackID: callbackID)
+        case .signTypedMessageV3(let typedData):
+            signMessage(with: .eip712v3(typedData), account: account, callbackID: callbackID)
         case .unknown, .sendRawTransaction:
             break
         }

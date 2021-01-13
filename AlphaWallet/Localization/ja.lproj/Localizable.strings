@@ -406,6 +406,8 @@
 "blockchain.ARTIS.tau1" = "ARTIS tau1 Network";
 "blockchain.Binance" = "Binance Network";
 "blockchain.Binance.test" = "Binance Testnet Network";
+"blockchain.Heco" = "Heco Network";
+"blockchain.Heco.test" = "Heco Testnet Network";
 "a.claim.token.failed.notEnoughXDAI.title" = "a.claim.token.failed.notEnoughXDAI.title";
 "photos" = "Browse";
 "light" = "Light";
@@ -489,6 +491,7 @@
 "configureTransaction.barButton.useDefault" = "Use Default";
 "configureTransaction.header.gasPrice" = "Gas Price";
 "configureTransaction.header.gasLimit" = "Gas Limit";
+"configureTransaction.notEnoughFunds" = "Not enough funds to send this transaction";
 "transactionConfiguration.Type.slow" = "Slow";
 "transactionConfiguration.Type.average" = "Average";
 "transactionConfiguration.Type.fast" = "Fast";
@@ -523,9 +526,10 @@ You can check the latest gas price on gasnow.org";
 "walletConnect.status.online" = "Online";
 "walletConnect.status.offline" = "Offline";
 "walletConnect.session.name" = "Name";
+"walletConnect.session.connect" = "Connect on %@";
 "walletConnect.session.connectedURL" = "Connected to";
 "walletConnect.session.disconnect" = "Disconnect";
 "walletConnect.session.signedTransactions" = "Signed Transactions";
-"start" = "Start";
+"walletConnect.start" = "%@\n\nStart WalletConnect session on:";
 "walletConnect.failure.title" = "Wallet connect failure";
 "walletConnect.sendRawTransaction.title" = "Send raw transaction";

@@ -165,7 +165,7 @@ fileprivate extension RPCServer {
             return .symbloxTokenSource
         case .rinkeby, .ropsten, .sokol, .kovan, .goerli:
             return .testNetTokensSource
-        case .main, .poa, .classic, .callisto, .xDai, .artis_sigma1, .artis_tau1, .binance_smart_chain, .binance_smart_chain_testnet, .custom:
+        case .main, .poa, .classic, .callisto, .xDai, .artis_sigma1, .artis_tau1, .binance_smart_chain, .binance_smart_chain_testnet, .custom, .heco, .heco_testnet:
             return .allTokensSource
         }
     }

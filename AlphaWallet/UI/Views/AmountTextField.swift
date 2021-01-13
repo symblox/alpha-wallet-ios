@@ -505,7 +505,9 @@ extension String {
         var string = self
         let decimalSeparator = Locale.current.decimalSeparator ?? "."
 
-        while string.contains(decimalSeparator) && (string.last == "0" || string.last?.toString == decimalSeparator) {
+        guard string.contains(decimalSeparator) else { return string }
+
+        while string.last == "0" || string.last?.toString == decimalSeparator {
             if string.last?.toString == decimalSeparator {
                 string = String(string.dropLast())
                 break

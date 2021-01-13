@@ -25,6 +25,8 @@ public struct Constants {
     public static let artisTau1MagicLinkHost = "artis_tau1.aw.app"
     public static let binanceMagicLinkHost = "binance.aw.app"
     public static let binanceTestMagicLinkHost = "test-binance.aw.app"
+    public static let hecoMagicLinkHost = "heco.aw.app"
+    public static let hecoTestMagicLinkHost = "test-heco.aw.app"
     public static let customMagicLinkHost = "custom.aw.app"
 
     public enum Currency {
@@ -117,7 +119,9 @@ public struct Constants {
     public static let velasContractPage = "https://explorer.velas.com/address/"
     public static let velasTestnetContractPage = "https://explorer.testnet.veladev.net/address/"
 
-
+    public static let hecoContractPage = "https://scan.hecochain.com/address/"
+    public static let hecoTestnetContractPage = "https://scan-testnet.hecochain.com/address/"
+    
     //OpenSea links for erc721 assets
     public static let openseaAPI = "https://api.opensea.io/"
     public static let openseaRinkebyAPI = "https://rinkeby-api.opensea.io/"
