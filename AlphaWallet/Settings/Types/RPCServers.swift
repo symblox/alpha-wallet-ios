@@ -632,7 +632,7 @@ enum RPCServer: Hashable, CaseIterable {
         return [RPCServer.velas, .velaschina, .velastestnet].contains(self)
     }
     
-    public var isVelasCases: Bool {
+    public var isVelasCase: Bool {
         return [RPCServer.velas, .velaschina].contains(self)
     }
     

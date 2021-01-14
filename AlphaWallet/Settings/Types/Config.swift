@@ -168,13 +168,8 @@ struct Config {
             }
         }
         set {
-            var addChainIds = [Int]()
-            for server in newValue {
-                if server.addChainID != server.chainID {
-                    addChainIds.append(server.addChainID)
-                }
-            }
-            defaults.set(addChainIds, forKey: Keys.addChainId)
+            let newChainIds = newValue.compactMap{ $0.chainID != $0.addChainID ? $0.addChainID : nil }
+            defaults.set(newChainIds, forKey: Keys.addChainId)
         }
     }
     

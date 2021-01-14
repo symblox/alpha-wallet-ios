@@ -86,7 +86,7 @@ class SingleChainTokenCoordinator: Coordinator {
     }
 
     func isServer(_ server: RPCServer) -> Bool {
-        if session.server.isVelasCases && server.isVelasCases {
+        if session.server.isVelasCase && server.isVelasCase {
             return true
         }
         return session.server == server

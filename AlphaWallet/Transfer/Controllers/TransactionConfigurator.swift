@@ -118,7 +118,7 @@ class TransactionConfigurator {
         
         switch transactionType {
         case .ERC20Token:
-            if transactionType.server.isVelasCases {
+            if transactionType.server.isVelasCase {
                 return transactionType.contract
             }
             return nil

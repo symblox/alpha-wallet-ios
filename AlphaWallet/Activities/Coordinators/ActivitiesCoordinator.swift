@@ -30,7 +30,7 @@ class ActivitiesCoordinator: Coordinator {
     weak var delegate: ActivitiesCoordinatorDelegate?
 
     private var tokensInDatabase: [TokenObject] {
-        tokensStorages.values.flatMap { $0.enabledObject }
+        tokensStorages.values.flatMap { $0.validEnabledObjects }
     }
 
     private var wallet: Wallet {

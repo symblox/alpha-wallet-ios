@@ -118,6 +118,13 @@ class TokensDataStore {
                 .filter("chainId = \(self.chainId)"))
     }
 
+    var validEnabledObjects: [TokenObject] {
+        if server.isVelasCase && !config.singleEnabledServer.contains(server) {
+            return [TokenObject]()
+        }
+        return enabledObject
+    }
+    
     static func etherToken(forServer server: RPCServer) -> TokenObject {
         return TokenObject(
                 contract: Constants.nativeCryptoAddressInDatabase,
