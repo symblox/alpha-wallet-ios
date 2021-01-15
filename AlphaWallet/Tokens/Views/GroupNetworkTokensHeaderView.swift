@@ -35,10 +35,12 @@ class GroupNetworkTokensHeaderView: UITableViewHeaderFooterView {
         super.init(coder: coder)
     }
     
+    private let copyEnsButton = UIButton(type: .system)
+    private var copyAddressContainer: UIView?
     private lazy var subtTitle: UIButton = {
         let label = UIButton()
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.titleLabel?.font = Fonts.semibold(size: 14)
+        label.titleLabel?.font = Fonts.semibold(size: 16)
         label.setTitleColor(Colors.appWhite, for: .normal)
         label.addTarget(self, action: #selector(handleButtonClicked), for: .touchUpInside)
         return label
@@ -65,7 +67,7 @@ class GroupNetworkTokensHeaderView: UITableViewHeaderFooterView {
         button.addTarget(self, action: #selector(handleButtonClicked), for: .touchUpInside)
         return button
     }()
-    
+
     override func awakeFromNib() {
         super.awakeFromNib()
         setupViews()
@@ -75,16 +77,20 @@ class GroupNetworkTokensHeaderView: UITableViewHeaderFooterView {
         backgroundColor = .white
         contentView.backgroundColor = .white
 
+        copyEnsButton.setImage(R.image.copy(), for: .normal)
+        copyEnsButton.addTarget(self, action: #selector(handleButtonClicked), for: .touchUpInside)
+        copyEnsButton.tintColor = Colors.appWhite
         let headerContainer: UIView = .init()
         headerContainer.translatesAutoresizingMaskIntoConstraints = false
         headerContainer.clipsToBounds = true
         headerContainer.layer.cornerRadius = 8
         entireViewContainer = headerContainer
         
-        let stack = [titleLabel, subtTitle].asStackView(axis: .vertical, alignment: .leading)
+        copyAddressContainer = [subtTitle, .spacerWidth(10), copyEnsButton, .spacerWidth(7)].asStackView(axis: .horizontal)
+        let stack = [titleLabel, copyAddressContainer!].asStackView(axis: .vertical, alignment: .leading)
         stack.translatesAutoresizingMaskIntoConstraints = false
         
-        let btnStack = [addTokenButton].asStackView(axis: .vertical,distribution: .fillProportionally, alignment: .trailing)
+        let btnStack = [addTokenButton].asStackView(axis: .vertical, distribution: .fillProportionally, alignment: .trailing)
         btnStack.translatesAutoresizingMaskIntoConstraints = false
         addTokenButtonStack = btnStack
         let verticalStack = [stack, btnStack].asStackView(axis: .vertical, distribution: .fill, alignment: .fill)
@@ -99,8 +105,11 @@ class GroupNetworkTokensHeaderView: UITableViewHeaderFooterView {
             stack.heightAnchor.constraint(equalToConstant: GroupNetworkTokensHeaderView.headerNameStackHeight),
             btnStack.heightAnchor.constraint(equalToConstant: GroupNetworkTokensHeaderView.addTokenStackHeight),
             addTokenButton.heightAnchor.constraint(equalToConstant: 30),
-            addTokenButton.widthAnchor.constraint(equalToConstant: 30)
+            addTokenButton.widthAnchor.constraint(equalToConstant: 30),
+            copyEnsButton.widthAnchor.constraint(equalToConstant: 18),
+            copyEnsButton.heightAnchor.constraint(equalToConstant: 18),
         ])
+        
     }
     
     public func configHeader(_ header: HeaderServer) {
@@ -110,6 +119,7 @@ class GroupNetworkTokensHeaderView: UITableViewHeaderFooterView {
             titleLabel.text = info?.name
             addTokenButton.isHidden = network == nil
             subtTitle.setTitle(info?.subTitle ?? "", for: .normal)
+            copyAddressContainer?.isHidden = info?.subTitle?.isEmpty ?? true
             entireViewContainer?.backgroundColor = sectionColor()
         case .Hide(let color):
             entireViewContainer?.backgroundColor = color
@@ -120,11 +130,10 @@ class GroupNetworkTokensHeaderView: UITableViewHeaderFooterView {
     @objc private func handleButtonClicked(_ button: UIButton) {
         if button == addTokenButton {
             delegate?.didTapAddToken(self, network: self.network)
-        } else if button == subtTitle {
+        } else if button == subtTitle || button == copyEnsButton {
             delegate?.didTapHeaderName(self, network: self.network)
         }
     }
-    
     
     private func sectionColor() -> UIColor {
         guard let legalNetwork = network else {
