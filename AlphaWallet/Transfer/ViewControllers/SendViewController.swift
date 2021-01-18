@@ -119,10 +119,11 @@ class SendViewController: UIViewController {
             [.spacerWidth(16), recipientAddressLabel].asStackView(axis: .horizontal),
             .spacer(height: ScreenChecker().isNarrowScreen ? 2 : 4),
             targetAddressTextField,
-            .spacer(height: 4), [
+            .spacer(height: 4),
+            [
                 [.spacerWidth(16), targetAddressTextField.ensAddressView, targetAddressTextField.statusLabel].asStackView(axis: .horizontal, alignment: .leading),
                 addressControlsContainer
-            ].asStackView(axis: .horizontal),
+            ].asStackView(axis: .horizontal, distribution: .fillEqually),
         ].asStackView(axis: .vertical)
         stackView.translatesAutoresizingMaskIntoConstraints = false
         scrollView.addSubview(stackView)
@@ -278,6 +279,12 @@ class SendViewController: UIViewController {
             targetAddressTextField.errorState = .error(Errors.invalidAddress.prettyError)
             return
         }
+        
+        if !VelasConvertUtil.matchAddressString(input, toNetwork: sessionServer) {
+            targetAddressTextField.errorState = .error(Errors.invalidFormatAddress.prettyError)
+            return
+        }
+        
         let transaction = UnconfirmedTransaction(
                 transactionType: transactionType,
                 value: value,
@@ -412,6 +419,11 @@ class SendViewController: UIViewController {
 
         configure(viewModel: .init(transactionType: transactionType, session: session, storage: storage), shouldConfigureBalance: shouldConfigureBalance)
     }
+    
+    fileprivate var sessionServer: RPCServer {
+        session.server
+    }
+    
 }
 
 extension SendViewController: AmountTextFieldDelegate {
@@ -449,7 +461,10 @@ extension SendViewController: AddressTextFieldDelegate {
 
     func didPaste(in textField: AddressTextField) {
         textField.errorState = .none
-
+        let pastedValue = textField.value
+        if  !pastedValue.isEmpty {
+            textField.value = VelasConvertUtil.convertVlxStringIfNeed(server: sessionServer, address: pastedValue)
+        }
         activateAmountView()
     }
 
