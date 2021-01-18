@@ -5,6 +5,7 @@ import Foundation
 enum Errors: LocalizedError {
     case invalidAddress
     case invalidAmount
+    case invalidFormatAddress
 
     var errorDescription: String? {
         switch self {
@@ -12,6 +13,8 @@ enum Errors: LocalizedError {
             return R.string.localizable.sendErrorInvalidAddress()
         case .invalidAmount:
             return R.string.localizable.sendErrorInvalidAmount()
+        case .invalidFormatAddress:
+            return R.string.localizable.sendErrorInvalidFormatAddress()
         }
     }
 }

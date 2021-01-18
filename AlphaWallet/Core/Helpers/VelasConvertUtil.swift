@@ -167,4 +167,11 @@ struct VelasConvertUtil {
             return !VelasConvertUtil.isVlxAddress(address) ? address : VelasConvertUtil.vlxToEth(vlxAddress: address)
         }
     }
+    
+    public static func matchAddressString(_ address: String, toNetwork: RPCServer) -> Bool {
+        if toNetwork.isVelasFamily {
+            return VelasConvertUtil.isVlxAddress(address)
+        }
+        return !VelasConvertUtil.isVlxAddress(address)
+    }
 }

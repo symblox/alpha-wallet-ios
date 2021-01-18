@@ -58,6 +58,7 @@
 "Receive" = "Receive";
 "send.error.emptyClipBoard" = "Empty ClipBoard";
 "send.error.invalidAddress" = "Invalid Address";
+"send.error.invalidFormatAddress" = "Invalid Format Address";
 "send.error.invalidAmount" = "Invalid Amount";
 "send.error.wrongInput" = "Wrong Input";
 "send.paste.button.title" = "Paste";
