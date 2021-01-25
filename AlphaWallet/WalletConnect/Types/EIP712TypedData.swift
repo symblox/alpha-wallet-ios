@@ -21,14 +21,38 @@ struct EIP712TypedData: Codable {
     let primaryType: String
     let domain: JSON
     let message: JSON
+
+    var domainName: String {
+        switch domain {
+        case .object(let dictionary):
+            switch dictionary["name"] {
+            case .string(let value):
+                return value
+            case .array, .object, .number, .bool, .null, .none:
+                return ""
+            }
+        case .array, .string, .number, .bool, .null:
+            return ""
+        }
+    }
+
+    var domainVerifyingContract: AlphaWallet.Address? {
+        switch domain {
+        case .object(let dictionary):
+            switch dictionary["verifyingContract"] {
+            case .string(let value):
+                //We need it to be unchecked because test sites like to use 0xCcc..cc
+                return AlphaWallet.Address(uncheckedAgainstNullAddress: value)
+            case .array, .object, .number, .bool, .null, .none:
+                return nil
+            }
+        case .array, .string, .number, .bool, .null:
+            return nil
+        }
+    }
 }
 
 extension EIP712TypedData {
-    var rawStringValue: String? {
-        guard let value = try? JSONEncoder().encode(self), let rawValue = String(data: value, encoding: .utf8) else { return nil }
-        return rawValue
-    }
-
     /// Sign-able hash for an `EIP712TypedData`
     var digest: Data {
         let data = Data(bytes: [0x19, 0x01]) + hashStruct(domain, type: "EIP712Domain") + hashStruct(message, type: primaryType)
@@ -72,25 +96,48 @@ extension EIP712TypedData {
             if let valueTypes = types[type] {
                 for field in valueTypes {
                     guard let value = data[field.name] else { continue }
-                    if isStruct(field) {
-                        let nestEncoded = hashStruct(value, type: field.type)
-                        values.append(try ABIValue(nestEncoded, type: .bytes(32)))
-                    } else if let value = makeABIValue(data: value, type: field.type) {
-                        values.append(value)
+                    if let encoded = try encodeField(value: value, type: field.type) {
+                        values.append(encoded)
                     }
                 }
             }
             try encoder.encode(tuple: values)
-        } catch let error {
-            print(error)
+        } catch {
+            //no op
         }
         return encoder.data
     }
 
+    func encodeField(value: JSON, type: String) throws -> ABIValue? {
+        if isStruct(type) {
+            let nestEncoded = hashStruct(value, type: type)
+            return try ABIValue(nestEncoded, type: .bytes(32))
+            //Can't check for "[]" because we want to support static arrays: Type[n]
+        } else if let indexOfOpenBracket = type.index(of: "["), type.hasSuffix("]"), case let .array(elements) = value {
+            var encodedElements: Data = .init()
+            let elementType = type.substring(to: indexOfOpenBracket)
+            for each in elements {
+                if let value = try encodeField(value: each, type: elementType) {
+                    let encoder = ABIEncoder()
+                    try encoder.encode(value)
+                    encodedElements += encoder.data
+                }
+            }
+            return try ABIValue(Crypto.hash(encodedElements), type: .bytes(32))
+        } else if let value = makeABIValue(data: value, type: type) {
+            return value
+        } else {
+            return nil
+        }
+    }
+
     /// Helper func for `encodeData`
     private func makeABIValue(data: JSON?, type: String) -> ABIValue? {
-        if (type == "string" || type == "bytes"), let value = data?.stringValue, let valueData = value.data(using: .utf8) {
+        if type == "string", let value = data?.stringValue, let valueData = value.data(using: .utf8) {
             return try? ABIValue(Crypto.hash(valueData), type: .bytes(32))
+        } else if type == "bytes", let value = data?.stringValue {
+            let data = Data(hex: value.drop0x)
+            return try? ABIValue(Crypto.hash(data), type: .bytes(32))
         } else if type == "bool", let value = data?.boolValue {
             return try? ABIValue(value, type: .bool)
             //Using `AlphaWallet.Address(uncheckedAgainstNullAddress:)` instead of `AlphaWallet.Address(string:)` because EIP712v3 test pages like to use the contract 0xb...b which fails the burn address check
@@ -128,8 +175,6 @@ extension EIP712TypedData {
                 }
             }
         }
-
-        //TODO array types
         return nil
     }
 
@@ -146,8 +191,8 @@ extension EIP712TypedData {
         return size
     }
 
-    private func isStruct(_ field: EIP712Type) -> Bool {
-        types[field.type] != nil
+    private func isStruct(_ fieldType: String) -> Bool {
+        types[fieldType] != nil
     }
 
     private func hashStruct(_ data: JSON, type: String) -> Data {
@@ -155,7 +200,7 @@ extension EIP712TypedData {
     }
 
     private func typeHash(_ type: String) -> Data {
-        Crypto.hash(encodeType(primaryType: type))
+        return Crypto.hash(encodeType(primaryType: type))
     }
 }
 

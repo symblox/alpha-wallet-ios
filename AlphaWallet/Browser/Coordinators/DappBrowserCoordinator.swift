@@ -217,7 +217,7 @@ final class DappBrowserCoordinator: NSObject, Coordinator {
                     callback = DappCallback(id: callbackID, value: .signPersonalMessage(data))
                 case .typedMessage:
                     callback = DappCallback(id: callbackID, value: .signTypedMessage(data))
-                case .eip712v3:
+                case .eip712v3And4:
                     callback = DappCallback(id: callbackID, value: .signTypedMessageV3(data))
                 }
                 strongSelf.browserViewController.notifyFinish(callbackID: callbackID, value: .success(callback))
@@ -366,6 +366,19 @@ final class DappBrowserCoordinator: NSObject, Coordinator {
     func isMagicLink(_ url: URL) -> Bool {
         return RPCServer.allCases.contains { $0.magicLinkHost == url.host }
     }
+
+    func `switch`(toServer server: RPCServer, url: URL? = nil) {
+        self.server = server
+        withCurrentUrl { previousUrl in
+            //TODO extract method? Clean up
+            browserNavBar?.clearDisplay()
+            browserNavBar?.configure(server: server)
+            start()
+
+            guard let url = url ?? previousUrl else { return }
+            open(url: url, animated: false)
+        }
+    }
 }
 
 extension DappBrowserCoordinator: TransactionConfirmationCoordinatorDelegate {
@@ -451,7 +464,7 @@ extension DappBrowserCoordinator: BrowserViewControllerDelegate {
         case .signTypedMessage(let typedData):
             signMessage(with: .typedMessage(typedData), account: account, callbackID: callbackID)
         case .signTypedMessageV3(let typedData):
-            signMessage(with: .eip712v3(typedData), account: account, callbackID: callbackID)
+            signMessage(with: .eip712v3And4(typedData), account: account, callbackID: callbackID)
         case .unknown, .sendRawTransaction:
             break
         }
@@ -741,19 +754,9 @@ extension DappBrowserCoordinator: ServersCoordinatorDelegate {
         case .auto:
             break
         case .server(let server):
-            self.server = server
             coordinator.serversViewController.navigationController?.dismiss(animated: true)
             removeCoordinator(coordinator)
-
-            withCurrentUrl { url in
-                //TODO extract method? Clean up
-                browserNavBar?.clearDisplay()
-                browserNavBar?.configure(server: server)
-                start()
-
-                guard let url = url else { return }
-                open(url: url, animated: false)
-            }
+            `switch`(toServer: server)
         }
     }
 

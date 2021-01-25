@@ -13,6 +13,11 @@ import Result
 typealias WalletConnectURL = WCURL
 typealias WalletConnectSession = Session
 
+enum SessionsToDisconnect {
+    case allExcept(_ servers: [RPCServer])
+    case all
+}
+
 class WalletConnectCoordinator: NSObject, Coordinator {
     private lazy var server: WalletConnectServer = {
         let server = WalletConnectServer(wallet: sessions.anyValue.account.address)
@@ -31,7 +36,7 @@ class WalletConnectCoordinator: NSObject, Coordinator {
     private let analyticsCoordinator: AnalyticsCoordinator?
     private let config: Config
     private let nativeCryptoCurrencyPrices: ServerDictionary<Subscribable<Double>>
-
+    private weak var notificationAlertController: UIViewController?
     private var serverChoices: [RPCServer] {
         ServersCoordinator.serversOrdered.filter { config.enabledServers.contains($0) }
     }
@@ -45,6 +50,33 @@ class WalletConnectCoordinator: NSObject, Coordinator {
         self.nativeCryptoCurrencyPrices = nativeCryptoCurrencyPrices
         super.init()
         start()
+    }
+
+    //NOTE: we are using disconnection to notify dapp that we get disconnect, in other case dapp still stay connected
+    func disconnect(sessionsToDisconnect: SessionsToDisconnect) {
+
+        let walletConnectSessions = UserDefaults.standard.walletConnectSessions
+        let filteredSessions: [WalletConnectSession]
+
+        switch sessionsToDisconnect {
+        case .all:
+            filteredSessions = walletConnectSessions
+        case .allExcept(let servers):
+            //NOTE: as we got stored session urls mapped with rpc servers we can filter urls and exclude unused session
+            let sessionURLsToDisconnect = UserDefaults.standard.urlToServer.map {
+                (key: $0.key, server: $0.value)
+            }.filter {
+                !servers.contains($0.server)
+            }.map {
+                $0.key
+            }
+
+            filteredSessions = walletConnectSessions.filter { sessionURLsToDisconnect.contains($0.url) }
+        }
+
+        for each in filteredSessions {
+            try? server.disconnect(session: each)
+        }
     }
 
     private func start() {
@@ -101,7 +133,7 @@ extension WalletConnectCoordinator: WalletConnectServerDelegate {
                     seal.reject(PMKError.cancelled)
                 }
             }
-        }.then { Void -> Promise<WalletConnectServer.Callback> in
+        }.then { _ -> Promise<WalletConnectServer.Callback> in
             let account = session.account.address
             switch action.type {
             case .signTransaction(let transaction):
@@ -113,7 +145,7 @@ extension WalletConnectCoordinator: WalletConnectServerDelegate {
             case .signPersonalMessage(let hexMessage):
                 return self.signMessage(with: .personalMessage(hexMessage.toHexData), account: account, callbackID: action.id, url: action.url)
             case .signTypedMessageV3(let typedData):
-                return self.signMessage(with: .eip712v3(typedData), account: account, callbackID: action.id, url: action.url)
+                return self.signMessage(with: .eip712v3And4(typedData), account: account, callbackID: action.id, url: action.url)
             case .sendRawTransaction(let raw):
                 return self.sendRawTransaction(session: session, rawTransaction: raw, callbackID: action.id, url: action.url)
             case .getTransactionCount:
@@ -175,7 +207,16 @@ extension WalletConnectCoordinator: WalletConnectServerDelegate {
     }
 
     func server(_ server: WalletConnectServer, didFail error: Error) {
-        navigationController.displaySuccess(message: R.string.localizable.walletConnectFailureTitle())
+        let errorMessage = R.string.localizable.walletConnectFailureTitle()
+        if let presentedController = notificationAlertController {
+            presentedController.dismiss(animated: true) { [weak self] in
+                guard let strongSelf = self else { return }
+
+                strongSelf.notificationAlertController = strongSelf.navigationController.displaySuccess(message: errorMessage)
+            }
+        } else {
+            notificationAlertController = navigationController.displaySuccess(message: errorMessage)
+        }
     }
 
     func server(_ server: WalletConnectServer, shouldConnectFor connection: WalletConnectConnection, completion: @escaping (WalletConnectServer.ConnectionChoice) -> Void) {
@@ -208,7 +249,7 @@ extension WalletConnectCoordinator: WalletConnectServerDelegate {
         firstly {
             GetNextNonce(server: session.server, wallet: session.account.address).promise()
         }.map {
-            if let data = Data(fromHexEncodedString: String(format:"%02X", $0)) {
+            if let data = Data(fromHexEncodedString: String(format: "%02X", $0)) {
                 return .init(id: id, url: url, value: data)
             } else {
                 throw PMKError.badInput

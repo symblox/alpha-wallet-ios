@@ -146,8 +146,8 @@ class InCoordinator: NSObject, Coordinator {
         super.init()
     }
 
-    func start() { 
-        
+    func start() {
+
         showTabBar(for: wallet)
         checkDevice()
 
@@ -498,15 +498,27 @@ class InCoordinator: NSObject, Coordinator {
         }
     }
 
-    private func restart(for account: Wallet, in coordinator: TransactionCoordinator) {
+    private func restart(for account: Wallet, in coordinator: TransactionCoordinator, reason: RestartReason) {
         navigationController.dismiss(animated: false)
         coordinator.navigationController.dismiss(animated: true)
         coordinator.stop()
         removeAllCoordinators()
         OpenSea.resetInstances()
+        disconnectWalletConnectSessionsSelectively(for: reason)
         showTabBar(for: account)
         fetchXMLAssetDefinitions()
         listOfBadTokenScriptFilesChanged(fileNames: assetDefinitionStore.listOfBadTokenScriptFiles + assetDefinitionStore.conflictingTokenScriptFileNames.all)
+    }
+
+    private func disconnectWalletConnectSessionsSelectively(for reason: RestartReason) {
+        switch reason {
+        case .changeLocalization:
+            break //no op
+        case .serverChange:
+            walletConnectCoordinator.disconnect(sessionsToDisconnect: .allExcept(config.enabledServers))
+        case .walletChange:
+            walletConnectCoordinator.disconnect(sessionsToDisconnect: .all)
+        }
     }
 
     private func removeAllCoordinators() {
@@ -715,7 +727,7 @@ extension InCoordinator: CanOpenURL {
         let controller = browserCoordinator.navigationController
         browserCoordinator.open(url: url, animated: false)
         controller.makePresentationFullScreenForiOS13Migration()
-        viewController.present(controller, animated: true, completion: nil)
+        viewController.present(controller, animated: true)
     }
 
     func didPressViewContractWebPage(forContract contract: AlphaWallet.Address, server: RPCServer, in viewController: UIViewController) {
@@ -748,12 +760,12 @@ extension InCoordinator: SettingsCoordinatorDelegate {
         delegate?.didCancel(in: self)
     }
 
-    func didRestart(with account: Wallet, in coordinator: SettingsCoordinator) {
+    func didRestart(with account: Wallet, in coordinator: SettingsCoordinator, reason: RestartReason) {
         guard let transactionCoordinator = transactionCoordinator else {
             return
         }
 
-        restart(for: account, in: transactionCoordinator)
+        restart(for: account, in: transactionCoordinator, reason: reason)
     }
 
     func didUpdateAccounts(in coordinator: SettingsCoordinator) {
@@ -814,12 +826,31 @@ extension InCoordinator: TokensCoordinatorDelegate {
         }
     }
 
+    func shouldOpen(url: URL, onServer server: RPCServer, forTransactionType transactionType: TransactionType, in coordinator: TokensCoordinator) {
+        switch transactionType {
+        case .nativeCryptocurrency:
+            open(url: url, onServer: server)
+        case .ERC20Token, .ERC875Token, .ERC875TokenOrder, .ERC721Token, .ERC721ForTicketToken, .dapp, .tokenScript, .claimPaidErc875MagicLink:
+            break
+        }
+    }
+
     private func openSwapToken(for url: URL, coordinator: TokensCoordinator) {
         guard let dappBrowserCoordinator = dappBrowserCoordinator else { return }
 
         showTab(.browser)
 
         dappBrowserCoordinator.open(url: url, animated: true, forceReload: true)
+    }
+
+    private func open(url: URL, onServer server: RPCServer) {
+        guard let dappBrowserCoordinator = dappBrowserCoordinator else { return }
+
+
+        //Server shouldn't be disabled since the action is selected
+        guard config.enabledServers.contains(server) else { return }
+        showTab(.browser)
+        dappBrowserCoordinator.switch(toServer: server, url: url)
     }
 
     func didPress(for type: PaymentFlow, server: RPCServer, in coordinator: TokensCoordinator) {

@@ -158,7 +158,6 @@ class SingleChainTransactionEtherscanDataCoordinator: SingleChainTransactionData
                 guard let error = error as? JSONRPCError else { return }
                 switch error {
                 case .responseError:
-                    // NSLog("code \(code), error: \(message)")
                     self.delete(transactions: [transaction])
                 case .resultObjectParseError:
                     if transaction.date > Date().addingTimeInterval(TransactionDataCoordinator.deleteMissingInternalSeconds) {
@@ -350,9 +349,9 @@ class SingleChainTransactionEtherscanDataCoordinator: SingleChainTransactionData
 
         override func main() {
             guard let coordinator = self.coordinator else { return }
-            let promise = coordinator.fetchTransactions(for: session.account.address, startBlock: startBlock, sortOrder: sortOrder)
-
-            promise.done { transactions in
+            firstly {
+                coordinator.fetchTransactions(for: session.account.address, startBlock: startBlock, sortOrder: sortOrder)
+            }.done { transactions in
                 coordinator.notifyUserEtherReceived(inNewTransactions: transactions)
                 coordinator.update(items: transactions)
             }.catch { e in

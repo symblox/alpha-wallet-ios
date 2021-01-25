@@ -333,7 +333,6 @@ class UniversalLinkCoordinator: Coordinator {
         return true
     }
 
-
     private func handleMagicLink() -> Bool {
         preparingToImportUniversalLink()
         let isLegacyLink = url.description.hasPrefix(Constants.legacyMagicLinkPrefix)
@@ -370,7 +369,7 @@ class UniversalLinkCoordinator: Coordinator {
                         contractAsAddress: signedOrder.order.contractAddress
                 )
             }
-        case .failure(let error):
+        case .failure:
             showImportError(errorMessage: R.string.localizable.aClaimTokenInvalidLinkTryAgain())
             return false
         }

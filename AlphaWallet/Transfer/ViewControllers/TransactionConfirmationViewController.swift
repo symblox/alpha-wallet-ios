@@ -21,6 +21,7 @@ class TransactionConfirmationViewController: UIViewController {
     private lazy var headerView: HeaderView = HeaderView(viewModel: .init(title: viewModel.navigationTitle))
     private let buttonsBar = ButtonsBar(configuration: .green(buttons: 1))
     private var viewModel: TransactionConfirmationViewModel
+    private var timerToReenableConfirmButton: Timer?
 
     private let stackView: UIStackView = {
         let stackView = UIStackView()
@@ -94,7 +95,8 @@ class TransactionConfirmationViewController: UIViewController {
     }()
 
     private var allowPresentationAnimation: Bool = true
-    private var allowDismissialAnimation: Bool = true
+    private var canBeConfirmed = true
+    private var allowDismissalAnimation: Bool = true
 
     var canBeDismissed = true
     weak var delegate: TransactionConfirmationViewControllerDelegate?
@@ -152,7 +154,7 @@ class TransactionConfirmationViewController: UIViewController {
         headerView.closeButton.addTarget(self, action: #selector(dismissViewController), for: .touchUpInside)
 
         contentSizeObservation = scrollView.observe(\.contentSize, options: [.new, .initial]) { [weak self] scrollView, _ in
-            guard let strongSelf = self, strongSelf.allowDismissialAnimation else { return }
+            guard let strongSelf = self, strongSelf.allowDismissalAnimation else { return }
 
             let statusBarHeight = UIApplication.shared.statusBarFrame.height
             let contentHeight = scrollView.contentSize.height + DataEntry.Metric.TransactionConfirmation.footerHeight + DataEntry.Metric.TransactionConfirmation.headerHeight + UIApplication.shared.bottomSafeAreaHeight
@@ -201,6 +203,11 @@ class TransactionConfirmationViewController: UIViewController {
                 sendFungiblesViewModel.session.refresh(.ethBalance)
             case .ERC20Token(let token, _, _):
                 sendFungiblesViewModel.updateBalance(.erc20(token: token))
+                sendFungiblesViewModel.ethPrice.subscribe { [weak self] cryptoToDollarRate in
+                    guard let strongSelf = self else { return }
+                    sendFungiblesViewModel.cryptoToDollarRate = cryptoToDollarRate
+                    strongSelf.generateSubviews()
+                }
             case .ERC875Token, .ERC875TokenOrder, .ERC721Token, .ERC721ForTicketToken, .dapp, .tokenScript, .claimPaidErc875MagicLink:
                 sendFungiblesViewModel.ethPrice.subscribe { [weak self] cryptoToDollarRate in
                     guard let strongSelf = self else { return }
@@ -273,8 +280,8 @@ class TransactionConfirmationViewController: UIViewController {
     }
 
     func dismissViewAnimated(with completion: @escaping () -> Void) {
-        guard allowDismissialAnimation else { return }
-        allowDismissialAnimation = false
+        guard allowDismissalAnimation else { return }
+        allowDismissalAnimation = false
 
         bottomConstraint.constant = heightConstraint.constant
 
@@ -328,6 +335,20 @@ class TransactionConfirmationViewController: UIViewController {
         generateSubviews()
     }
 
+    func reloadViewWithGasChanges() {
+        canBeConfirmed = false
+        reloadView()
+        createTimerToRestoreConfirmButton()
+    }
+
+    private func createTimerToRestoreConfirmButton() {
+        timerToReenableConfirmButton?.invalidate()
+        let gap = TimeInterval(0.3)
+        timerToReenableConfirmButton = Timer.scheduledTimer(withTimeInterval: gap, repeats: false) { [weak self] _ in
+            self?.canBeConfirmed = true
+        }
+    }
+
     private func configure(for viewModel: TransactionConfirmationViewModel) {
         scrollView.backgroundColor = viewModel.backgroundColor
         view.backgroundColor = viewModel.backgroundColor
@@ -341,6 +362,7 @@ class TransactionConfirmationViewController: UIViewController {
     }
 
     @objc func confirmButtonTapped(_ sender: UIButton) {
+        guard canBeConfirmed else { return }
         delegate?.controller(self, continueButtonTapped: sender)
     }
 
