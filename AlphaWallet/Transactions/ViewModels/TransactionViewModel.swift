@@ -26,7 +26,8 @@ struct TransactionViewModel {
     }
 
     var direction: TransactionDirection {
-        if currentWallet.address.sameContract(as: transaction.from) {
+        let hexConstract = VelasConvertUtil.isVlxAddress(transaction.from) ? VelasConvertUtil.vlxToEth(vlxAddress: transaction.from) : transaction.from
+        if currentWallet.address.sameContract(as: hexConstract) {
             return .outgoing
         } else {
             return .incoming
