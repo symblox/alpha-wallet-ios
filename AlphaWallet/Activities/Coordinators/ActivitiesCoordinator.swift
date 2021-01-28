@@ -30,7 +30,7 @@ class ActivitiesCoordinator: Coordinator {
     weak var delegate: ActivitiesCoordinatorDelegate?
 
     private var tokensInDatabase: [TokenObject] {
-        tokensStorages.values.flatMap { $0.validEnabledObjects }
+        tokensStorages.values.flatMap { $0.enabledObject }
     }
 
     private var wallet: Wallet {
@@ -108,12 +108,14 @@ class ActivitiesCoordinator: Coordinator {
     }
 
     func reloadImpl() {
+        let validEnableVelas = config.singleEnabledServer
         let contractServerXmlHandlers: [(contract: AlphaWallet.Address, server: RPCServer, xmlHandler: XMLHandler)] = tokensInDatabase.compactMap { each in
             let eachContract = each.contractAddress
             let eachServer = each.server
             let xmlHandler = XMLHandler(token: each, assetDefinitionStore: assetDefinitionStore)
             guard xmlHandler.hasAssetDefinition else { return nil }
             guard xmlHandler.server?.matches(server: eachServer) ?? false else { return nil }
+        
             return (contract: eachContract, server: eachServer, xmlHandler: xmlHandler)
         }
 
@@ -162,6 +164,13 @@ class ActivitiesCoordinator: Coordinator {
         }
 
         activities = activitiesAndTokens.map { $0.0 }
+        //REFACTOR: workaround to avoid duplicate items
+        var newActivities = [Activity]()
+        activities.forEach {act in
+            if newActivities.contains { act.transactionId == $0.transactionId } {return}
+            newActivities.append(act)
+        }
+        activities = newActivities
         activities.sort { $0.blockNumber > $1.blockNumber }
         updateActivitiesIndexLookup()
         reloadViewController(reloadImmediately: false)
