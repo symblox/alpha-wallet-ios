@@ -128,7 +128,7 @@ extension SettingsCoordinator: SettingsViewControllerDelegate {
 
     func settingsViewControllerActiveNetworksSelected(in controller: SettingsViewController) {
         let coordinator = EnabledServersCoordinator(navigationController: navigationController, selectedServers: config.enabledServers)
-        coordinator.selectedSubServers = config.enabledSubServer
+        coordinator.selectedSubServers = config.enabledServers
         coordinator.delegate = self
         coordinator.start()
         addCoordinator(coordinator)
@@ -194,12 +194,9 @@ extension SettingsCoordinator: EnabledServersCoordinatorDelegate {
 		//Defensive. Shouldn't allow no server to be selected
 		guard !servers.isEmpty else { return }
 
-        let configEnableds = config.enabledServers.sorted(by: { $0.chainID < $1.chainID })
-        let selecteds = servers.sorted(by: { $0.chainID < $1.chainID })
-        let selectedSubs = servers.compactMap{ $0.chainID != $0.addChainID ? $0 : nil }.sorted{ $0.chainID < $1.chainID}
-        let configSubEnableds = config.enabledSubServer.sorted(by: { $0.chainID < $1.chainID })
-        let unchanged = configEnableds == selecteds && selectedSubs == configSubEnableds
-       
+        let unchanged = config.enabledServers.sorted(by: { $0.addChainID < $1.addChainID }) == servers.sorted(by: { $0.addChainID < $1.addChainID })
+
+        print("VELAS_LOG change network \(!unchanged)")
         if unchanged {
 			coordinator.stop()
 			removeCoordinator(coordinator)

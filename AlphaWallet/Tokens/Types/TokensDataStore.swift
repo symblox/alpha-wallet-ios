@@ -118,12 +118,12 @@ class TokensDataStore {
                 .filter("chainId = \(self.chainId)"))
     }
 
-    var validEnabledObjects: [TokenObject] {
-        if server.isVelasCase && !config.singleEnabledServer.contains(server) {
-            return [TokenObject]()
-        }
-        return enabledObject
-    }
+//    var validEnabledObjects: [TokenObject] {
+//        if server.isVelasCase && !config.singleEnabledServer.contains(server) {
+//            return [TokenObject]()
+//        }
+//        return enabledObject
+//    }
     
     static func etherToken(forServer server: RPCServer) -> TokenObject {
         return TokenObject(
@@ -168,30 +168,36 @@ class TokensDataStore {
         self.realm = realm
         self.openSea = OpenSea.createInstance(forServer: server)
         self.addEthToken()
-
+        self.checkAndValidVelasToken()
         //TODO not needed for setupCallForAssetAttributeCoordinators? Look for other callers of DataStore.updateDelegate
         self.scheduledTimerForPricesUpdate()
         self.scheduledTimerForEthBalanceUpdate()
     }
 
+    // Tu: use this func to remove duplicate native velas token in the previous build
+    private func checkAndValidVelasToken() {
+        guard server.isVelasCase else {return}
+        let nativeVelasObject = objects.filter { $0.type == .nativeCryptocurrency }
+        guard nativeVelasObject.count > 1 else {return}
+        for token in nativeVelasObject {
+            if token.chainId == token.addChainServerID {
+                delete(tokens: [token])
+            }
+        }
+    }
+    
     private func addEthToken() {
         //Check if we have previous values.
         let etherToken = TokensDataStore.etherToken(forServer: server)
-        if server == .velaschina {
-            if let token = objects.first{$0.addChainServerID == server.addChainID } {
-                update(token: token, action: .isDisabled(token.rawType == TokenType.nativeCryptocurrency.rawValue))
-            }
-            return
-        }
         guard let existedToken = objects.first(where: { $0 == etherToken }) else {
             add(tokens: [etherToken])
             return
         }
         
-        let enableSubServers = config.enabledSubServer
+        let enableSubServers = config.enabledServers
         if let associatedSubServer = enableSubServers.first(where: { $0.chainID == server.chainID }) {
             update(token: existedToken, action: .name(associatedSubServer.name))
-        } else if (existedToken.name != server.name) {
+        } else if existedToken.name != server.name {
             update(token: existedToken, action: .name(server.name))
         }
     }
@@ -606,6 +612,12 @@ class TokensDataStore {
     }
 
     func refreshETHBalance() {
+        if config.enabledServers.contains(server) {
+            let datetimeFormmater = DateFormatter()
+            datetimeFormmater.dateFormat = "yy-MM-dd hh:mm:ss"
+            let now = datetimeFormmater.string(from: Date())
+            print("VELAS_LOG \(now) | refreshETHBalance \(server.uniqueName) | rpc \(server.rpcURL)")
+        }
         getNativeCryptoCurrencyBalanceCoordinator.getBalance(for: account.address) {  [weak self] result in
             guard let strongSelf = self else { return }
             switch result {

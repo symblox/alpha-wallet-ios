@@ -82,11 +82,6 @@ final class DappBrowserCoordinator: NSObject, Coordinator {
             Config.setChainId(newValue.chainID)
         }
     }
-    
-    private var validServer: RPCServer {
-        let selfServer = self.server
-        return config.singleEnabledServer.filter{ $0.chainID == selfServer.chainID }.first ?? selfServer
-    }
 
     private var enableToolbar: Bool = true {
         didSet {
@@ -256,7 +251,7 @@ final class DappBrowserCoordinator: NSObject, Coordinator {
         }
         addBookmarkAction.isEnabled = hasWebPageLoaded
 
-        let switchNetworkAction = UIAlertAction(title: R.string.localizable.dappBrowserSwitchServer(validServer.name), style: .default) { [weak self] _ in
+        let switchNetworkAction = UIAlertAction(title: R.string.localizable.dappBrowserSwitchServer(server.name), style: .default) { [weak self] _ in
             self?.showServers()
         }
 

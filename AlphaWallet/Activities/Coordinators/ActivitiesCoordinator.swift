@@ -108,7 +108,6 @@ class ActivitiesCoordinator: Coordinator {
     }
 
     func reloadImpl() {
-        let validEnableVelas = config.singleEnabledServer
         let contractServerXmlHandlers: [(contract: AlphaWallet.Address, server: RPCServer, xmlHandler: XMLHandler)] = tokensInDatabase.compactMap { each in
             let eachContract = each.contractAddress
             let eachServer = each.server
@@ -182,7 +181,7 @@ class ActivitiesCoordinator: Coordinator {
 
     private func getActivities(_ allActivities: [EventActivity], forTokenContract contract: AlphaWallet.Address, server: RPCServer, card: TokenScriptCard, interpolatedFilter: String) -> [(Activity, TokenObject, TokenHolder)] {
         let events = allActivities.filter { $0.contract == card.eventOrigin.contract.eip55String
-                && $0.server == server
+                && ((server.isVelasCase && $0.server.isVelasCase) || $0.server == server)
                 && $0.eventName == card.eventOrigin.eventName
                 && $0.filter == interpolatedFilter
         }
