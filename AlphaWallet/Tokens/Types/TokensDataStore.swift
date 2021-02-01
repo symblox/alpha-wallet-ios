@@ -167,8 +167,8 @@ class TokensDataStore {
         self.assetDefinitionStore = assetDefinitionStore
         self.realm = realm
         self.openSea = OpenSea.createInstance(forServer: server)
-        self.addEthToken()
         self.checkAndValidVelasToken()
+        self.addEthToken()
         //TODO not needed for setupCallForAssetAttributeCoordinators? Look for other callers of DataStore.updateDelegate
         self.scheduledTimerForPricesUpdate()
         self.scheduledTimerForEthBalanceUpdate()
@@ -178,11 +178,8 @@ class TokensDataStore {
     private func checkAndValidVelasToken() {
         guard server.isVelasCase else {return}
         let nativeVelasObject = objects.filter { $0.type == .nativeCryptocurrency }
-        guard nativeVelasObject.count > 1 else {return}
-        for token in nativeVelasObject {
-            if token.chainId == token.addChainServerID {
-                delete(tokens: [token])
-            }
+        if nativeVelasObject.count > 1 {
+            delete(tokens: nativeVelasObject)
         }
     }
     
