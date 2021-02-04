@@ -83,7 +83,7 @@ class TokenObject: Object {
 
     override func isEqual(_ object: Any?) -> Bool {
         guard let object = object as? TokenObject else { return false }
-        return object.contractAddress.sameContract(as: contractAddress)
+        return object.contractAddress.sameContract(as: contractAddress)  //&& addChainServerID == object.addChainServerID
     }
 
     func title(withAssetDefinitionStore assetDefinitionStore: AssetDefinitionStore) -> String {

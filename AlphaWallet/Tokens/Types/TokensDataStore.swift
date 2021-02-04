@@ -167,7 +167,6 @@ class TokensDataStore {
         self.assetDefinitionStore = assetDefinitionStore
         self.realm = realm
         self.openSea = OpenSea.createInstance(forServer: server)
-        self.checkAndValidVelasToken()
         self.addEthToken()
         //TODO not needed for setupCallForAssetAttributeCoordinators? Look for other callers of DataStore.updateDelegate
         self.scheduledTimerForPricesUpdate()
@@ -186,7 +185,16 @@ class TokensDataStore {
     private func addEthToken() {
         //Check if we have previous values.
         let etherToken = TokensDataStore.etherToken(forServer: server)
-        guard let existedToken = objects.first(where: { $0 == etherToken }) else {
+        var existedEths = objects.filter { $0 == etherToken }
+        if server.isVelasCase {
+            if existedEths.count > 1 {
+                let keepToken = existedEths.first{ !$0.shouldDisplay } ?? existedEths.first!
+                let removedTokens = existedEths.compactMap{ $0.primaryKey != keepToken.primaryKey ? $0 : nil }
+                existedEths = [keepToken]
+                delete(tokens: removedTokens)
+            }
+        }
+        guard let existedToken = existedEths.first else {
             add(tokens: [etherToken])
             return
         }
