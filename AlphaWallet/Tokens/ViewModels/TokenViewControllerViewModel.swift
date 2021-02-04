@@ -55,7 +55,7 @@ struct TokenViewControllerViewModel {
                 switch token.server {
                 case .xDai:
                     return [.init(type: .xDaiBridge)] + actions + swapTokenActionsService.actions(token: token)
-                case .main, .kovan, .ropsten, .rinkeby, .poa, .sokol, .classic, .callisto, .goerli, .artis_sigma1, .artis_tau1, .binance_smart_chain, .binance_smart_chain_testnet, .heco, .heco_testnet, .custom, .velas, .velaschina, .velastestnet:
+                case .main, .kovan, .ropsten, .rinkeby, .poa, .sokol, .classic, .callisto, .goerli, .artis_sigma1, .artis_tau1, .binance_smart_chain, .binance_smart_chain_testnet, .heco, .heco_testnet, .custom, .velas, .velaschina, .velaschina2, .velastestnet:
                     return actions + swapTokenActionsService.actions(token: token)
                 }
             }
@@ -70,7 +70,7 @@ struct TokenViewControllerViewModel {
                 switch token.server {
                 case .xDai:
                     xDaiBridgeActions = [.init(type: .xDaiBridge)]
-                case .main, .kovan, .ropsten, .rinkeby, .poa, .sokol, .classic, .callisto, .goerli, .artis_sigma1, .artis_tau1, .binance_smart_chain, .binance_smart_chain_testnet, .heco, .heco_testnet, .custom, .velas, .velaschina, .velastestnet:
+                case .main, .kovan, .ropsten, .rinkeby, .poa, .sokol, .classic, .callisto, .goerli, .artis_sigma1, .artis_tau1, .binance_smart_chain, .binance_smart_chain_testnet, .heco, .heco_testnet, .custom, .velas, .velaschina, .velaschina2, .velastestnet:
                     xDaiBridgeActions = []
                 }
 

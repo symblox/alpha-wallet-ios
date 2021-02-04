@@ -83,14 +83,11 @@ class VelasTokensViewModel: TokensViewModel {
     }
 
     private func groupIdForNetwork(_ network: RPCServer) -> ServerGroup {
-        switch network {
-        case .velas, .velaschina:
+        if network.isVelasFamily {
             return .Velas(.velas)
-        case .velastestnet:
-            return .Velas(.velas)
-        case .main:
+        } else if network == .main {
             return .Main
-        default:
+        } else {
             return .Other
         }
     }

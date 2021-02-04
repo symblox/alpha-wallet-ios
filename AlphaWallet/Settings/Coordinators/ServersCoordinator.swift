@@ -12,6 +12,7 @@ class ServersCoordinator: Coordinator {
         .velas,
         .velastestnet,
         .velaschina,
+        .velaschina2,
         .main,
         .xDai,
         .classic,

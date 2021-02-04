@@ -132,7 +132,9 @@ class SingleChainTransactionEtherscanDataCoordinator: SingleChainTransactionData
                 let contractsToTokenTypes = Dictionary(uniqueKeysWithValues: zip(contracts, tokenTypes))
                 return (transactions: filteredTransactions, contractTypes: contractsToTokenTypes)
             }
-            case .main, .classic, .kovan, .ropsten, .rinkeby, .sokol, .callisto, .goerli, .artis_sigma1, .artis_tau1, .binance_smart_chain, .binance_smart_chain_testnet, .custom, .velas, .velastestnet, .velaschina, .heco, .heco_testnet:
+        case .velas, .velaschina, .velaschina2:
+            return .value((transactions: filteredTransactions, contractTypes: .init()))
+        case .main, .classic, .kovan, .ropsten, .rinkeby, .sokol, .callisto, .goerli, .artis_sigma1, .artis_tau1, .binance_smart_chain, .binance_smart_chain_testnet, .custom, .velastestnet, .heco, .heco_testnet:
             return .value((transactions: filteredTransactions, contractTypes: .init()))
         }
     }
@@ -239,7 +241,7 @@ class SingleChainTransactionEtherscanDataCoordinator: SingleChainTransactionData
             etherReceivedUsedForBackupPrompt.flatMap { promptBackupCoordinator.showCreateBackupAfterReceiveNativeCryptoCurrencyPrompt(nativeCryptoCurrency: $0) }
         case .classic, .xDai:
             break
-        case .kovan, .ropsten, .rinkeby, .poa, .sokol, .callisto, .goerli, .artis_sigma1, .artis_tau1, .binance_smart_chain, .binance_smart_chain_testnet, .custom, .velas, .velastestnet, .velaschina, .heco, .heco_testnet:
+        case .kovan, .ropsten, .rinkeby, .poa, .sokol, .callisto, .goerli, .artis_sigma1, .artis_tau1, .binance_smart_chain, .binance_smart_chain_testnet, .custom, .velas, .velastestnet, .velaschina, .velaschina2, .heco, .heco_testnet:
             break
         }
     }
@@ -259,7 +261,7 @@ class SingleChainTransactionEtherscanDataCoordinator: SingleChainTransactionData
         let notificationCenter = UNUserNotificationCenter.current()
         let content = UNMutableNotificationContent()
         switch session.server {
-        case .main, .xDai, .velas, .velastestnet, .velaschina:
+        case .main, .xDai, .velas, .velastestnet, .velaschina, .velaschina2:
             content.body = R.string.localizable.transactionsReceivedEther(amount, session.server.symbol)
         case .kovan, .ropsten, .rinkeby, .poa, .sokol, .classic, .callisto, .goerli, .artis_sigma1, .artis_tau1, .binance_smart_chain, .binance_smart_chain_testnet, .custom, .heco, .heco_testnet:
             content.body = R.string.localizable.transactionsReceivedEther("\(amount) (\(session.server.name))", session.server.symbol)

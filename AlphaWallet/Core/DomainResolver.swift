@@ -104,7 +104,7 @@ fileprivate extension RPCServer {
         case .kovan: return "kovan"
         case .ropsten: return "ropsten"
         case .rinkeby: return "rinkeby"
-        case .poa, .sokol, .classic, .callisto, .xDai, .goerli, .artis_sigma1, .artis_tau1, .binance_smart_chain, .binance_smart_chain_testnet, .velas ,.velastestnet, .velaschina, .heco, .heco_testnet:
+        case .poa, .sokol, .classic, .callisto, .xDai, .goerli, .artis_sigma1, .artis_tau1, .binance_smart_chain, .binance_smart_chain_testnet, .velas ,.velastestnet, .velaschina, .velaschina2, .heco, .heco_testnet:
             return nil
         case .custom:
             return nil

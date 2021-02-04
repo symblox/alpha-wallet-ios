@@ -171,7 +171,7 @@ class SingleChainTokenCoordinator: Coordinator {
             autoDetectXDaiPartnerTokens()
         case .rinkeby:
             autoDetectRinkebyPartnerTokens()
-        case .kovan, .ropsten, .poa, .sokol, .classic, .callisto, .goerli, .artis_sigma1, .binance_smart_chain, .binance_smart_chain_testnet, .artis_tau1, .custom, .velas, .velastestnet, .velaschina, .heco_testnet, .heco:
+        case .kovan, .ropsten, .poa, .sokol, .classic, .callisto, .goerli, .artis_sigma1, .binance_smart_chain, .binance_smart_chain_testnet, .artis_tau1, .custom, .velas, .velastestnet, .velaschina, .velaschina2, .heco_testnet, .heco:
             break
         }
     }

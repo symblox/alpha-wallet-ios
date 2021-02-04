@@ -161,7 +161,7 @@ fileprivate extension RPCServer {
 
     var githubAssetsSource: GithubAssetsURLResolver.Source {
         switch self {
-        case .velas, .velastestnet, .velaschina:
+        case .velas, .velastestnet, .velaschina, .velaschina2:
             return .symbloxTokenSource
         case .rinkeby, .ropsten, .sokol, .kovan, .goerli:
             return .testNetTokensSource

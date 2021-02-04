@@ -94,7 +94,7 @@ extension RPCServer {
           case .main: return 3
           case .xDai: return 5
           case .velas: return 1
-          case .velaschina: return 1
+          case .velaschina, .velaschina2: return 1
           case .velastestnet: return 4
           case .classic: return 6
           case .poa: return 7
