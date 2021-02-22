@@ -79,7 +79,7 @@ enum RPCServer: Hashable, CaseIterable {
         case .binance_smart_chain_testnet: return "Binance Testnet"
         case .velas: return "Velas"
         case .velaschina: return "Velas"
-        case .velaschina2: return "Velas ex"
+        case .velaschina2: return "Velas Aux 3"
         case .velastestnet: return "Velas Testnet"
         case .heco: return "Heco"
         case .heco_testnet: return "Heco Testnet"
@@ -91,7 +91,7 @@ enum RPCServer: Hashable, CaseIterable {
     var uniqueName: String {
         switch self {
         case .velaschina: return "Velas Aux"
-        case .velaschina2: return "Velas beside"
+        case .velaschina2: return "Velas Aux 3"
         default:
             return name
         }
@@ -266,8 +266,8 @@ enum RPCServer: Hashable, CaseIterable {
         case .artis_sigma1, .artis_tau1: return "ATS"
         case .binance_smart_chain, .binance_smart_chain_testnet: return "BNB"
         case .velas: return "-VLX"
-        case .velaschina: return "AVLX"
-        case .velaschina2: return "AVLX2"
+        case .velaschina: return "VLX"
+        case .velaschina2: return "VLX"
         case .velastestnet: return "VLX"
         case .heco, .heco_testnet: return "HT"
         case .custom(let custom):
@@ -372,7 +372,7 @@ enum RPCServer: Hashable, CaseIterable {
             case .binance_smart_chain_testnet: return "https://data-seed-prebsc-1-s1.binance.org:8545"
             case .velas: return "https://explorer.velas.com/rpc"
             case .velaschina: return "https://rpc.symblox.net:8080"
-            case .velaschina2: return "https://rpc.symblox.net:8080"
+            case .velaschina2: return "https://explorer.velas.com/rpc"
             case .velastestnet: return "https://explorer.testnet.veladev.net/rpc"
             case .heco: return "https://http-mainnet.hecochain.com"
             case .heco_testnet: return "https://http-testnet.hecochain.com"
