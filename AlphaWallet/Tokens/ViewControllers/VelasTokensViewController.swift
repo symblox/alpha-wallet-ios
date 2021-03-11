@@ -51,7 +51,6 @@ class VelasTokensViewController: TokensViewController {
         let token = viewModel.item(for: indexPath.row, section: section)
         let server = token.server
         let session = sessions[server]
-        let velasCase = config.enabledServers.first{ $0.isVelasCase }
         switch token.type {
         case .nativeCryptocurrency:
             let cell: EthTokenViewCell = tableView.dequeueReusableCell(for: indexPath)
@@ -61,8 +60,6 @@ class VelasTokensViewController: TokensViewController {
                            currencyAmountWithoutSymbol: session.balanceCoordinator.viewModel.currencyAmountWithoutSymbol,
                            server: server,
                            assetDefinitionStore: assetDefinitionStore))
-            cell.validVelasNative(velasCase)
-
                 return cell
         case .erc20:
                 let cell: FungibleTokenViewCell = tableView.dequeueReusableCell(for: indexPath)

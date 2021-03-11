@@ -265,7 +265,7 @@ enum RPCServer: Hashable, CaseIterable {
         case .goerli: return "ETH"
         case .artis_sigma1, .artis_tau1: return "ATS"
         case .binance_smart_chain, .binance_smart_chain_testnet: return "BNB"
-        case .velas: return "-VLX"
+        case .velas: return "VLX"
         case .velaschina: return "VLX"
         case .velaschina2: return "VLX"
         case .velastestnet: return "VLX"

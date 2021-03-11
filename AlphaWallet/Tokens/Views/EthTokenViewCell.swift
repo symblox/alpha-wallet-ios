@@ -96,10 +96,4 @@ class EthTokenViewCell: UITableViewCell {
         changeValueContainer.isHidden = !viewModel.blockChainTagViewModel.blockChainNameLabelHidden
     }
     
-    public func validVelasNative(_ server: RPCServer?) {
-        guard server != nil, server!.isVelasCase else {
-            return
-        }
-        titleLabel.text = "\(titleLabel.text ?? "") [\(server!.symbol)]"
-    }
 }
