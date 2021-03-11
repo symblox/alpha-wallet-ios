@@ -41,6 +41,20 @@
         "decimal":18,
         "contract":"0x01db6acfa20562ba835ae9f5085859580a0b1386",
         "visible":false
+    },{
+        "name":"Symblox v3",
+        "server":106,
+        "symbol":"SYX",
+        "decimal":18,
+        "contract":"0xD0CB9244844F3E11061fb3Ea136Aab3a6ACAC017",
+        "visible":false
+    },{
+        "name":"Staked Velas",
+        "server":106,
+        "symbol":"sVLX",
+        "decimal":18,
+        "contract":"0xaADBAa6758fC00dEc9B43A0364a372605D8f1883",
+        "visible":false
     },
     {
           "name":"Tether USD",
