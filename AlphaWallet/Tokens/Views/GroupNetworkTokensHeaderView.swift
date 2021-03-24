@@ -120,7 +120,7 @@ class GroupNetworkTokensHeaderView: UITableViewHeaderFooterView {
             addTokenButton.isHidden = network == nil
             subtTitle.setTitle(info?.subTitle ?? "", for: .normal)
             copyAddressContainer?.isHidden = info?.subTitle?.isEmpty ?? true
-            entireViewContainer?.backgroundColor = sectionColor()
+            entireViewContainer?.backgroundColor = info?.headerColor ?? sectionColor()
         case .Hide(let color):
             entireViewContainer?.backgroundColor = color
             network = nil
@@ -139,12 +139,19 @@ class GroupNetworkTokensHeaderView: UITableViewHeaderFooterView {
         guard let legalNetwork = network else {
             return #colorLiteral(red: 0.8039215803, green: 0.8039215803, blue: 0.8039215803, alpha: 1)
         }
+        
         if legalNetwork.isVelasFamily {
-            return #colorLiteral(red: 0.2666666667, green: 0.4235294118, blue: 0.7843137255, alpha: 1)
-        } else if legalNetwork == .main {
-            return #colorLiteral(red: 1, green: 0.5843137255, blue: 0, alpha: 1)
-        } else {
-            return #colorLiteral(red: 0.5568627451, green: 0.5568627451, blue: 0.5764705882, alpha: 1)
+            return UIColor(hex: "446CC8") //446CC8
+        }
+        switch legalNetwork {
+        case .main:
+            return UIColor(hex: "FF9500")
+        case .binance_smart_chain:
+            return UIColor(hex: "E8BE41")
+        case .heco:
+            return UIColor(hex: "4CAAE9")
+        default:
+            return UIColor(hex: "8E8E93")
         }
     }
 }
@@ -158,4 +165,5 @@ struct HeaderInfo {
     let image: UIImage?
     let name: String?
     let subTitle: String?
+    let headerColor: UIColor? = nil
 }

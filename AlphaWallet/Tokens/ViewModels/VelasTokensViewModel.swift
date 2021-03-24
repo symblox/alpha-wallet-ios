@@ -2,7 +2,7 @@
 //  VelasTokensViewModel.swift
 //  AlphaWallet
 
-import Foundation
+import UIKit
 
 class VelasTokensViewModel: TokensViewModel {
     
@@ -57,6 +57,8 @@ class VelasTokensViewModel: TokensViewModel {
             return .main
         case .Velas:
             return config?.enabledServers.first { $0.isVelasCase }
+        case .Binance: return RPCServer.binance_smart_chain
+        case .Heco: return RPCServer.heco
         default:
             return nil
         }
@@ -83,29 +85,40 @@ class VelasTokensViewModel: TokensViewModel {
     }
 
     private func groupIdForNetwork(_ network: RPCServer) -> ServerGroup {
-        if network.isVelasFamily {
+        if network.isVelasCase {
             return .Velas(.velas)
-        } else if network == .main {
-            return .Main
-        } else {
+        }
+        
+        switch network {
+        case .main:
+            return ServerGroup.Main
+        case .heco:
+            return ServerGroup.Heco
+        case .binance_smart_chain:
+            return ServerGroup.Binance
+        default:
             return .Other
         }
+    
     }
     
-    enum ServerGroup: Hashable {
-        case Velas(RPCServer)
-        case Main
-        case Other
-        
-        var order: Int {
-            switch self {
-            case .Velas:
-                return 1
-            case .Main:
-                return 2
-            case .Other:
-                return 3
-            }
+}
+
+enum ServerGroup: Hashable {
+    case Velas(RPCServer)
+    case Main
+    case Other
+    case Heco
+    case Binance
+
+    var order: Int {
+        switch self {
+        case .Velas: return 1
+        case .Main: return 2
+        case .Heco: return 3
+        case .Binance: return 4
+        case .Other:
+            return 100
         }
     }
 }
